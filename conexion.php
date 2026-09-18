@@ -1,15 +1,14 @@
 <?php
-$host = "dpg-dama3o61egvs738n12g0-a.virginia-postgres.render.com";
-$port = "5432";
-$dbname = "periodico_7d6x";
-$user = "periodico_7d6x_user";
-$password = "W4iGqcXFVsfOC12NsmwH81JM1h7pTzn";
+$host = 'dpg-dama3o6legvs738n12g0-a.virginia-postgres.render.com';
+$db   = 'periodico'; // O el nombre exacto de tu base de datos en Render
+$user = 'periodico_7d6x_user';
+$pass = 'PEGA_AQUI_TU_CONTRASENA'; // Reemplaza esto con tu contraseña exacta de Render
 
 try {
-    $conexion = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);
-    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
+    $dsn = "pgsql:host=$host;dbname=$db;sslmode=require";
+    $pdo = new PDO($dsn, $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (\PDOException $e) {
     echo "Error de conexión: " . $e->getMessage();
-    exit();
 }
 ?>
