@@ -5,12 +5,11 @@ $user = 'periodico_7d5x_user';
 $pass = 'W4IQqdXFVaFOC12NqwtWH61JM1h7PTzn';
 
 try {
-    $dsn = "pgsql:host=$host;dbname=$db;sslmode=require";
+    $dsn = "pgsql:host=$host;port=5432;dbname=$db;sslmode=require";
     $pdo = new PDO($dsn, $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_TIMEOUT => 5
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
 } catch (\PDOException $e) {
-    die("Error de conexión crítico: " . $e->getMessage());
+    die("Error de conexión: " . $e->getMessage());
 }
 ?>
