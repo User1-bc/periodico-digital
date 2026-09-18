@@ -1,8 +1,8 @@
 <?php
 $host = 'dpg-dama3o6legvs738n12g0-a.virginia-postgres.render.com';
-$db   = 'periodico'; // O el nombre exacto de tu base de datos en Render
-$user = 'periodico_7d6x_user';
-$pass = 'PEGA_AQUI_TU_CONTRASENA'; // Reemplaza esto con tu contraseña exacta de Render
+$db   = 'periodico_7d5x';
+$user = 'periodico_7d5x_user';
+$pass = 'W4IQqdXFVaFOC12NqwtWH61JM1h7PTzn';
 
 try {
     $dsn = "pgsql:host=$host;dbname=$db;sslmode=require";
