@@ -9,20 +9,20 @@ $fecha_hoy = date('Y-m-d');
 $fecha_seleccionada = isset($_GET['fecha']) && !empty($_GET['fecha']) ? $_GET['fecha'] : $fecha_hoy;
 
 // 2. Obtener noticias filtradas por la fecha seleccionada
-$stmt_noticias = $conexion->prepare("SELECT * FROM noticias WHERE DATE(fecha_publicacion) = ? ORDER BY fecha_publicacion DESC");
+$stmt_noticias = $pdo->prepare("SELECT * FROM noticias WHERE DATE(fecha_publicacion) = ? ORDER BY fecha_publicacion DESC");
 $stmt_noticias->execute([$fecha_seleccionada]);
 $noticias = $stmt_noticias->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener anuncios activos para la columna izquierda
-$stmt_izq = $conexion->query("SELECT * FROM anuncios WHERE posicion = 'izquierda' AND activo = 1");
+$stmt_izq = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'izquierda' AND activo = 1");
 $anuncios_izq = $stmt_izq->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener anuncios activos para la columna derecha
-$stmt_der = $conexion->query("SELECT * FROM anuncios WHERE posicion = 'derecha' AND activo = 1");
+$stmt_der = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'derecha' AND activo = 1");
 $anuncios_der = $stmt_der->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener los podcasts más recientes
-$stmt_podcasts = $conexion->query("SELECT * FROM podcasts ORDER BY id DESC LIMIT 3");
+$stmt_podcasts = $pdo->query("SELECT * FROM podcasts ORDER BY id DESC LIMIT 3");
 $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
