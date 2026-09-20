@@ -1,22 +1,22 @@
-<?php
-// Forzar la zona horaria local de República Dominicana para evitar desfases de fecha
+﻿<?php
+// Forzar la zona horaria local de RepÃºblica Dominicana para evitar desfases de fecha
 date_default_timezone_set('America/Santo_Domingo');
 
 require_once 'conexion.php';
 
-// Auto-migración: crear tablas si no existen
+// Auto-migraciÃ³n: crear tablas si no existen
 try {
     $tableCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias'")->fetchColumn();
     if (!$tableCheck) {
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
-        error_log("Migración ejecutada: tablas creadas");
+        error_log("MigraciÃ³n ejecutada: tablas creadas");
     }
 } catch (PDOException $e) {
-    error_log("Error en auto-migración: " . $e->getMessage());
+    error_log("Error en auto-migraciÃ³n: " . $e->getMessage());
 }
 
-// 1. Determinar la fecha a consultar (si el usuario seleccionó una fecha, usamos esa; si no, usamos la fecha de hoy local)
+// 1. Determinar la fecha a consultar (si el usuario seleccionÃ³ una fecha, usamos esa; si no, usamos la fecha de hoy local)
 $fecha_hoy = date('Y-m-d');
 $fecha_seleccionada = isset($_GET['fecha']) && !empty($_GET['fecha']) ? $_GET['fecha'] : $fecha_hoy;
 
@@ -33,7 +33,7 @@ $anuncios_izq = $stmt_izq->fetchAll(PDO::FETCH_ASSOC);
 $stmt_der = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'derecha' AND activo = true");
 $anuncios_der = $stmt_der->fetchAll(PDO::FETCH_ASSOC);
 
-// Obtener los podcasts más recientes
+// Obtener los podcasts mÃ¡s recientes
 $stmt_podcasts = $pdo->query("SELECT * FROM podcasts ORDER BY id DESC LIMIT 3");
 $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -42,7 +42,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Periódico Digital - RD</title>
+    <title>PeriÃ³dico Digital - RD</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
@@ -211,25 +211,25 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         <div class="header-left"></div>
 
         <div class="header-title">
-            <h1>📰 Periódico Digital RD</h1>
-            <p>La fuente de información más confiable de República Dominicana</p>
+            <h1>ðŸ“° PeriÃ³dico Digital RD</h1>
+            <p>La fuente de informaciÃ³n mÃ¡s confiable de RepÃºblica Dominicana</p>
         </div>
 
         <div class="header-right">
             <button id="btn-notif" class="btn-notifications" onclick="toggleNotifications()">
-                🔔 Activar Alertas
+                ðŸ”” Activar Alertas
             </button>
 
-            <a href="https://wa.me/18090000000?text=Hola,%20deseo%20enviar%20una%20información%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-whatsapp-top">
+            <a href="https://wa.me/18090000000?text=Hola,%20deseo%20enviar%20una%20informaciÃ³n%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-whatsapp-top">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                Contáctanos / WhatsApp
+                ContÃ¡ctanos / WhatsApp
             </a>
         </div>
     </header>
 
     <div class="date-bar">
         <div class="current-view-text">
-            📅 Mostrando noticias del: <span style="color: #007bff;"><?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?></span>
+            ðŸ“… Mostrando noticias del: <span style="color: #007bff;"><?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?></span>
         </div>
         <form method="GET" action="index.php">
             <input type="date" name="fecha" value="<?php echo htmlspecialchars($fecha_seleccionada); ?>">
@@ -244,17 +244,13 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         
         <aside class="col-sidebar">
             <div class="card">
-                <div class="widget-title">Anúnciate Aquí</div>
+                <div class="widget-title">AnÃºnciate AquÃ­</div>
                 <?php if (empty($anuncios_izq)): ?>
                     <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
                 <?php else: ?>
                     <?php foreach ($anuncios_izq as $ad): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
-                            <?php 
-                                $stmt_ad_media = $conexion->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
-                                $stmt_ad_media->execute([$ad['id']]);
-                                $ad_archivos = $stmt_ad_media->fetchAll(PDO::FETCH_ASSOC);
-                            ?>
+                            <?php $ad_archivos = []; ?>
 
                             <?php if (!empty($ad_archivos)): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank" style="text-decoration: none;">
@@ -263,12 +259,12 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                             <?php if ($item['tipo'] == 'video'): ?>
                                                 <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artículo">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="ArtÃ­culo">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">➡️ Desliza para ver más</span>
+                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">âž¡ï¸ Desliza para ver mÃ¡s</span>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
                                     <?php 
@@ -291,7 +287,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         <main class="col-center">
             <?php if (empty($noticias)): ?>
                 <div class="noticia-card" style="text-align: center; padding: 40px 20px;">
-                    <h3 style="color: #555;">No hay noticias publicadas para el día <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
+                    <h3 style="color: #555;">No hay noticias publicadas para el dÃ­a <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
                     <p style="color: #777; font-size: 14px;">Intenta seleccionando otra fecha en el calendario superior o regresa a las noticias de hoy.</p>
                     <a href="index.php?fecha=<?php echo $fecha_hoy; ?>" class="btn-filter" style="display: inline-block; text-decoration: none; margin-top: 10px;">Ver noticias de Hoy</a>
                 </div>
@@ -301,11 +297,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                         <h2><?php echo htmlspecialchars($noticia['titulo']); ?></h2>
                         <div class="fecha">Publicado el: <?php echo $noticia['fecha_publicacion']; ?></div>
                         
-                        <?php 
-                            $stmt_media = $conexion->prepare("SELECT * FROM noticias_multimedia WHERE noticia_id = ?");
-                            $stmt_media->execute([$noticia['id']]);
-                            $archivos_multimedia = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
-                        ?>
+                        <?php $archivos_multimedia = []; ?>
 
                         <?php if (!empty($archivos_multimedia)): ?>
                             <div class="carrete-multimedia">
@@ -313,7 +305,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                     <?php if ($item['tipo'] == 'video'): ?>
                                         <video controls preload="metadata">
                                             <source src="<?php echo htmlspecialchars($item['archivo']); ?>">
-                                            Tu navegador no soporta la reproducción de videos.
+                                            Tu navegador no soporta la reproducciÃ³n de videos.
                                         </video>
                                     <?php else: ?>
                                         <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Multimedia de la noticia">
@@ -330,7 +322,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
         <aside class="col-sidebar">
             <div class="card">
-                <div class="widget-title">📊 Indicadores Económicos</div>
+                <div class="widget-title">ðŸ“Š Indicadores EconÃ³micos</div>
                 <div class="crypto-item">
                     <span>Bitcoin (BTC):</span>
                     <span class="price" id="btc-price">Cargando...</span>
@@ -355,7 +347,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
             <?php if (!empty($podcasts)): ?>
                 <div class="card" style="text-align: left;">
-                    <div class="widget-title">🎙️ Últimos Envivos</div>
+                    <div class="widget-title">ðŸŽ™ï¸ Ãšltimos Envivos</div>
                     
                     <?php foreach ($podcasts as $pod): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
@@ -375,14 +367,14 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
 
             <div class="card">
-                <div class="widget-title">Anúnciate Aquí</div>
+                <div class="widget-title">AnÃºnciate AquÃ­</div>
                 <?php if (empty($anuncios_der)): ?>
                     <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
                 <?php else: ?>
                     <?php foreach ($anuncios_der as $ad): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
                             <?php 
-                                $stmt_ad_media = $conexion->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
+                                $stmt_ad_media = \$pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
                                 $stmt_ad_media->execute([$ad['id']]);
                                 $ad_archivos = $stmt_ad_media->fetchAll(PDO::FETCH_ASSOC);
                             ?>
@@ -394,12 +386,12 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                             <?php if ($item['tipo'] == 'video'): ?>
                                                 <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artículo">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="ArtÃ­culo">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">➡️ Desliza para ver más</span>
+                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">âž¡ï¸ Desliza para ver mÃ¡s</span>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
                                     <?php 
@@ -422,11 +414,11 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script>
-        // Registrar Service Worker al cargar la página
+        // Registrar Service Worker al cargar la pÃ¡gina
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrado con éxito:', reg))
+                    .then(reg => console.log('Service Worker registrado con Ã©xito:', reg))
                     .catch(err => console.error('Error al registrar el Service Worker:', err));
             });
         }
@@ -484,7 +476,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             }
         });
 
-        // Clave VAPID pública integrada para el envío de notificaciones
+        // Clave VAPID pÃºblica integrada para el envÃ­o de notificaciones
         const publicVapidKey = 'TU_CLAVE_PUBLICA_VAPID_AQUI';
 
         function urlBase64ToUint8Array(base64String) {
@@ -513,7 +505,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     await suscribirUsuarioPush();
                 }
             } else {
-                alert("Las notificaciones están bloqueadas en la configuración de tu navegador.");
+                alert("Las notificaciones estÃ¡n bloqueadas en la configuraciÃ³n de tu navegador.");
             }
         }
 
@@ -543,10 +535,10 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             const btn = document.getElementById("btn-notif");
             if (btn) {
                 if (active) {
-                    btn.innerHTML = "🔕 Alertas Activas";
+                    btn.innerHTML = "ðŸ”• Alertas Activas";
                     btn.classList.add("active");
                 } else {
-                    btn.innerHTML = "🔔 Activar Alertas";
+                    btn.innerHTML = "ðŸ”” Activar Alertas";
                     btn.classList.remove("active");
                 }
             }
