@@ -373,11 +373,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                 <?php else: ?>
                     <?php foreach ($anuncios_der as $ad): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
-                            <?php 
-                                $stmt_ad_media = \$pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
-                                $stmt_ad_media->execute([$ad['id']]);
-                                $ad_archivos = $stmt_ad_media->fetchAll(PDO::FETCH_ASSOC);
-                            ?>
+                            <?php $ad_archivos = []; ?>
 
                             <?php if (!empty($ad_archivos)): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank" style="text-decoration: none;">
@@ -546,4 +542,5 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     </script>
 </body>
 </html>
+
 
