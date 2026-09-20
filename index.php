@@ -4,6 +4,18 @@ date_default_timezone_set('America/Santo_Domingo');
 
 require_once 'conexion.php';
 
+// Auto-migración: crear tablas si no existen
+try {
+    $tableCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias'")->fetchColumn();
+    if (!$tableCheck) {
+        $sql = file_get_contents(__DIR__ . '/schema.sql');
+        $pdo->exec($sql);
+        error_log("Migración ejecutada: tablas creadas");
+    }
+} catch (PDOException $e) {
+    error_log("Error en auto-migración: " . $e->getMessage());
+}
+
 // 1. Determinar la fecha a consultar (si el usuario seleccionó una fecha, usamos esa; si no, usamos la fecha de hoy local)
 $fecha_hoy = date('Y-m-d');
 $fecha_seleccionada = isset($_GET['fecha']) && !empty($_GET['fecha']) ? $_GET['fecha'] : $fecha_hoy;
