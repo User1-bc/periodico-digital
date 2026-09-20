@@ -26,11 +26,11 @@ $stmt_noticias->execute([$fecha_seleccionada]);
 $noticias = $stmt_noticias->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener anuncios activos para la columna izquierda
-$stmt_izq = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'izquierda' AND activo = 1");
+$stmt_izq = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'izquierda' AND activo = true");
 $anuncios_izq = $stmt_izq->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener anuncios activos para la columna derecha
-$stmt_der = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'derecha' AND activo = 1");
+$stmt_der = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'derecha' AND activo = true");
 $anuncios_der = $stmt_der->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener los podcasts más recientes
