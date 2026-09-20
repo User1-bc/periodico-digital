@@ -1,5 +1,5 @@
 <?php
-$url = parse_url("postgresql://periodico_7d5x_user:W4IQqdXFVaFOC12NqwtWH61JM1h7PTzn@dpg-dama3o6legvs738n12g0-a.virginia-postgres.render.com:5432/periodico_7d5x");
+$url = parse_url(getenv("DATABASE_URL") ?: "postgresql://neondb_owner:npg_95UtNN0f2OvYtycdJ@ep-soft-wave-b5wklrr4-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require");
 
 $host = $url["host"];
 $port = $url["port"] ?? "5432";
