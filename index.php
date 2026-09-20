@@ -354,13 +354,13 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                             <h4 style="margin: 0 0 8px 0; color: #333; font-size: 15px;"><?php echo htmlspecialchars($pod['titulo']); ?></h4>
                             
                             <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-bottom: 10px;">
-                                <iframe src="<?php echo htmlspecialchars($pod['url_youtube']); ?>" 
+                                <iframe src="<?php echo htmlspecialchars($pod['audio_url'] ?? ''); ?>" 
                                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; border: none;" 
                                         allowfullscreen>
                                 </iframe>
                             </div>
                             
-                            <p style="font-size: 12px; color: #555; line-height: 1.4; margin: 0;"><?php echo nl2br(htmlspecialchars($pod['descripcion'])); ?></p>
+                            <p style="font-size: 12px; color: #555; line-height: 1.4; margin: 0;"><?php echo nl2br(htmlspecialchars($pod['descripcion'] ?? '')); ?></p>
                         </div>
                     <?php endforeach; ?>
                 </div>
