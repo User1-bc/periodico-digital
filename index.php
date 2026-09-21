@@ -1,10 +1,10 @@
 <?php
-// Forzar la zona horaria local de Rep+¦blica Dominicana para evitar desfases de fecha
+// Forzar la zona horaria local de Rep+ï¿½blica Dominicana para evitar desfases de fecha
 date_default_timezone_set('America/Santo_Domingo');
 
 require_once 'conexion.php';
 
-// Auto-migración: crear tablas si no existen
+// Auto-migraciï¿½n: crear tablas si no existen
 try {
     $tableCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias'")->fetchColumn();
     $mediaCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='anuncios_multimedia'")->fetchColumn();
@@ -12,22 +12,22 @@ try {
     if (!$tableCheck || !$mediaCheck || !$adminCheck) {
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
-        error_log("Migración ejecutada: tablas creadas/actualizadas");
+        error_log("Migraciï¿½n ejecutada: tablas creadas/actualizadas");
     }
 } catch (PDOException $e) {
-    error_log("Error en auto-migración: " . $e->getMessage());
-    // Forzar recreación si falla
+    error_log("Error en auto-migraciï¿½n: " . $e->getMessage());
+    // Forzar recreaciï¿½n si falla
     try {
         $pdo->exec("DROP TABLE IF EXISTS noticias_multimedia, anuncios_multimedia, podcasts, anuncios, noticias CASCADE;");
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
-        error_log("Migración forzada completada");
+        error_log("Migraciï¿½n forzada completada");
     } catch (PDOException $e2) {
-        error_log("Error en migración forzada: " . $e2->getMessage());
+        error_log("Error en migraciï¿½n forzada: " . $e2->getMessage());
     }
 }
 
-// 1. Determinar la fecha a consultar (si el usuario seleccion+¦ una fecha, usamos esa; si no, usamos la fecha de hoy local)
+// 1. Determinar la fecha a consultar (si el usuario seleccion+ï¿½ una fecha, usamos esa; si no, usamos la fecha de hoy local)
 $fecha_hoy = date('Y-m-d');
 $fecha_seleccionada = isset($_GET['fecha']) && !empty($_GET['fecha']) ? $_GET['fecha'] : $fecha_hoy;
 
@@ -63,7 +63,7 @@ foreach ($anuncios_top_raw as $row) {
 }
 $anuncios_top = array_values($anuncios_top);
 
-// Obtener los podcasts m+ís recientes
+// Obtener los podcasts m+ï¿½s recientes
 $stmt_podcasts = $pdo->query("SELECT * FROM podcasts ORDER BY id DESC LIMIT 3");
 $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -231,7 +231,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     top: 0;
     z-index: 1000;
     margin: 0 auto;
-    max-width: 1200px;
+    max-width: 400px;
     padding: 0 10px; /* coincide con padding del main-container */
     overflow: hidden;
     border-radius: 0 0 12px 12px;
@@ -264,7 +264,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     z-index: 2;
 }
 
-/* Flechas modernas: solo SVG, sin círculo */
+/* Flechas modernas: solo SVG, sin cï¿½rculo */
 .top-carousel-btn {
     position: absolute;
     top: 50%;
@@ -360,7 +360,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="header-right">
             <button id="btn-notif" class="btn-notifications" onclick="toggleNotifications()">
-                ­ƒöö Activar Alertas
+                ï¿½ï¿½ï¿½ï¿½ Activar Alertas
             </button>
 
             <a href="https://wa.me/18295482901?text=Hola,%20deseo%20enviar%20una%20informacion%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-whatsapp-top">
@@ -372,7 +372,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="date-bar">
         <div class="current-view-text">
-            ­ƒôà Mostrando noticias del: <span style="color: #007bff;"><?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?></span>
+            ï¿½ï¿½ï¿½ï¿½ Mostrando noticias del: <span style="color: #007bff;"><?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?></span>
         </div>
         <form method="GET" action="index.php">
             <input type="date" name="fecha" value="<?php echo htmlspecialchars($fecha_seleccionada); ?>">
@@ -420,7 +420,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         
         <aside class="col-sidebar">
             <div class="card">
-                <div class="widget-title">An+¦nciate Aqu+¡</div>
+                <div class="widget-title">An+ï¿½nciate Aqu+ï¿½</div>
                 <?php if (empty($anuncios_izq)): ?>
                     <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
                 <?php else: ?>
@@ -439,12 +439,12 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                             <?php if ($item['tipo'] == 'video'): ?>
                                                 <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artículo" style="max-width:100%; height:auto; border-radius:4px;">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artï¿½culo" style="max-width:100%; height:auto; border-radius:4px;">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">?? Desliza para ver más</span>
+                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">?? Desliza para ver mï¿½s</span>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
                                     <?php 
@@ -467,7 +467,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         <main class="col-center">
             <?php if (empty($noticias)): ?>
                 <div class="noticia-card" style="text-align: center; padding: 40px 20px;">
-                    <h3 style="color: #555;">No hay noticias publicadas para el d+¡a <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
+                    <h3 style="color: #555;">No hay noticias publicadas para el d+ï¿½a <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
                     <p style="color: #777; font-size: 14px;">Intenta seleccionando otra fecha en el calendario superior o regresa a las noticias de hoy.</p>
                     <a href="index.php?fecha=<?php echo $fecha_hoy; ?>" class="btn-filter" style="display: inline-block; text-decoration: none; margin-top: 10px;">Ver noticias de Hoy</a>
                 </div>
@@ -489,7 +489,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                     <?php if ($item['tipo'] == 'video'): ?>
                                         <video controls preload="metadata" playsinline>
                                             <source src="<?php echo htmlspecialchars($item['archivo']); ?>">
-                                            Tu navegador no soporta la reproducción de videos.
+                                            Tu navegador no soporta la reproducciï¿½n de videos.
                                         </video>
                                     <?php else: ?>
                                         <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Multimedia de la noticia" style="max-width:100%; height:auto; border-radius:4px;">
@@ -506,7 +506,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
         <aside class="col-sidebar">
             <div class="card">
-                <div class="widget-title">­ƒôè Indicadores Econ+¦micos</div>
+                <div class="widget-title">ï¿½ï¿½ï¿½ï¿½ Indicadores Econ+ï¿½micos</div>
                 <div class="crypto-item">
                     <span>Bitcoin (BTC):</span>
                     <span class="price" id="btc-price">Cargando...</span>
@@ -531,7 +531,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
             <?php if (!empty($podcasts)): ?>
                 <div class="card" style="text-align: left;">
-                    <div class="widget-title">­ƒÄÖ´©Å +Ültimos Envivos</div>
+                    <div class="widget-title">ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ +ï¿½ltimos Envivos</div>
                     
                     <?php foreach ($podcasts as $pod): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
@@ -551,7 +551,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
 
             <div class="card">
-                <div class="widget-title">An+¦nciate Aqu+¡</div>
+                <div class="widget-title">An+ï¿½nciate Aqu+ï¿½</div>
                 <?php if (empty($anuncios_der)): ?>
                     <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
                 <?php else: ?>
@@ -570,12 +570,12 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                             <?php if ($item['tipo'] == 'video'): ?>
                                                 <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artículo" style="max-width:100%; height:auto; border-radius:4px;">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artï¿½culo" style="max-width:100%; height:auto; border-radius:4px;">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">?? Desliza para ver más</span>
+                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">?? Desliza para ver mï¿½s</span>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
                                     <?php 
@@ -598,11 +598,11 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script>
-        // Registrar Service Worker al cargar la p+ígina
+        // Registrar Service Worker al cargar la p+ï¿½gina
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrado con +®xito:', reg))
+                    .then(reg => console.log('Service Worker registrado con +ï¿½xito:', reg))
                     .catch(err => console.error('Error al registrar el Service Worker:', err));
             });
         }
@@ -660,7 +660,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             }
         });
 
-        // Clave VAPID p+¦blica integrada para el env+¡o de notificaciones
+        // Clave VAPID p+ï¿½blica integrada para el env+ï¿½o de notificaciones
         const publicVapidKey = 'TU_CLAVE_PUBLICA_VAPID_AQUI';
 
         function urlBase64ToUint8Array(base64String) {
@@ -689,7 +689,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     await suscribirUsuarioPush();
                 }
             } else {
-                alert("Las notificaciones est+ín bloqueadas en la configuraci+¦n de tu navegador.");
+                alert("Las notificaciones est+ï¿½n bloqueadas en la configuraci+ï¿½n de tu navegador.");
             }
         }
 
