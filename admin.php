@@ -159,6 +159,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <?php if (empty($noticias)): ?>
                 <p style="color: #666; font-size: 14px;">No hay noticias publicadas.</p>
             <?php else: ?>
+                <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -182,6 +183,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -194,6 +196,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <?php if (empty($anuncios)): ?>
                 <p style="color: #666; font-size: 14px;">No hay anuncios registrados.</p>
             <?php else: ?>
+                <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -225,6 +228,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
 
