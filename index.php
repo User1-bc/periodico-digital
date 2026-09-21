@@ -8,7 +8,8 @@ require_once 'conexion.php';
 try {
     $tableCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias'")->fetchColumn();
     $mediaCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='anuncios_multimedia'")->fetchColumn();
-    if (!$tableCheck || !$mediaCheck) {
+    $adminCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='admin_users'")->fetchColumn();
+    if (!$tableCheck || !$mediaCheck || !$adminCheck) {
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
         error_log("Migración ejecutada: tablas creadas/actualizadas");
