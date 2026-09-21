@@ -4,7 +4,7 @@
  * Devuelve JSON con resultado
  */
 
-require_once 'db.php';
+require_once 'conexion.php';
 
 header('Content-Type: application/json');
 

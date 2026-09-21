@@ -4,7 +4,7 @@
  * Ejecutar via cron: php robot_noticias.php
  */
 
-require_once 'db.php';
+require_once 'conexion.php';
 
 // Configuración
 $LIMITE_NOTICIAS = 50;

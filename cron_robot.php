@@ -7,7 +7,3 @@
  */
 
 require_once 'robot_noticias.php';
-
-// El robot_noticias.php ya se ejecuta automáticamente al incluirlo
-// Solo necesitamos asegurarnos de que no genere salida HTML
-echo "Cron robot ejecutado: " . date('Y-m-d H:i:s') . "\n";
