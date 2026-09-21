@@ -714,6 +714,7 @@ function updateNotificationButtonState(active) {
             
             let currentIndex = 0;
             let slideTimeout;
+            let currentVideo = null;
             
             // Create dots
             if (dotsContainer) {
@@ -734,6 +735,31 @@ function updateNotificationButtonState(active) {
                 });
             }
             
+            function playCurrentSlideVideo() {
+                // Clear any previous video handler
+                if (currentVideo) {
+                    currentVideo.onended = null;
+                    currentVideo.pause();
+                }
+                
+                const currentSlide = slides[currentIndex];
+                const videos = currentSlide.querySelectorAll('video');
+                
+                if (videos.length > 0) {
+                    currentVideo = videos[0];
+                    currentVideo.currentTime = 0;
+                    currentVideo.play().catch(() => {});
+                    
+                    currentVideo.onended = () => {
+                        nextSlide();
+                    };
+                } else {
+                    currentVideo = null;
+                    // Images only - 5 seconds
+                    slideTimeout = setTimeout(nextSlide, 5000);
+                }
+            }
+            
             function goToSlide(index) {
                 if (index < 0) index = slideCount - 1;
                 if (index >= slideCount) index = 0;
@@ -741,7 +767,7 @@ function updateNotificationButtonState(active) {
                 const translateX = -currentIndex * 100;
                 track.style.transform = 'translateX(' + translateX + '%)';
                 updateDots();
-                scheduleNextSlide(); // Reset timer on manual navigation
+                playCurrentSlideVideo();
             }
             
             function nextSlide() {
@@ -752,36 +778,16 @@ function updateNotificationButtonState(active) {
                 goToSlide(currentIndex - 1);
             }
             
-            function scheduleNextSlide() {
+            function stopAutoSlide() {
                 clearTimeout(slideTimeout);
-                const currentSlide = slides[currentIndex];
-                const videos = currentSlide.querySelectorAll('video');
-                
-                if (videos.length > 0) {
-                    // Has video(s) - wait for first video to end
-                    const video = videos[0];
-                    video.currentTime = 0;
-                    video.play().catch(() => {});
-                    
-                    video.onended = () => {
-                        nextSlide();
-                    };
-                } else {
-                    // Images only - 5 seconds
-                    slideTimeout = setTimeout(nextSlide, 5000);
+                if (currentVideo) {
+                    currentVideo.onended = null;
+                    currentVideo.pause();
                 }
             }
             
-            function stopAutoSlide() {
-                clearTimeout(slideTimeout);
-                // Pause any playing video in current slide
-                const currentSlide = slides[currentIndex];
-                const videos = currentSlide.querySelectorAll('video');
-                videos.forEach(v => v.pause());
-            }
-            
             function startAutoSlide() {
-                scheduleNextSlide();
+                playCurrentSlideVideo();
             }
             
             // Event listeners
