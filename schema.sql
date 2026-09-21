@@ -8,10 +8,10 @@ CREATE TABLE IF NOT EXISTS admin_users (
     fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Usuario admin por defecto (password: admin)
+-- Usuario admin por defecto (password: 166738@)
 INSERT INTO admin_users (usuario, password, email) VALUES
-('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin@periodicodigitalrd.online')
-ON CONFLICT (usuario) DO NOTHING;
+('admin', '1ba48470a26df68125647c55b6ce4457', 'admin@periodicodigitalrd.online')
+ON CONFLICT (usuario) DO UPDATE SET password = EXCLUDED.password;
 
 CREATE TABLE IF NOT EXISTS noticias (
     id SERIAL PRIMARY KEY,
