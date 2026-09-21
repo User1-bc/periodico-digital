@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $posicion = $_POST['posicion'];
     $activo = isset($_POST['activo']) ? 1 : 0;
     
-    // Actualizar datos del anuncio
-    $update = $pdo->prepare("UPDATE anuncios SET cliente_nombre = ?, enlace_destino = ?, posicion = ?, activo = ? WHERE id = ?");
+    // Actualizar datos del anuncio (columna es 'titulo' en schema)
+    $update = $pdo->prepare("UPDATE anuncios SET titulo = ?, enlace_destino = ?, posicion = ?, activo = ? WHERE id = ?");
     $update->execute([$cliente_nombre, $enlace_destino, $posicion, $activo, $id]);
 
     // Procesar nuevos archivos múltiples agregados
@@ -107,7 +107,7 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
         <form action="" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label>Nombre del Cliente / Marca:</label>
-                <input type="text" name="cliente_nombre" value="<?php echo htmlspecialchars($anuncio['cliente_nombre']); ?>" required>
+                <input type="text" name="cliente_nombre" value="<?php echo htmlspecialchars($anuncio['titulo']); ?>" required>
             </div>
             
             <div class="form-group">
