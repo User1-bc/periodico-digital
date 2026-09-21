@@ -5,7 +5,7 @@ try {
     // Actualizar el check constraint
     $pdo->exec("ALTER TABLE anuncios DROP CONSTRAINT IF EXISTS anuncios_posicion_check;");
     $pdo->exec("ALTER TABLE anuncios ADD CONSTRAINT anuncios_posicion_check CHECK (posicion IN ('izquierda','carrete_superior'));");
-    echo "✅ Check constraint actualizado\n";
+    echo "Check constraint actualizado\n";
     
     // Verificar si ya existe
     $stmt = $pdo->prepare("SELECT id FROM anuncios WHERE posicion = 'carrete_superior'");
@@ -22,9 +22,9 @@ try {
             'carrete_superior',
             true
         ]);
-        echo "✅ Anuncio 'Carousel Superior' creado\n";
+        echo "Anuncio 'Carousel Superior' creado\n";
     } else {
-        echo "ℹ️ Ya existe anuncio en carrete_superior\n";
+        echo "Ya existe anuncio en carrete_superior\n";
     }
     
     // Verificar multimedia
@@ -39,17 +39,20 @@ try {
         
         if (empty($media)) {
             $stmt = $pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo, orden) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$ad['id'], 'https://via.placeholder.com/1200x400/FF6B6B/FFFFFF?text=Carousel+1', 'imagen', 1]);
-            $stmt->execute([$ad['id'], 'https://via.placeholder.com/1200x400/4ECDC4/FFFFFF?text=Carousel+2', 'imagen', 2]);
-            $stmt->execute([$ad['id'], 'https://via.placeholder.com/1200x400/45B7D1/FFFFFF?text=Carousel+3', 'imagen', 3);
-            echo "✅ Multimedia de prueba agregada (3 slides)\n";
+            $url1 = 'https://via.placeholder.com/1200x400/FF6B6B/FFFFFF?text=Carousel+1';
+            $url2 = 'https://via.placeholder.com/1200x400/4ECDC4/FFFFFF?text=Carousel+2';
+            $url3 = 'https://via.placeholder.com/1200x400/45B7D1/FFFFFF?text=Carousel+3';
+            $stmt->execute([$ad['id'], $url1, 'imagen', 1]);
+            $stmt->execute([$ad['id'], $url2, 'imagen', 2]);
+            $stmt->execute([$ad['id'], $url3, 'imagen', 3]);
+            echo "Multimedia de prueba agregada (3 slides)\n";
         } else {
-            echo "ℹ️ Ya tiene multimedia: " . count($media) . " items\n";
+            echo "Ya tiene multimedia: " . count($media) . " items\n";
         }
     }
     
-    echo "✅ Listo\n";
+    echo "Listo\n";
 } catch (PDOException $e) {
-    echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "Error: " . $e->getMessage() . "\n";
 }
 ?>
