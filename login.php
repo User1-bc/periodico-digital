@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($admin && $admin['password'] === md5($password)) {
         $_SESSION['admin_logged'] = true;
         $_SESSION['admin_user'] = $admin['usuario'];
+        $_SESSION['admin_id'] = $admin['id'];
         header('Location: admin.php');
         exit();
     } else {

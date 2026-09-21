@@ -61,7 +61,57 @@ $anuncios = $stmt_anuncios->fetchAll(PDO::FETCH_ASSOC);
 // Obtener todos los podcasts
 $stmt_podcasts = $pdo->query("SELECT * FROM podcasts ORDER BY id DESC");
 $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
-?>
+
+// Obtener noticias del robot (pendientes de revisión)
+$stmt_robot = $pdo->query("SELECT * FROM noticias_robot WHERE estado IN ('pendiente','editando') ORDER BY fecha_creacion DESC");
+$noticias_robot = $stmt_robot->fetchAll(PDO::FETCH_ASSOC);
+
+// Manejar acciones del robot
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['robot_publicar'])) {
+        $id = (int)$_POST['robot_id'];
+        $stmt = $pdo->prepare("UPDATE noticias_robot SET estado='publicado', fecha_publicacion=NOW(), admin_id=? WHERE id=?");
+        $stmt->execute([$_SESSION['admin_id'] ?? 1, $id]);
+        // También crear la noticia real
+        $nr = $pdo->prepare("SELECT * FROM noticias_robot WHERE id=?");
+        $nr->execute([$id]);
+        $robot = $nr->fetch(PDO::FETCH_ASSOC);
+        if ($robot) {
+            $stmt2 = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria, imagen) VALUES (?, ?, ?, NOW(), 'Robot IA', ?, ?)");
+            $stmt2->execute([$robot['titulo_generado'], $robot['contenido_generado'], $robot['descripcion_generada'], $robot['categoria'], $robot['imagen_url']]);
+        }
+        header("Location: admin.php?robot_ok=1");
+        exit();
+    }
+    if (isset($_POST['robot_editar'])) {
+        $id = (int)$_POST['robot_id'];
+        $stmt = $pdo->prepare("UPDATE noticias_robot SET estado='editando', titulo_generado=?, contenido_generado=?, descripcion_generada=?, categoria=? WHERE id=?");
+        $stmt->execute([$_POST['titulo'], $_POST['contenido'], $_POST['descripcion'], $_POST['categoria'], $id]);
+        header("Location: admin.php?robot_edit_ok=1");
+        exit();
+    }
+    if (isset($_POST['robot_rechazar'])) {
+        $id = (int)$_POST['robot_id'];
+        $stmt = $pdo->prepare("UPDATE noticias_robot SET estado='rechazado' WHERE id=?");
+        $stmt->execute([$id]);
+        header("Location: admin.php?robot_rechazado=1");
+        exit();
+    }
+}
+
+// Capturar mensaje de éxito mediante parámetro GET tras la redirección
+if (isset($_GET['exito']) && $_GET['exito'] == 1) {
+    $mensaje_exito = "¡Podcast publicado y notificación enviada con éxito!";
+}
+if (isset($_GET['robot_ok'])) {
+    $mensaje_exito = "✅ Noticia del robot publicada correctamente en la portada.";
+}
+if (isset($_GET['robot_edit_ok'])) {
+    $mensaje_exito = "✏️ Noticia editada y guardada como pendiente.";
+}
+if (isset($_GET['robot_rechazado'])) {
+    $mensaje_exito = "🗑️ Noticia rechazada y removida de la cola.";
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -292,7 +342,155 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </div>
 
+        <!-- SECCIÓN: NOTICIAS DEL ROBOT -->
+        <div class="section-box">
+            <h2>
+                <span>🤖 Noticias del Robot (Cola de Revisión)</span>
+                <button type="button" class="btn btn-add" onclick="ejecutarRobot()">🔄 Ejecutar Robot Ahora</button>
+            </h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                El robot busca noticias en fuentes RSS de RD y Google News, genera artículos completos (4+ párrafos) y los pone en cola para tu revisión.
+                <strong>Meta: 50+ noticias/día</strong> de última hora, política, economía, deportes y sociedad.
+            </p>
+            
+            <?php if (empty($noticias_robot)): ?>
+                <p style="color: #666; font-size: 14px;">No hay noticias pendientes. Ejecuta el robot para llenar la cola.</p>
+            <?php else: ?>
+                <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título Generado</th>
+                            <th>Fuente / Cat.</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($noticias_robot as $nr): ?>
+                            <tr>
+                                <td><?php echo $nr['id']; ?></td>
+                                <td style="max-width: 300px;">
+                                    <strong><?php echo htmlspecialchars($nr['titulo_generado'] ?? $nr['titulo_original']); ?></strong>
+                                    <br><small style="color: #888;">Original: <?php echo htmlspecialchars(mb_substr($nr['titulo_original'], 0, 80)); ?>...</small>
+                                </td>
+                                <td>
+                                    <span style="font-size: 11px;"><?php echo htmlspecialchars($nr['fuente_nombre']); ?></span>
+                                    <br><span class="badge" style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 10px;"><?php echo htmlspecialchars($nr['categoria']); ?></span>
+                                </td>
+                                <td><?php echo date('d/m H:i', strtotime($nr['fecha_creacion'])); ?></td>
+                                <td>
+                                    <span class="badge" style="background: <?php echo $nr['estado']==='pendiente'?'#fff3cd':($nr['estado']==='editando'?'#cce5ff':'#d4edda'); ?>; color: #333; padding: 2px 8px; border-radius: 12px; font-size: 11px;">
+                                        <?php echo ucfirst($nr['estado']); ?>
+                                    </span>
+                                </td>
+                                <td class="acciones-td">
+                                    <!-- Botón Ver/Editar -->
+                                    <button type="button" class="btn btn-edit" onclick="abrirModalEditar(<?php echo htmlspecialchars(json_encode($nr), ENT_QUOTES, 'UTF-8'); ?>)">✏️ Editar</button>
+                                    <!-- Botón Publicar -->
+                                    <form method="POST" style="display:inline;" onsubmit="return confirm('¿Publicar esta noticia en la portada?');">
+                                        <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
+                                        <button type="submit" name="robot_publicar" class="btn" style="background:#28a745;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🚀 Publicar</button>
+                                    </form>
+                                    <!-- Botón Rechazar -->
+                                    <form method="POST" style="display:inline;" onsubmit="return confirm('¿Rechazar y eliminar de la cola?');">
+                                        <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
+                                        <button type="submit" name="robot_rechazar" class="btn" style="background:#6c757d;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🗑️</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
+            <?php endif; ?>
+        </div>
+
     </div>
+
+    <!-- Modal para Editar Noticia del Robot -->
+    <div id="modalEditar" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;overflow-y:auto;">
+        <div style="background:white;max-width:800px;margin:50px auto;padding:30px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);position:relative;">
+            <button onclick="cerrarModal()" style="position:absolute;top:10px;right:15px;background:none;border:none;font-size:24px;cursor:pointer;color:#666;">&times;</button>
+            <h3 style="margin-top:0;color:#333;">✏️ Editar Noticia del Robot</h3>
+            <form id="formEditarRobot" method="POST">
+                <input type="hidden" name="robot_id" id="edit_id">
+                <div class="form-group">
+                    <label>Título:</label>
+                    <input type="text" name="titulo" id="edit_titulo" required style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                </div>
+                <div class="form-group">
+                    <label>Categoría:</label>
+                    <select name="categoria" id="edit_categoria" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        <option value="Política">🏛️ Política</option>
+                        <option value="Economía">💰 Economía</option>
+                        <option value="Deportes">⚽ Deportes</option>
+                        <option value="Sociedad">👥 Sociedad</option>
+                        <option value="Internacional">🌍 Internacional</option>
+                        <option value="General">📄 General</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descripción (resumen para listados):</label>
+                    <textarea name="descripcion" id="edit_descripcion" rows="3" required style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:14px;box-sizing:border-box;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Contenido completo (mín. 4 párrafos separados por línea en blanco):</label>
+                    <textarea name="contenido" id="edit_contenido" rows="12" required style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:14px;box-sizing:border-box;font-family:inherit;"></textarea>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+                    <button type="button" class="btn" onclick="cerrarModal()" style="background:#6c757d;color:white;">Cancelar</button>
+                    <button type="submit" name="robot_editar" class="btn btn-edit">💾 Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function abrirModalEditar(nr) {
+            document.getElementById('edit_id').value = nr.id;
+            document.getElementById('edit_titulo').value = nr.titulo_generado || nr.titulo_original;
+            document.getElementById('edit_categoria').value = nr.categoria || 'General';
+            document.getElementById('edit_descripcion').value = nr.descripcion_generada || '';
+            document.getElementById('edit_contenido').value = nr.contenido_generado || '';
+            document.getElementById('modalEditar').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        function cerrarModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        function ejecutarRobot() {
+            if (!confirm('¿Ejecutar robot ahora? Puede tardar 30-60 segundos.')) return;
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '⏳ Ejecutando...';
+            
+            fetch('robot_ejecutar.php', {method:'POST'})
+                .then(r => r.json())
+                .then(data => {
+                    btn.disabled = false;
+                    btn.textContent = '🔄 Ejecutar Robot Ahora';
+                    if (data.ok) {
+                        alert('✅ Robot completado: ' + data.nuevas + ' nuevas, ' + data.duplicadas + ' duplicadas');
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + (data.error || 'Desconocido'));
+                    }
+                })
+                .catch(e => {
+                    btn.disabled = false;
+                    btn.textContent = '🔄 Ejecutar Robot Ahora';
+                    alert('❌ Error de conexión: ' + e.message);
+                });
+        }
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
+        // Cerrar modal click fuera
+        document.getElementById('modalEditar').addEventListener('click', e => { if (e.target.id === 'modalEditar') cerrarModal(); });
+    </script>
 
 </body>
 </html>
