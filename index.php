@@ -231,7 +231,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     top: 0;
     z-index: 1000;
     margin: 0 auto;
-    max-width: 400px;
+    max-width: 1200px;
     padding: 0 10px; /* coincide con padding del main-container */
     overflow: hidden;
     border-radius: 0 0 12px 12px;
@@ -242,7 +242,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     display: flex;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
-    height: 380px;
+    height: 150px;
 }
 .top-carousel-slide {
     flex: 0 0 100%;
@@ -371,8 +371,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     </header>
 
     <div class="date-bar">
-        <div class="current-view-text">
-            ï¿½ï¿½ï¿½ï¿½ Mostrando noticias del: <span style="color: #007bff;"><?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?></span>
+<div class="current-view-text">
+            Mostrando Noticias del: <span style="color: #007bff;"><?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?></span>
         </div>
         <form method="GET" action="index.php">
             <input type="date" name="fecha" value="<?php echo htmlspecialchars($fecha_seleccionada); ?>">
@@ -488,7 +488,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
             <?php if (!empty($podcasts)): ?>
                 <div class="card" style="text-align: left;">
-                    <div class="widget-title">Últimos Envivos</div>
+                    <div class="widget-title">ï¿½ltimos Envivos</div>
                     
                     <?php foreach ($podcasts as $pod): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
