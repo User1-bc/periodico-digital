@@ -448,9 +448,9 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                 $ad_archivos = $stmt_ad_media->fetchAll(PDO::FETCH_ASSOC);
                             ?>
 
-                            <?php if (!empty($ad_archivos)): ?>
+<?php if (!empty($ad_archivos)): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank" style="text-decoration: none;">
-                                    <div class="carrete-anuncio">
+                                    <div class="carrete-anuncio sidebar-carousel" id="sidebar-carousel-<?php echo $ad['id']; ?>">
                                         <?php foreach ($ad_archivos as $item): ?>
                                             <?php if ($item['tipo'] == 'video'): ?>
                                                 <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls preload="metadata" class="sidebar-ad-media"></video>
@@ -458,9 +458,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                                 <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art�culo" class="sidebar-ad-media">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
-                                    </div>
+</div>
                                 </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">?? Desliza para ver m�s</span>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
                                     <?php 
@@ -821,7 +820,7 @@ function updateNotificationButtonState(active) {
                 }
             });
             
-            // Start auto-slide
+// Start auto-slide
             startAutoSlide();
             
             // Pause auto-slide when page is not visible
@@ -831,6 +830,68 @@ function updateNotificationButtonState(active) {
                 } else {
                     startAutoSlide();
                 }
+            });
+            
+            // Sidebar carousels auto-rotation (same logic as top carousel)
+            document.querySelectorAll('.sidebar-carousel').forEach(carousel => {
+                const slides = carousel.querySelectorAll('video, img');
+                if (slides.length <= 1) return;
+                
+                let currentIndex = 0;
+                let slideTimeout;
+                
+                // Hide all slides except first
+                slides.forEach((slide, i) => {
+                    if (i !== 0) slide.style.display = 'none';
+                });
+                
+                function showNextSlide() {
+                    slides[currentIndex].style.display = 'none';
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    slides[currentIndex].style.display = 'block';
+                    
+                    const currentSlide = slides[currentIndex];
+                    if (currentSlide.tagName === 'VIDEO') {
+                        // For video: play and wait for ended
+                        currentSlide.currentTime = 0;
+                        currentSlide.play().catch(() => {});
+                        currentSlide.onended = () => {
+                            scheduleNextSlide();
+                        };
+                    } else {
+                        // For image: 5 seconds
+                        scheduleNextSlide();
+                    }
+                }
+                
+                function scheduleNextSlide() {
+                    clearTimeout(slideTimeout);
+                    const currentSlide = slides[currentIndex];
+                    const delay = currentSlide.tagName === 'VIDEO' ? 100 : 5000; // Video uses onended, but fallback
+                    slideTimeout = setTimeout(showNextSlide, delay);
+                }
+                
+                // Start first slide
+                const firstSlide = slides[0];
+                if (firstSlide.tagName === 'VIDEO') {
+                    firstSlide.onended = () => {
+                        scheduleNextSlide();
+                    };
+                    firstSlide.play().catch(() => {});
+                } else {
+                    scheduleNextSlide();
+                }
+                
+                // Pause on hover
+                carousel.addEventListener('mouseenter', () => clearTimeout(slideTimeout));
+                carousel.addEventListener('mouseleave', () => {
+                    const currentSlide = slides[currentIndex];
+                    if (currentSlide.tagName === 'VIDEO') {
+                        // Video will continue via onended
+                    } else {
+                        scheduleNextSlide();
+                    }
+                });
             });
         })();
     </script>

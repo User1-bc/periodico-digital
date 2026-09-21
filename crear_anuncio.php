@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $activo = isset($_POST['activo']) ? 1 : 0;
     
     // 1. Insertar el anuncio principal (columna es 'titulo' en schema)
-    $stmt = $pdo->prepare("INSERT INTO anuncios (titulo, enlace_destino, posicion, activo, imagen_banner) VALUES (?, ?, ?, ?, 'catalogo')");
+    $stmt = $pdo->prepare("INSERT INTO anuncios (titulo, enlace_destino, posicion, activo, imagen_banner) VALUES (?, ?, ?, ?, '')");
     if ($stmt->execute([$cliente_nombre, $enlace_destino, $posicion, $activo])) {
         $anuncio_id = $pdo->lastInsertId();
 
