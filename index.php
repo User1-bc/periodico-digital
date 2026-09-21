@@ -611,8 +611,11 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                         }
                     }
                 }
-            } catch (error) {
+} catch (error) {
                 console.log("Error al actualizar indicadores:", error);
+                document.querySelectorAll('.price').forEach(el => {
+                    if (el.innerText === 'Cargando...') el.innerText = 'Error';
+                });
             }
         }
         
@@ -836,17 +839,11 @@ function updateNotificationButtonState(active) {
                 }
             });
             
-            // Start auto-slide
+// Start auto-slide
             startAutoSlide();
             
             // Pause auto-slide when page is not visible
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    stopAutoSlide();
-                } else {
-                    startAutoSlide();
-                }
-            });
                 if (document.hidden) {
                     stopAutoSlide();
                 } else {
