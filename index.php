@@ -225,13 +225,14 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
 .descripcion { color: #444; line-height: 1.6; white-space: pre-line; text-align: left; }
 
-/* TOP CAROUSEL - Banner Superior Fijo */
+/* TOP CAROUSEL - Banner Superior Fijo (ancho = contenedor principal) */
 .top-carousel-container {
     position: sticky;
     top: 0;
     z-index: 1000;
     margin: 0 auto;
     max-width: 1200px;
+    padding: 0 10px; /* coincide con padding del main-container */
     overflow: hidden;
     border-radius: 0 0 12px 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -241,7 +242,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     display: flex;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
-    height: 400px;
+    height: 380px;
 }
 .top-carousel-slide {
     flex: 0 0 100%;
@@ -262,57 +263,79 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     inset: 0;
     z-index: 2;
 }
+
+/* Flechas modernas: solo SVG, sin círculo */
 .top-carousel-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     border: none;
     border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    color: #333;
-    font-size: 24px;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    font-size: 0; /* ocultar texto, solo SVG */
     cursor: pointer;
     z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     transition: all 0.2s ease;
+    opacity: 0.85;
 }
-.top-carousel-btn:hover {
-    background: #fff;
-    transform: translateY(-50%) scale(1.1);
+.top-carousel-btn:hover,
+.top-carousel-btn:focus {
+    background: rgba(0,0,0,0.55);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.08);
 }
-.top-carousel-prev { left: 20px; }
-.top-carousel-next { right: 20px; }
+.top-carousel-btn::before {
+    content: '';
+    display: block;
+    width: 22px;
+    height: 22px;
+    background: currentColor;
+    mask: var(--arrow-svg) center / contain no-repeat;
+    -webkit-mask: var(--arrow-svg) center / contain no-repeat;
+}
+.top-carousel-prev { left: 12px; --arrow-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E"); }
+.top-carousel-next { right: 12px; --arrow-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E"); }
+
+/* Puntos modernos: barras finas elegantes */
 .top-carousel-dots {
     position: absolute;
-    bottom: 20px;
+    bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     z-index: 10;
 }
 .top-carousel-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.5);
+    width: 28px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.35);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
+    border: none;
+    padding: 0;
 }
+.top-carousel-dot:hover { background: rgba(255,255,255,0.6); }
 .top-carousel-dot.active {
     background: #fff;
-    transform: scale(1.2);
+    width: 40px;
+    box-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
 @media (max-width: 768px) {
-    .top-carousel-track { height: 250px; }
-    .top-carousel-btn { width: 40px; height: 40px; font-size: 18px; }
-    .top-carousel-prev { left: 10px; }
-    .top-carousel-next { right: 10px; }
+    .top-carousel-track { height: 240px; }
+    .top-carousel-btn { width: 40px; height: 40px; }
+    .top-carousel-prev { left: 8px; }
+    .top-carousel-next { right: 8px; }
+    .top-carousel-dots { bottom: 12px; gap: 5px; }
+    .top-carousel-dot { width: 22px; height: 3px; }
+    .top-carousel-dot.active { width: 32px; }
 }
 
 @media (max-width: 768px) {
@@ -841,6 +864,7 @@ function updateNotificationButtonState(active) {
     </script>
 </body>
 </html>
+
 
 
 
