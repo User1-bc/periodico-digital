@@ -412,7 +412,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     <div class="top-carousel-slide" data-ad-id="<?php echo $ad['id']; ?>">
                         <?php foreach ($items as $idx => $item): ?>
                             <?php if ($item['tipo'] == 'video'): ?>
-                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls preload="metadata" class="sidebar-ad-media"></video>
+                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline preload="metadata" class="sidebar-ad-media"></video>
                             <?php else: ?>
                                 <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="<?php echo htmlspecialchars($ad['titulo']); ?>">
                             <?php endif; ?>
@@ -453,7 +453,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                     <div class="carrete-anuncio sidebar-carousel" id="sidebar-carousel-<?php echo $ad['id']; ?>">
                                         <?php foreach ($ad_archivos as $item): ?>
                                             <?php if ($item['tipo'] == 'video'): ?>
-                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls preload="metadata" class="sidebar-ad-media"></video>
+                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline preload="metadata" class="sidebar-ad-media"></video>
                                             <?php else: ?>
                                                 <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art�culo" class="sidebar-ad-media">
                                             <?php endif; ?>
@@ -467,7 +467,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                         $es_video = in_array($extension, ['mp4', 'webm', 'ogg', 'mov']);
                                     ?>
                                     <?php if ($es_video): ?>
-                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline controls preload="metadata" class="sidebar-ad-media"></video>
+                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline preload="metadata" class="sidebar-ad-media"></video>
                                     <?php else: ?>
                                         <img src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" alt="Anuncio" class="sidebar-ad-media">
                                     <?php endif; ?>
