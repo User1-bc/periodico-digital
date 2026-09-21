@@ -351,8 +351,10 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
-    <header>
-        <div class="header-left"></div>
+<header>
+        <div class="header-left">
+            <img src="uploads/125688.png" alt="Periodico Digital RD" style="height: 50px; width: auto; max-width: 100%;">
+        </div>
 
         <div class="header-title">
             <h1>Periodico Digital RD</h1>
