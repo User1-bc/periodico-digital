@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-card">
         <h2>Panel Admin</h2>
-        <?php if (!empty($error)) { echo "<div class='error'>$error</div>"; } ?>
+        <?php if (!empty($error)) { echo '<div class="error">' . $error . '</div>'; } ?>
         <form method="POST" action="">
             <div class="input-group">
                 <label>Usuario</label>
