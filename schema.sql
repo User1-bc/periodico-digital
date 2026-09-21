@@ -64,6 +64,26 @@ CREATE TABLE IF NOT EXISTS noticias_multimedia (
     orden INTEGER DEFAULT 0
 );
 
+-- Tabla para noticias generadas por el robot (pendientes de revisión)
+CREATE TABLE IF NOT EXISTS noticias_robot (
+    id SERIAL PRIMARY KEY,
+    titulo_original VARCHAR(500) NOT NULL,
+    titulo_generado VARCHAR(500),
+    contenido_generado TEXT,
+    descripcion_generada TEXT,
+    fuente_url VARCHAR(1000),
+    fuente_nombre VARCHAR(200),
+    categoria VARCHAR(100),
+    imagen_url VARCHAR(1000),
+    estado VARCHAR(20) NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','editando','publicado','rechazado')),
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_publicacion TIMESTAMP,
+    admin_id INTEGER REFERENCES admin_users(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_noticias_robot_estado ON noticias_robot(estado);
+CREATE INDEX IF NOT EXISTS idx_noticias_robot_fecha ON noticias_robot(fecha_creacion DESC);
+
 -- Datos de prueba mínimos
 INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria) VALUES
 ('Bienvenido al Periódico Digital', 'Este es el primer artículo de prueba. El sistema está funcionando correctamente con Neon PostgreSQL.', 'Resumen de bienvenida al periódico digital.', CURRENT_TIMESTAMP, 'Sistema', 'General');
