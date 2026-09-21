@@ -178,10 +178,10 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                         <?php foreach ($anuncios as $anuncio): ?>
                             <tr>
                                 <td><?php echo $anuncio['id']; ?></td>
-                                <td><?php echo htmlspecialchars($anuncio['cliente_nombre']); ?></td>
+                                <td><?php echo htmlspecialchars($anuncio['titulo']); ?></td>
                                 <td style="text-transform: capitalize;"><?php echo $anuncio['posicion']; ?></td>
                                 <td>
-                                    <?php if ($anuncio['activo'] == 1): ?>
+                                    <?php if ($anuncio['activo']): ?>
                                         <span style="color: green; font-weight: bold;">Activo</span>
                                     <?php else: ?>
                                         <span style="color: red; font-weight: bold;">Inactivo</span>
