@@ -112,6 +112,7 @@ if (isset($_GET['robot_edit_ok'])) {
 if (isset($_GET['robot_rechazado'])) {
     $mensaje_exito = "🗑️ Noticia rechazada y removida de la cola.";
 }
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
