@@ -420,7 +420,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         
         <aside class="col-sidebar">
             <div class="card">
-                <div class="widget-title">An+ï¿½nciate Aqu+ï¿½</div>
+                <div class="widget-title">Espacio Publicitario</div>
                 <?php if (empty($anuncios_izq)): ?>
                     <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
                 <?php else: ?>
@@ -462,6 +462,50 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
+            <div class="card">
+                <div class="widget-title">Economia</div>
+                <div class="crypto-item">
+                    <span>Bitcoin (BTC):</span>
+                    <span class="price" id="btc-price">Cargando...</span>
+                </div>
+                <div class="crypto-item">
+                    <span>Ethereum (ETH):</span>
+                    <span class="price" id="eth-price">Cargando...</span>
+                </div>
+                <div class="fx-item">
+                    <span>Oro (XAU/USD):</span>
+                    <span class="price" id="gold-price">Cargando...</span>
+                </div>
+                <div class="fx-item">
+                    <span>USD / DOP:</span>
+                    <span class="price" id="usd-dop">Cargando...</span>
+                </div>
+                <div class="fx-item">
+                    <span>EUR / DOP:</span>
+                    <span class="price" id="eur-dop">Cargando...</span>
+                </div>
+            </div>
+
+            <?php if (!empty($podcasts)): ?>
+                <div class="card" style="text-align: left;">
+                    <div class="widget-title">Últimos Envivos</div>
+                    
+                    <?php foreach ($podcasts as $pod): ?>
+                        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                            <h4 style="margin: 0 0 8px 0; color: #333; font-size: 15px;"><?php echo htmlspecialchars($pod["titulo"]); ?></h4>
+                            
+                            <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-bottom: 10px;">
+                                <iframe src="<?php echo htmlspecialchars($pod["url_youtube"]); ?>" 
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; border: none;" 
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                            
+                            <p style="font-size: 12px; color: #555; line-height: 1.4; margin: 0;"><?php echo nl2br(htmlspecialchars($pod["descripcion"])); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </aside>
 
         <main class="col-center">
@@ -504,96 +548,6 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </main>
 
-        <aside class="col-sidebar">
-            <div class="card">
-                <div class="widget-title">ï¿½ï¿½ï¿½ï¿½ Indicadores Econ+ï¿½micos</div>
-                <div class="crypto-item">
-                    <span>Bitcoin (BTC):</span>
-                    <span class="price" id="btc-price">Cargando...</span>
-                </div>
-                <div class="crypto-item">
-                    <span>Ethereum (ETH):</span>
-                    <span class="price" id="eth-price">Cargando...</span>
-                </div>
-                <div class="fx-item">
-                    <span>Oro (XAU/USD):</span>
-                    <span class="price" id="gold-price">Cargando...</span>
-                </div>
-                <div class="fx-item">
-                    <span>USD / DOP:</span>
-                    <span class="price" id="usd-dop">Cargando...</span>
-                </div>
-                <div class="fx-item">
-                    <span>EUR / DOP:</span>
-                    <span class="price" id="eur-dop">Cargando...</span>
-                </div>
-            </div>
-
-            <?php if (!empty($podcasts)): ?>
-                <div class="card" style="text-align: left;">
-                    <div class="widget-title">ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ +ï¿½ltimos Envivos</div>
-                    
-                    <?php foreach ($podcasts as $pod): ?>
-                        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                            <h4 style="margin: 0 0 8px 0; color: #333; font-size: 15px;"><?php echo htmlspecialchars($pod['titulo']); ?></h4>
-                            
-                            <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-bottom: 10px;">
-                                <iframe src="<?php echo htmlspecialchars($pod['url_youtube']); ?>" 
-                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; border: none;" 
-                                        allowfullscreen>
-                                </iframe>
-                            </div>
-                            
-                            <p style="font-size: 12px; color: #555; line-height: 1.4; margin: 0;"><?php echo nl2br(htmlspecialchars($pod['descripcion'])); ?></p>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <div class="card">
-                <div class="widget-title">An+ï¿½nciate Aqu+ï¿½</div>
-                <?php if (empty($anuncios_der)): ?>
-                    <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
-                <?php else: ?>
-<?php foreach ($anuncios_der as $ad): ?>
-                        <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
-                            <?php 
-                                $stmt_ad_media = $pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
-                                $stmt_ad_media->execute([$ad['id']]);
-                                $ad_archivos = $stmt_ad_media->fetchAll(PDO::FETCH_ASSOC);
-                            ?>
-
-                            <?php if (!empty($ad_archivos)): ?>
-                                <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank" style="text-decoration: none;">
-                                    <div class="carrete-anuncio">
-                                        <?php foreach ($ad_archivos as $item): ?>
-                                            <?php if ($item['tipo'] == 'video'): ?>
-                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
-                                            <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artï¿½culo" style="max-width:100%; height:auto; border-radius:4px;">
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">?? Desliza para ver mï¿½s</span>
-                            <?php elseif (!empty($ad['imagen_banner'])): ?>
-                                <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
-                                    <?php 
-                                        $extension = strtolower(pathinfo($ad['imagen_banner'], PATHINFO_EXTENSION));
-                                        $es_video = in_array($extension, ['mp4', 'webm', 'ogg', 'mov']);
-                                    ?>
-                                    <?php if ($es_video): ?>
-                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
-                                    <?php else: ?>
-                                        <img src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" alt="Anuncio" style="max-width:100%; height:auto; border-radius:4px;">
-                                    <?php endif; ?>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </aside>
 
     </div>
 
@@ -864,6 +818,7 @@ function updateNotificationButtonState(active) {
     </script>
 </body>
 </html>
+
 
 
 
