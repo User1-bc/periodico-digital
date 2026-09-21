@@ -482,7 +482,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         <main class="col-center">
             <?php if (empty($noticias)): ?>
                 <div class="noticia-card" style="text-align: center; padding: 40px 20px;">
-                    <h3 style="color: #555;">No hay noticias publicadas para el d+�a <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
+                    <h3 style="color: #555;">No hay noticias publicadas para el día <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
                     <p style="color: #777; font-size: 14px;">Intenta seleccionando otra fecha en el calendario superior o regresa a las noticias de hoy.</p>
                     <a href="index.php?fecha=<?php echo $fecha_hoy; ?>" class="btn-filter" style="display: inline-block; text-decoration: none; margin-top: 10px;">Ver noticias de Hoy</a>
                 </div>
@@ -699,7 +699,7 @@ function updateNotificationButtonState(active) {
             }
         }
 
-        // TOP CAROUSEL FUNCTIONALITY
+// TOP CAROUSEL FUNCTIONALITY
         (function() {
             const track = document.getElementById('topCarouselTrack');
             const prevBtn = document.getElementById('topCarouselPrev');
@@ -713,8 +713,7 @@ function updateNotificationButtonState(active) {
             if (slideCount <= 1) return;
             
             let currentIndex = 0;
-            let autoSlideInterval;
-            const AUTO_SLIDE_DELAY = 3000; // 3 seconds
+            let slideTimeout;
             
             // Create dots
             if (dotsContainer) {
@@ -742,6 +741,7 @@ function updateNotificationButtonState(active) {
                 const translateX = -currentIndex * 100;
                 track.style.transform = 'translateX(' + translateX + '%)';
                 updateDots();
+                scheduleNextSlide(); // Reset timer on manual navigation
             }
             
             function nextSlide() {
@@ -752,16 +752,36 @@ function updateNotificationButtonState(active) {
                 goToSlide(currentIndex - 1);
             }
             
-            function startAutoSlide() {
-                stopAutoSlide();
-                autoSlideInterval = setInterval(nextSlide, 3000); // 3 seconds
+            function scheduleNextSlide() {
+                clearTimeout(slideTimeout);
+                const currentSlide = slides[currentIndex];
+                const videos = currentSlide.querySelectorAll('video');
+                
+                if (videos.length > 0) {
+                    // Has video(s) - wait for first video to end
+                    const video = videos[0];
+                    video.currentTime = 0;
+                    video.play().catch(() => {});
+                    
+                    video.onended = () => {
+                        nextSlide();
+                    };
+                } else {
+                    // Images only - 5 seconds
+                    slideTimeout = setTimeout(nextSlide, 5000);
+                }
             }
             
             function stopAutoSlide() {
-                if (autoSlideInterval) {
-                    clearInterval(autoSlideInterval);
-                    autoSlideInterval = null;
-                }
+                clearTimeout(slideTimeout);
+                // Pause any playing video in current slide
+                const currentSlide = slides[currentIndex];
+                const videos = currentSlide.querySelectorAll('video');
+                videos.forEach(v => v.pause());
+            }
+            
+            function startAutoSlide() {
+                scheduleNextSlide();
             }
             
             // Event listeners
@@ -769,8 +789,6 @@ function updateNotificationButtonState(active) {
                 prevBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     prevSlide();
-                    stopAutoSlide();
-                    startAutoSlide(); // Restart timer after manual navigation
                 });
             }
             
@@ -778,8 +796,6 @@ function updateNotificationButtonState(active) {
                 nextBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     nextSlide();
-                    stopAutoSlide();
-                    startAutoSlide();
                 });
             }
             
@@ -801,8 +817,6 @@ function updateNotificationButtonState(active) {
                     if (Math.abs(diff) > 50) {
                         if (diff > 0) nextSlide();
                         else prevSlide();
-                        stopAutoSlide();
-                        startAutoSlide();
                     }
                 }, { passive: true });
             }
@@ -811,20 +825,22 @@ function updateNotificationButtonState(active) {
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowLeft') {
                     prevSlide();
-                    stopAutoSlide();
-                    startAutoSlide();
                 } else if (e.key === 'ArrowRight') {
                     nextSlide();
-                    stopAutoSlide();
-                    startAutoSlide();
                 }
             });
             
-// Start auto-slide
+            // Start auto-slide
             startAutoSlide();
             
             // Pause auto-slide when page is not visible
             document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    stopAutoSlide();
+                } else {
+                    startAutoSlide();
+                }
+            });
                 if (document.hidden) {
                     stopAutoSlide();
                 } else {
