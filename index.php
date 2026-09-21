@@ -496,10 +496,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                     <?php endif; ?>
                                 <?php endforeach; ?>
                             </div>
-                        <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
+<?php endif; ?>
 
                         <div class="descripcion"><?php echo nl2br(htmlspecialchars($noticia['descripcion'])); ?></div>
                     </article>
