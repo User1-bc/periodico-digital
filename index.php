@@ -218,11 +218,24 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         .noticia-card h2 { margin-top: 0; color: #222; font-size: 22px; }
         .fecha { font-size: 12px; color: #888; margin-bottom: 10px; }
         
-        .carrete-multimedia { display: flex; overflow-x: auto; gap: 10px; margin: 15px 0; padding-bottom: 5px; scroll-snap-type: x mandatory; }
+.carrete-multimedia { display: flex; overflow-x: auto; gap: 10px; margin: 15px 0; padding-bottom: 5px; scroll-snap-type: x mandatory; }
         .carrete-multimedia img, .carrete-multimedia video { flex: 0 0 auto; max-height: 380px; width: 100%; object-fit: contain; border-radius: 6px; background: #000; scroll-snap-align: center; }
         
         .carrete-anuncio { display: flex; overflow-x: auto; gap: 8px; margin: 5px 0; padding-bottom: 5px; scroll-snap-type: x mandatory; }
         .carrete-anuncio img, .carrete-anuncio video { flex: 0 0 auto; height: 180px; width: 100%; object-fit: cover; border-radius: 4px; background: #000; scroll-snap-align: center; }
+        
+        /* Fix for sidebar ads - single image/video without carousel */
+        .sidebar-ad-media { display: block; width: 100%; max-width: 100%; }
+        .sidebar-ad-media img,
+        .sidebar-ad-media video { 
+            width: 100%; 
+            height: auto; 
+            max-height: 250px; 
+            object-fit: cover; 
+            border-radius: 4px; 
+            background: #000; 
+            display: block;
+        }
 
 .descripcion { color: #444; line-height: 1.6; white-space: pre-line; text-align: left; }
 
@@ -399,7 +412,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     <div class="top-carousel-slide" data-ad-id="<?php echo $ad['id']; ?>">
                         <?php foreach ($items as $idx => $item): ?>
                             <?php if ($item['tipo'] == 'video'): ?>
-                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
+                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls preload="metadata" class="sidebar-ad-media"></video>
                             <?php else: ?>
                                 <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="<?php echo htmlspecialchars($ad['titulo']); ?>">
                             <?php endif; ?>
@@ -440,9 +453,9 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                     <div class="carrete-anuncio">
                                         <?php foreach ($ad_archivos as $item): ?>
                                             <?php if ($item['tipo'] == 'video'): ?>
-                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
+                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls preload="metadata" class="sidebar-ad-media"></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art�culo" style="max-width:100%; height:auto; border-radius:4px;">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art�culo" class="sidebar-ad-media">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
@@ -455,9 +468,9 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                         $es_video = in_array($extension, ['mp4', 'webm', 'ogg', 'mov']);
                                     ?>
                                     <?php if ($es_video): ?>
-                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
+                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline controls preload="metadata" class="sidebar-ad-media"></video>
                                     <?php else: ?>
-                                        <img src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" alt="Anuncio" style="max-width:100%; height:auto; border-radius:4px;">
+                                        <img src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" alt="Anuncio" class="sidebar-ad-media">
                                     <?php endif; ?>
                                 </a>
                             <?php endif; ?>
@@ -490,12 +503,12 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                             <div class="carrete-multimedia">
                                 <?php foreach ($archivos_multimedia as $item): ?>
                                     <?php if ($item['tipo'] == 'video'): ?>
-                                        <video controls preload="metadata" playsinline>
+                                        <video controls preload="metadata" playsinline class="sidebar-ad-media">
                                             <source src="<?php echo htmlspecialchars($item['archivo']); ?>">
                                             Tu navegador no soporta la reproducci�n de videos.
                                         </video>
                                     <?php else: ?>
-                                        <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Multimedia de la noticia" style="max-width:100%; height:auto; border-radius:4px;">
+                                        <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Multimedia de la noticia" class="sidebar-ad-media">
                                     <?php endif; ?>
                                 <?php endforeach; ?>
                             </div>
@@ -823,6 +836,10 @@ function updateNotificationButtonState(active) {
     </script>
 </body>
 </html>
+
+
+
+
 
 
 
