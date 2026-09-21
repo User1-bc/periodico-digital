@@ -17,9 +17,9 @@ try {
             "url"   => "/"
         ]);
 
-        // 2. Recorrer cada suscriptor (¡Aquí estaba el error de sintaxis!)
+        // 2. Recorrer cada suscriptor
         foreach ($suscripciones as $sub) {
-            // Nota: El envío real de Web Push requiere cabeceras VAPID y cifrado AES-GCM. 
+            // El envío real de Web Push requiere cabeceras VAPID y cifrado AES-GCM.
             // Para mantenerlo sencillo y nativo, lo ideal es usar la librería minishlink/web-push.
         }
     }
@@ -27,6 +27,3 @@ try {
 } catch (Exception $e) {
     error_log("Error al enviar notificaciones push: " . $e->getMessage());
 }
-?>
-
-
