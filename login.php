@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once 'conexion.php';
 
@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Consultar el usuario en la base de datos
     $sql = "SELECT * FROM admin_users WHERE usuario = :usuario";
-    $stmt = $conexion->prepare($sql);
+    $stmt = \$pdo->prepare($sql);
     $stmt->execute(['usuario' => $usuario]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) { 
     header("Location: login.php"); 
@@ -13,9 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $activo = isset($_POST['activo']) ? 1 : 0;
     
     // 1. Insertar el anuncio principal (guardamos un texto de referencia o vacío en imagen_banner por compatibilidad)
-    $stmt = $conexion->prepare("INSERT INTO anuncios (cliente_nombre, enlace_destino, posicion, activo, imagen_banner) VALUES (?, ?, ?, ?, 'catalogo')");
+    $stmt = \$pdo->prepare("INSERT INTO anuncios (cliente_nombre, enlace_destino, posicion, activo, imagen_banner) VALUES (?, ?, ?, ?, 'catalogo')");
     if ($stmt->execute([$cliente_nombre, $enlace_destino, $posicion, $activo])) {
-        $anuncio_id = $conexion->lastInsertId();
+        $anuncio_id = \$pdo->lastInsertId();
 
         // 2. Procesar la subida múltiple de archivos para el carrete del anuncio
         if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     if (move_uploaded_file($_FILES['multimedia']['tmp_name'][$i], $ruta_destino)) {
                         $tipo_archivo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
 
-                        $stmtMedia = $conexion->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
+                        $stmtMedia = \$pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
                         $stmtMedia->execute([$anuncio_id, $ruta_destino, $tipo_archivo]);
                     }
                 }

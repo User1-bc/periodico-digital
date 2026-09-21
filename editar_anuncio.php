@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) { 
     header("Location: login.php"); 
@@ -9,7 +9,7 @@ require_once 'conexion.php';
 $id = $_GET['id'] ?? null;
 if (!$id) { header("Location: admin.php"); exit(); }
 
-$stmt = $conexion->prepare("SELECT * FROM anuncios WHERE id = ?");
+$stmt = \$pdo->prepare("SELECT * FROM anuncios WHERE id = ?");
 $stmt->execute([$id]);
 $anuncio = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -18,7 +18,7 @@ if (!$anuncio) { header("Location: admin.php"); exit(); }
 // Procesar eliminación de un archivo multimedia específico del anuncio
 if (isset($_GET['eliminar_media'])) {
     $media_id = $_GET['eliminar_media'];
-    $stmt_del = $conexion->prepare("SELECT archivo FROM anuncios_multimedia WHERE id = ? AND anuncio_id = ?");
+    $stmt_del = \$pdo->prepare("SELECT archivo FROM anuncios_multimedia WHERE id = ? AND anuncio_id = ?");
     $stmt_del->execute([$media_id, $id]);
     $archivo_info = $stmt_del->fetch(PDO::FETCH_ASSOC);
 
@@ -26,7 +26,7 @@ if (isset($_GET['eliminar_media'])) {
         if (file_exists($archivo_info['archivo'])) {
             unlink($archivo_info['archivo']);
         }
-        $stmt_drop = $conexion->prepare("DELETE FROM anuncios_multimedia WHERE id = ?");
+        $stmt_drop = \$pdo->prepare("DELETE FROM anuncios_multimedia WHERE id = ?");
         $stmt_drop->execute([$media_id]);
     }
     header("Location: editar_anuncio.php?id=" . $id);
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $activo = isset($_POST['activo']) ? 1 : 0;
     
     // Actualizar datos del anuncio
-    $update = $conexion->prepare("UPDATE anuncios SET cliente_nombre = ?, enlace_destino = ?, posicion = ?, activo = ? WHERE id = ?");
+    $update = \$pdo->prepare("UPDATE anuncios SET cliente_nombre = ?, enlace_destino = ?, posicion = ?, activo = ? WHERE id = ?");
     $update->execute([$cliente_nombre, $enlace_destino, $posicion, $activo, $id]);
 
     // Procesar nuevos archivos múltiples agregados
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (move_uploaded_file($_FILES['multimedia']['tmp_name'][$i], $ruta_destino)) {
                     $tipo_archivo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
 
-                    $stmtMedia = $conexion->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
+                    $stmtMedia = \$pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
                     $stmtMedia->execute([$id, $ruta_destino, $tipo_archivo]);
                 }
             }
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Obtener multimedia actual del anuncio
-$stmt_media = $conexion->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
+$stmt_media = \$pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
 $stmt_media->execute([$id]);
 $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
 ?>
