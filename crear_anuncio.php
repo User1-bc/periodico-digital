@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $posicion = $_POST['posicion']; // 'izquierda' o 'derecha'
     $activo = isset($_POST['activo']) ? 1 : 0;
     
-    // 1. Insertar el anuncio principal (guardamos un texto de referencia o vacío en imagen_banner por compatibilidad)
-    $stmt = $pdo->prepare("INSERT INTO anuncios (cliente_nombre, enlace_destino, posicion, activo, imagen_banner) VALUES (?, ?, ?, ?, 'catalogo')");
+    // 1. Insertar el anuncio principal (columna es 'titulo' en schema)
+    $stmt = $pdo->prepare("INSERT INTO anuncios (titulo, enlace_destino, posicion, activo, imagen_banner) VALUES (?, ?, ?, ?, 'catalogo')");
     if ($stmt->execute([$cliente_nombre, $enlace_destino, $posicion, $activo])) {
         $anuncio_id = $pdo->lastInsertId();
 
