@@ -102,7 +102,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         .btn:active { transform: scale(0.96); }
         
         .acciones-td { white-space: nowrap; }
-        .acciones-td .btn { margin-right: 6px; margin-bottom: 6px; }
+        .acciones-td .btn { margin-right: 4px; margin-bottom: 0; padding: 4px 8px; font-size: 11px; min-height: 28px; }
         
         /* Estilos para formularios integrados en el panel */
         .form-group { margin-bottom: 15px; }
@@ -120,8 +120,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             .section-box h2 { font-size: 15px; }
             .btn { padding: 10px 14px; font-size: 12px; min-height: 36px; }
             .btn-add { width: 100%; justify-content: center; padding: 10px 14px; }
-            .acciones-td { display: flex; flex-direction: column; gap: 6px; }
-            .acciones-td .btn { width: 100%; margin-right: 0; padding: 10px 14px; }
+            .acciones-td { display: inline-flex; gap: 4px; }
+            .acciones-td .btn { width: auto; min-width: 60px; padding: 6px 10px; font-size: 11px; }
             .form-group input, .form-group textarea, .form-group select { font-size: 16px; }
             table { font-size: 12px; }
             th, td { padding: 8px 6px; }
