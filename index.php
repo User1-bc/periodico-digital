@@ -375,8 +375,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div class="header-right">
-            <button id="btn-notif" class="btn-notifications" onclick="toggleNotifications()">
-                ���� Activar Alertas
+<button id="btn-notif" class="btn-notifications" onclick="toggleNotifications()">
+                &#x1F516; Activar Alertas
             </button>
 
             <a href="https://wa.me/18295482901?text=Hola,%20deseo%20enviar%20una%20informacion%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-whatsapp-top">
