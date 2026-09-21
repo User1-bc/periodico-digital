@@ -10,7 +10,8 @@ $pass = $url["pass"];
 try {
     $dsn = "pgsql:host=$host;port=$port;dbname=$db;sslmode=require";
     $pdo = new PDO($dsn, $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_EMULATE_PREPARES => true
     ]);
 } catch (\PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
