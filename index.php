@@ -808,27 +808,20 @@ function updateNotificationButtonState(active) {
                 });
             }
             
-            // Pause on hover
-            const container = document.getElementById('topCarousel');
-            if (container) {
-                container.addEventListener('mouseenter', stopAutoSlide);
-                container.addEventListener('mouseleave', startAutoSlide);
-                
-                // Touch/swipe support for mobile
-                let touchStartX = 0;
-                container.addEventListener('touchstart', (e) => {
-                    touchStartX = e.touches[0].clientX;
-                }, { passive: true });
-                
-                container.addEventListener('touchend', (e) => {
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const diff = touchStartX - touchEndX;
-                    if (Math.abs(diff) > 50) {
-                        if (diff > 0) nextSlide();
-                        else prevSlide();
-                    }
-                }, { passive: true });
-            }
+            // Touch/swipe support for mobile
+            let touchStartX = 0;
+            container.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            
+            container.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const diff = touchStartX - touchEndX;
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) nextSlide();
+                    else prevSlide();
+                }
+            }, { passive: true });
             
             // Keyboard navigation
             document.addEventListener('keydown', (e) => {
