@@ -82,12 +82,15 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         .section-box h2 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
         .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 600px; }
-        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 520px; table-layout: fixed; }
+        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
         th { background-color: #f8f9fa; color: #333; font-weight: 600; }
         tr:hover td { background: #fafafa; }
-        td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
-        td:first-child { white-space: normal; max-width: none; }
+        td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        td:first-child { white-space: normal; width: 50px; }
+        td:nth-child(2) { width: 40%; max-width: 300px; }
+        td:nth-child(3) { width: 20%; max-width: 150px; }
+        td.acciones-td { width: 180px; white-space: nowrap; }
         
         .btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: none; cursor: pointer; min-height: 36px; transition: all 0.12s ease; }
         .btn-edit { background: #ffc107; color: #333; }
