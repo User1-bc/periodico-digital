@@ -1,5 +1,18 @@
 -- Esquema completo para Periódico Digital (basado en código original)
 
+CREATE TABLE IF NOT EXISTS admin_users (
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(32) NOT NULL,
+    email VARCHAR(255),
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Usuario admin por defecto (password: admin)
+INSERT INTO admin_users (usuario, password, email) VALUES
+('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin@periodicodigitalrd.online')
+ON CONFLICT (usuario) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS noticias (
     id SERIAL PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
