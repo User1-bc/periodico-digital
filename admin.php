@@ -70,34 +70,36 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     <title>Panel de Administración - Periódico Digital</title>
 <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
-        header { background: #1b263b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        header h1 { margin: 0; font-size: 20px; }
-        .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
-        .nav-links a { color: white; text-decoration: none; font-size: 14px; background: #007bff; padding: 12px 20px; border-radius: 8px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; }
+        header { background: #1b263b; color: white; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        header h1 { margin: 0; font-size: 19px; }
+        .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav-links a { color: white; text-decoration: none; font-size: 13px; background: #007bff; padding: 10px 16px; border-radius: 6px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; }
         .nav-links a.logout { background: #dc3545; }
         .nav-links a:active { transform: scale(0.98); }
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+        .container { max-width: 1100px; margin: 18px auto; padding: 0 12px; }
         
         .section-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 24px; }
         .section-box h2 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 600px; }
-        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
         th { background-color: #f8f9fa; color: #333; font-weight: 600; }
         tr:hover td { background: #fafafa; }
+        td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+        td:first-child { white-space: normal; max-width: none; }
         
-        .btn { padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; min-height: 40px; transition: all 0.15s ease; }
+        .btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: none; cursor: pointer; min-height: 36px; transition: all 0.12s ease; }
         .btn-edit { background: #ffc107; color: #333; }
         .btn-edit:hover { background: #e0a800; }
         .btn-delete { background: #dc3545; color: white; }
         .btn-delete:hover { background: #c82333; }
-        .btn-add { background: #28a745; color: white; font-size: 13px; padding: 6px 12px; border: none; cursor: pointer; }
+        .btn-add { background: #28a745; color: white; font-size: 12px; padding: 8px 14px; border: none; cursor: pointer; }
         .btn-add:hover { background: #218838; }
-        .btn:active { transform: scale(0.97); }
+        .btn:active { transform: scale(0.96); }
         
         .acciones-td { white-space: nowrap; }
-        .acciones-td .btn { margin-right: 8px; margin-bottom: 8px; }
+        .acciones-td .btn { margin-right: 6px; margin-bottom: 6px; }
         
         /* Estilos para formularios integrados en el panel */
         .form-group { margin-bottom: 15px; }
@@ -106,20 +108,21 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         
         /* Mobile responsive */
         @media (max-width: 768px) {
-            header { padding: 15px; }
-            header h1 { font-size: 18px; }
-            .nav-links { width: 100%; justify-content: center; margin-top: 10px; }
-            .nav-links a { padding: 14px 24px; font-size: 15px; flex: 1; text-align: center; }
-            .container { padding: 0 12px; margin: 15px auto; }
-            .section-box { padding: 16px; border-radius: 10px; }
-            .section-box h2 { font-size: 16px; }
-            .btn { padding: 12px 16px; font-size: 14px; }
-            .btn-add { width: 100%; justify-content: center; }
-            .acciones-td { display: flex; flex-direction: column; gap: 8px; }
-            .acciones-td .btn { width: 100%; margin-right: 0; }
+            header { padding: 12px; }
+            header h1 { font-size: 17px; }
+            .nav-links { width: 100%; justify-content: center; margin-top: 8px; gap: 8px; }
+            .nav-links a { padding: 10px 16px; font-size: 13px; flex: 1; text-align: center; min-height: 40px; }
+            .container { padding: 0 10px; margin: 12px auto; }
+            .section-box { padding: 14px; border-radius: 8px; }
+            .section-box h2 { font-size: 15px; }
+            .btn { padding: 10px 14px; font-size: 12px; min-height: 36px; }
+            .btn-add { width: 100%; justify-content: center; padding: 10px 14px; }
+            .acciones-td { display: flex; flex-direction: column; gap: 6px; }
+            .acciones-td .btn { width: 100%; margin-right: 0; padding: 10px 14px; }
             .form-group input, .form-group textarea, .form-group select { font-size: 16px; }
-            table { font-size: 13px; }
-            th, td { padding: 10px 8px; }
+            table { font-size: 12px; }
+            th, td { padding: 8px 6px; }
+            .nav-links a { padding: 10px 16px; font-size: 12px; min-height: 40px; }
         }
     </style>
 </head>
