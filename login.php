@@ -2,26 +2,24 @@
 session_start();
 require_once 'conexion.php';
 
-$error = "";
+$error = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = trim($_POST['usuario']);
-    $password = trim($_POST['password']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $usuario = trim($_POST['usuario'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    // Consultar el usuario en la base de datos
-    $sql = "SELECT * FROM admin_users WHERE usuario = :usuario";
+    $sql = 'SELECT * FROM admin_users WHERE usuario = :usuario';
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['usuario' => $usuario]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Verificar contraseña con md5 (coincide con el registro que hicimos)
     if ($admin && $admin['password'] === md5($password)) {
         $_SESSION['admin_logged'] = true;
         $_SESSION['admin_user'] = $admin['usuario'];
-        header("Location: admin.php");
+        header('Location: admin.php');
         exit();
     } else {
-        $error = "Usuario o contraseña incorrectos.";
+        $error = 'Usuario o contraseña incorrectos.';
     }
 }
 ?>
@@ -59,7 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button type="submit">Ingresar</button>
         </form>
 
-        <!-- Botón para volver al inicio del periódico -->
         <div style="text-align: center; margin-top: 15px;">
             <a href="index.php" style="text-decoration: none; color: #007bff; font-size: 13px;">← Volver al Periódico</a>
         </div>
