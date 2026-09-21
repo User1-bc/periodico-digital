@@ -11,9 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $descripcion = trim($_POST['descripcion']);
     
     // 1. Insertar primero la noticia principal
-    $stmt = \$pdo->prepare("INSERT INTO noticias (titulo, descripcion) VALUES (?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO noticias (titulo, descripcion) VALUES (?, ?)");
     if ($stmt->execute([$titulo, $descripcion])) {
-        $noticia_id = \$pdo->lastInsertId();
+        $noticia_id = $pdo->lastInsertId();
 
         // 2. Procesar la subida múltiple de archivos multimedia
         if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
 
                         // Guardar cada archivo en la tabla secundaria del carrete
-                        $stmtMedia = \$pdo->prepare("INSERT INTO noticias_multimedia (noticia_id, archivo, tipo) VALUES (?, ?, ?)");
+                        $stmtMedia = $pdo->prepare("INSERT INTO noticias_multimedia (noticia_id, archivo, tipo) VALUES (?, ?, ?)");
                         $stmtMedia->execute([$noticia_id, $ruta_destino, $tipo_archivo]);
                     }
                 }
@@ -99,3 +99,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </body>
 </html>
+
+

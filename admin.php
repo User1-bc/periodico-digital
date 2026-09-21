@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_podcast'])) {
         $embed_url = "https://www.youtube.com/embed/" . $video_id;
         
         try {
-            $stmt = \$pdo->prepare("INSERT INTO podcasts (titulo, descripcion, url_youtube) VALUES (?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO podcasts (titulo, descripcion, url_youtube) VALUES (?, ?, ?)");
             $stmt->execute([$titulo, $descripcion, $embed_url]);
             
             // 🚀 INTEGRACIÓN DE NOTIFICACIÓN PUSH
@@ -51,15 +51,15 @@ if (isset($_GET['exito']) && $_GET['exito'] == 1) {
 }
 
 // Obtener todas las noticias
-$stmt_noticias = \$pdo->query("SELECT * FROM noticias ORDER BY fecha_publicacion DESC");
+$stmt_noticias = $pdo->query("SELECT * FROM noticias ORDER BY fecha_publicacion DESC");
 $noticias = $stmt_noticias->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener todos los anuncios
-$stmt_anuncios = \$pdo->query("SELECT * FROM anuncios ORDER BY id DESC");
+$stmt_anuncios = $pdo->query("SELECT * FROM anuncios ORDER BY id DESC");
 $anuncios = $stmt_anuncios->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener todos los podcasts
-$stmt_podcasts = \$pdo->query("SELECT * FROM podcasts ORDER BY id DESC");
+$stmt_podcasts = $pdo->query("SELECT * FROM podcasts ORDER BY id DESC");
 $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -259,3 +259,5 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
 </body>
 </html>
+
+

@@ -5,8 +5,10 @@ require_once 'conexion.php';
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $stmt = \$pdo->prepare("DELETE FROM anuncios WHERE id = ?");
+    $stmt = $pdo->prepare("DELETE FROM anuncios WHERE id = ?");
     $stmt->execute([$id]);
 }
 header("Location: admin.php");
 exit();
+
+

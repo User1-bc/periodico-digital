@@ -18,13 +18,13 @@ $auth     = $data['keys']['auth'];
 
 try {
     // Verificar si el endpoint ya existe en la base de datos para no duplicarlo
-    $stmt = \$pdo->prepare("SELECT id FROM suscripciones_push WHERE endpoint = ?");
+    $stmt = $pdo->prepare("SELECT id FROM suscripciones_push WHERE endpoint = ?");
     $stmt->execute([$endpoint]);
     $existe = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$existe) {
         // Insertar la nueva suscripción en PostgreSQL
-        $stmt_insert = \$pdo->prepare("INSERT INTO suscripciones_push (endpoint, p256dh, auth) VALUES (?, ?, ?)");
+        $stmt_insert = $pdo->prepare("INSERT INTO suscripciones_push (endpoint, p256dh, auth) VALUES (?, ?, ?)");
         $stmt_insert->execute([$endpoint, $p256dh, $auth]);
     }
 
@@ -33,3 +33,5 @@ try {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>
+
+

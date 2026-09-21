@@ -10,7 +10,7 @@ $id = $_GET['id'] ?? null;
 if (!$id) { header("Location: admin.php"); exit(); }
 
 // Obtener la noticia principal
-$stmt = \$pdo->prepare("SELECT * FROM noticias WHERE id = ?");
+$stmt = $pdo->prepare("SELECT * FROM noticias WHERE id = ?");
 $stmt->execute([$id]);
 $noticia = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -19,7 +19,7 @@ if (!$noticia) { header("Location: admin.php"); exit(); }
 // Procesar eliminación de un archivo multimedia específico del carrete
 if (isset($_GET['eliminar_media'])) {
     $media_id = $_GET['eliminar_media'];
-    $stmt_del = \$pdo->prepare("SELECT archivo FROM noticias_multimedia WHERE id = ? AND noticia_id = ?");
+    $stmt_del = $pdo->prepare("SELECT archivo FROM noticias_multimedia WHERE id = ? AND noticia_id = ?");
     $stmt_del->execute([$media_id, $id]);
     $archivo_info = $stmt_del->fetch(PDO::FETCH_ASSOC);
 
@@ -27,7 +27,7 @@ if (isset($_GET['eliminar_media'])) {
         if (file_exists($archivo_info['archivo'])) {
             unlink($archivo_info['archivo']);
         }
-        $stmt_drop = \$pdo->prepare("DELETE FROM noticias_multimedia WHERE id = ?");
+        $stmt_drop = $pdo->prepare("DELETE FROM noticias_multimedia WHERE id = ?");
         $stmt_drop->execute([$media_id]);
     }
     header("Location: editar_noticia.php?id=" . $id);
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $descripcion = trim($_POST['descripcion']);
     
     // Actualizar datos de texto de la noticia principal
-    $update = \$pdo->prepare("UPDATE noticias SET titulo = ?, descripcion = ? WHERE id = ?");
+    $update = $pdo->prepare("UPDATE noticias SET titulo = ?, descripcion = ? WHERE id = ?");
     $update->execute([$titulo, $descripcion, $id]);
 
     // Procesar nuevos archivos múltiples subidos en la edición
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $tipo_archivo = 'imagen';
                     }
 
-                    $stmtMedia = \$pdo->prepare("INSERT INTO noticias_multimedia (noticia_id, archivo, tipo) VALUES (?, ?, ?)");
+                    $stmtMedia = $pdo->prepare("INSERT INTO noticias_multimedia (noticia_id, archivo, tipo) VALUES (?, ?, ?)");
                     $stmtMedia->execute([$id, $ruta_destino, $tipo_archivo]);
                 }
             }
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Obtener los archivos multimedia actuales del carrete
-$stmt_media = \$pdo->prepare("SELECT * FROM noticias_multimedia WHERE noticia_id = ?");
+$stmt_media = $pdo->prepare("SELECT * FROM noticias_multimedia WHERE noticia_id = ?");
 $stmt_media->execute([$id]);
 $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -153,3 +153,5 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </body>
 </html>
+
+

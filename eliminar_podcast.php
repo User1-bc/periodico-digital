@@ -11,7 +11,7 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
     
     try {
-        $stmt = \$pdo->prepare("DELETE FROM podcasts WHERE id = ?");
+        $stmt = $pdo->prepare("DELETE FROM podcasts WHERE id = ?");
         $stmt->execute([$id]);
     } catch (Exception $e) {
         // Manejo silencioso o error si es necesario
@@ -21,3 +21,5 @@ if (isset($_GET['id'])) {
 header("Location: admin.php");
 exit();
 ?>
+
+
