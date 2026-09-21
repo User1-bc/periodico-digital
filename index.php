@@ -40,9 +40,28 @@ $noticias = $stmt_noticias->fetchAll(PDO::FETCH_ASSOC);
 $stmt_izq = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'izquierda' AND activo = true");
 $anuncios_izq = $stmt_izq->fetchAll(PDO::FETCH_ASSOC);
 
-// Obtener anuncios activos para la columna derecha
-$stmt_der = $pdo->query("SELECT * FROM anuncios WHERE posicion = 'derecha' AND activo = true");
-$anuncios_der = $stmt_der->fetchAll(PDO::FETCH_ASSOC);
+// Obtener anuncios activos para el carrete superior (banner fijo)
+$stmt_top = $pdo->query("SELECT a.*, am.archivo, am.tipo FROM anuncios a LEFT JOIN anuncios_multimedia am ON a.id = am.anuncio_id WHERE a.posicion = 'carrete_superior' AND a.activo = true ORDER BY a.id, am.orden");
+$anuncios_top_raw = $stmt_top->fetchAll(PDO::FETCH_ASSOC);
+
+// Agrupar multimedia por anuncio para el carrete superior
+$anuncios_top = [];
+foreach ($anuncios_top_raw as $row) {
+    $id = $row['id'];
+    if (!isset($anuncios_top[$id])) {
+        $anuncios_top[$id] = [
+            'id' => $row['id'],
+            'titulo' => $row['titulo'],
+            'enlace_destino' => $row['enlace_destino'],
+            'imagen_banner' => $row['imagen_banner'],
+            'multimedia' => []
+        ];
+    }
+    if ($row['archivo']) {
+        $anuncios_top[$id]['multimedia'][] = ['archivo' => $row['archivo'], 'tipo' => $row['tipo']];
+    }
+}
+$anuncios_top = array_values($anuncios_top);
 
 // Obtener los podcasts m├ís recientes
 $stmt_podcasts = $pdo->query("SELECT * FROM podcasts ORDER BY id DESC LIMIT 3");
@@ -204,17 +223,107 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         .carrete-anuncio { display: flex; overflow-x: auto; gap: 8px; margin: 5px 0; padding-bottom: 5px; scroll-snap-type: x mandatory; }
         .carrete-anuncio img, .carrete-anuncio video { flex: 0 0 auto; height: 180px; width: 100%; object-fit: cover; border-radius: 4px; background: #000; scroll-snap-align: center; }
 
-        .descripcion { color: #444; line-height: 1.6; white-space: pre-line; text-align: left; }
+.descripcion { color: #444; line-height: 1.6; white-space: pre-line; text-align: left; }
 
-        @media (max-width: 768px) {
-            .main-container { flex-direction: column; }
-            header { grid-template-columns: 1fr; text-align: center; justify-items: center; }
-            .header-left, .header-title, .header-right { justify-self: center; text-align: center; }
-            .header-right { justify-content: center; }
-            .date-bar { flex-direction: column; align-items: stretch; text-align: center; }
-            .date-bar form { justify-content: center; }
-        }
-    </style>
+/* TOP CAROUSEL - Banner Superior Fijo */
+.top-carousel-container {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    margin: 0 auto;
+    max-width: 1200px;
+    overflow: hidden;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    background: #000;
+}
+.top-carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    height: 400px;
+}
+.top-carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+.top-carousel-slide img,
+.top-carousel-slide video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.top-carousel-link {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+.top-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+.top-carousel-btn:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.1);
+}
+.top-carousel-prev { left: 20px; }
+.top-carousel-next { right: 20px; }
+.top-carousel-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+.top-carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.top-carousel-dot.active {
+    background: #fff;
+    transform: scale(1.2);
+}
+@media (max-width: 768px) {
+    .top-carousel-track { height: 250px; }
+    .top-carousel-btn { width: 40px; height: 40px; font-size: 18px; }
+    .top-carousel-prev { left: 10px; }
+    .top-carousel-next { right: 10px; }
+}
+
+@media (max-width: 768px) {
+    .main-container { flex-direction: column; }
+    header { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+    .header-left, .header-title, .header-right { justify-self: center; text-align: center; }
+    .header-right { justify-content: center; }
+    .date-bar { flex-direction: column; align-items: stretch; text-align: center; }
+    .date-bar form { justify-content: center; }
+}
+</style>
 </head>
 <body>
 
@@ -250,6 +359,39 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </form>
     </div>
+
+    <!-- CARRETE SUPERIOR - Banner Fijo Superior -->
+    <?php if (!empty($anuncios_top)): ?>
+    <div class="top-carousel-container" id="topCarousel">
+        <div class="top-carousel-track" id="topCarouselTrack">
+            <?php foreach ($anuncios_top as $ad): 
+                $items = $ad['multimedia'];
+                if (empty($items) && !empty($ad['imagen_banner'])) {
+                    $items = [['archivo' => $ad['imagen_banner'], 'tipo' => 'imagen']];
+                }
+                if (!empty($items)): ?>
+                    <div class="top-carousel-slide" data-ad-id="<?php echo $ad['id']; ?>">
+                        <?php foreach ($items as $idx => $item): ?>
+                            <?php if ($item['tipo'] == 'video'): ?>
+                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline></video>
+                            <?php else: ?>
+                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="<?php echo htmlspecialchars($ad['titulo']); ?>">
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        <?php if (!empty($ad['enlace_destino']) && $ad['enlace_destino'] !== '#'): ?>
+                            <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank" class="top-carousel-link"></a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+        <?php if (count($anuncios_top) > 1 || (count($anuncios_top) === 1 && count($anuncios_top[0]['multimedia']) > 1)): ?>
+            <button class="top-carousel-btn top-carousel-prev" id="topCarouselPrev" aria-label="Anterior">&#10094;</button>
+            <button class="top-carousel-btn top-carousel-next" id="topCarouselNext" aria-label="Siguiente">&#10095;</button>
+            <div class="top-carousel-dots" id="topCarouselDots"></div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
 
     <div class="main-container">
         
@@ -550,18 +692,152 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-        function updateNotificationButtonState(active) {
+function updateNotificationButtonState(active) {
             const btn = document.getElementById("btn-notif");
             if (btn) {
                 if (active) {
-                    btn.innerHTML = "­ƒöò Alertas Activas";
+                    btn.innerHTML = "&#x1F514; Alertas Activas";
                     btn.classList.add("active");
                 } else {
-                    btn.innerHTML = "­ƒöö Activar Alertas";
+                    btn.innerHTML = "&#x1F516; Activar Alertas";
                     btn.classList.remove("active");
                 }
             }
         }
+
+        // TOP CAROUSEL FUNCTIONALITY
+        (function() {
+            const track = document.getElementById('topCarouselTrack');
+            const prevBtn = document.getElementById('topCarouselPrev');
+            const nextBtn = document.getElementById('topCarouselNext');
+            const dotsContainer = document.getElementById('topCarouselDots');
+            
+            if (!track) return; // No carousel on this page
+            
+            const slides = track.querySelectorAll('.top-carousel-slide');
+            const slideCount = slides.length;
+            if (slideCount <= 1) return;
+            
+            let currentIndex = 0;
+            let autoSlideInterval;
+            const AUTO_SLIDE_DELAY = 3000; // 3 seconds
+            
+            // Create dots
+            if (dotsContainer) {
+                for (let i = 0; i < slideCount; i++) {
+                    const dot = document.createElement('button');
+                    dot.className = 'top-carousel-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+                    dot.addEventListener('click', () => goToSlide(i));
+                    dotsContainer.appendChild(dot);
+                }
+            }
+            
+            function updateDots() {
+                if (!dotsContainer) return;
+                const dots = dotsContainer.querySelectorAll('.top-carousel-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentIndex);
+                });
+            }
+            
+            function goToSlide(index) {
+                if (index < 0) index = slideCount - 1;
+                if (index >= slideCount) index = 0;
+                currentIndex = index;
+                const translateX = -currentIndex * 100;
+                track.style.transform = 'translateX(' + translateX + '%)';
+                updateDots();
+            }
+            
+            function nextSlide() {
+                goToSlide(currentIndex + 1);
+            }
+            
+            function prevSlide() {
+                goToSlide(currentIndex - 1);
+            }
+            
+            function startAutoSlide() {
+                stopAutoSlide();
+                autoSlideInterval = setInterval(nextSlide, 3000); // 3 seconds
+            }
+            
+            function stopAutoSlide() {
+                if (autoSlideInterval) {
+                    clearInterval(autoSlideInterval);
+                    autoSlideInterval = null;
+                }
+            }
+            
+            // Event listeners
+            if (prevBtn) {
+                prevBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    prevSlide();
+                    stopAutoSlide();
+                    startAutoSlide(); // Restart timer after manual navigation
+                });
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    nextSlide();
+                    stopAutoSlide();
+                    startAutoSlide();
+                });
+            }
+            
+            // Pause on hover
+            const container = document.getElementById('topCarousel');
+            if (container) {
+                container.addEventListener('mouseenter', stopAutoSlide);
+                container.addEventListener('mouseleave', startAutoSlide);
+                
+                // Touch/swipe support for mobile
+                let touchStartX = 0;
+                container.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+                
+                container.addEventListener('touchend', (e) => {
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const diff = touchStartX - touchEndX;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) nextSlide();
+                        else prevSlide();
+                        stopAutoSlide();
+                        startAutoSlide();
+                    }
+                }, { passive: true });
+            }
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    stopAutoSlide();
+                    startAutoSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    stopAutoSlide();
+                    startAutoSlide();
+                }
+            });
+            
+            // Start auto-slide
+            startAutoSlide();
+            
+            // Pause auto-slide when page is not visible
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    stopAutoSlide();
+                } else {
+                    startAutoSlide();
+                }
+            });
+        })();
     </script>
 </body>
 </html>

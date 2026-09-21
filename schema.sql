@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS anuncios (
     imagen VARCHAR(500),
     imagen_banner VARCHAR(500),
     enlace_destino VARCHAR(500),
-    posicion VARCHAR(20) NOT NULL CHECK (posicion IN ('izquierda','derecha')),
+    posicion VARCHAR(20) NOT NULL CHECK (posicion IN ('izquierda','carrete_superior')),
     activo BOOLEAN NOT NULL DEFAULT true,
     fecha_inicio DATE,
     fecha_fin DATE
@@ -70,7 +70,7 @@ INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, 
 
 INSERT INTO anuncios (titulo, imagen, imagen_banner, enlace_destino, posicion, activo) VALUES
 ('Anuncio izquierda', 'https://via.placeholder.com/300x250', 'https://via.placeholder.com/728x90', '#', 'izquierda', true),
-('Anuncio derecha', 'https://via.placeholder.com/300x250', 'https://via.placeholder.com/728x90', '#', 'derecha', true);
+('Carousel Superior', 'https://via.placeholder.com/1200x400', 'https://via.placeholder.com/1200x400', '#', 'carrete_superior', true);
 
 INSERT INTO podcasts (titulo, descripcion, url_youtube, audio_url, imagen, duracion) VALUES
 ('Episodio 1: Bienvenida', 'Primer podcast de prueba', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'https://example.com/audio.mp3', 'https://via.placeholder.com/300x300', '15:00');

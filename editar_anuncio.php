@@ -119,7 +119,7 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
                 <label>Posición:</label>
                 <select name="posicion" required>
                     <option value="izquierda" <?php echo ($anuncio['posicion'] == 'izquierda') ? 'selected' : ''; ?>>Columna Izquierda</option>
-                    <option value="derecha" <?php echo ($anuncio['posicion'] == 'derecha') ? 'selected' : ''; ?>>Columna Derecha</option>
+                    <option value="carrete_superior" <?php echo ($anuncio['posicion'] == 'carrete_superior') ? 'selected' : ''; ?>>Carrete Superior (Banner Fijo)</option>
                 </select>
             </div>
 

@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label>Posición en el Periódico:</label>
                 <select name="posicion" required>
                     <option value="izquierda">Columna Izquierda</option>
-                    <option value="derecha">Columna Derecha</option>
+                    <option value="carrete_superior">Carrete Superior (Banner Fijo)</option>
                 </select>
             </div>
 
