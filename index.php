@@ -15,6 +15,15 @@ try {
     }
 } catch (PDOException $e) {
     error_log("Error en auto-migración: " . $e->getMessage());
+    // Forzar recreación si falla
+    try {
+        $pdo->exec("DROP TABLE IF EXISTS noticias_multimedia, anuncios_multimedia, podcasts, anuncios, noticias CASCADE;");
+        $sql = file_get_contents(__DIR__ . '/schema.sql');
+        $pdo->exec($sql);
+        error_log("Migración forzada completada");
+    } catch (PDOException $e2) {
+        error_log("Error en migración forzada: " . $e2->getMessage());
+    }
 }
 
 // 1. Determinar la fecha a consultar (si el usuario seleccion├│ una fecha, usamos esa; si no, usamos la fecha de hoy local)
