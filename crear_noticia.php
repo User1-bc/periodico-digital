@@ -10,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $titulo = trim($_POST['titulo']);
     $descripcion = trim($_POST['descripcion']);
     
-    // 1. Insertar primero la noticia principal
-    $stmt = $pdo->prepare("INSERT INTO noticias (titulo, descripcion) VALUES (?, ?)");
-    if ($stmt->execute([$titulo, $descripcion])) {
+    // 1. Insertar primero la noticia principal (contenido es NOT NULL en schema)
+    $stmt = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion) VALUES (?, ?, ?)");
+    if ($stmt->execute([$titulo, $descripcion, $descripcion])) {
         $noticia_id = $pdo->lastInsertId();
 
         // 2. Procesar la subida múltiple de archivos multimedia
