@@ -251,7 +251,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach ($anuncios_izq as $ad): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
                             <?php 
-                                $stmt_ad_media = \$pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
+                                $stmt_ad_media = $pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
                                 $stmt_ad_media->execute([$ad['id']]);
                                 $ad_archivos = $stmt_ad_media->fetchAll(PDO::FETCH_ASSOC);
                             ?>
@@ -302,7 +302,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                         <div class="fecha">Publicado el: <?php echo $noticia['fecha_publicacion']; ?></div>
                         
                         <?php 
-                            $stmt_media = \$pdo->prepare("SELECT * FROM noticias_multimedia WHERE noticia_id = ?");
+                            $stmt_media = $pdo->prepare("SELECT * FROM noticias_multimedia WHERE noticia_id = ?");
                             $stmt_media->execute([$noticia['id']]);
                             $archivos_multimedia = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
                         ?>
@@ -382,7 +382,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach ($anuncios_der as $ad): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
                             <?php 
-                                $stmt_ad_media = \$pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
+                                $stmt_ad_media = $pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
                                 $stmt_ad_media->execute([$ad['id']]);
                                 $ad_archivos = $stmt_ad_media->fetchAll(PDO::FETCH_ASSOC);
                             ?>
@@ -554,5 +554,9 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     </script>
 </body>
 </html>
+
+
+
+
 
 
