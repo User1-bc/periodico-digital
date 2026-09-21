@@ -200,10 +200,11 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             font-size: 15px;
         }
 
-        .main-container { display: flex; flex-wrap: wrap; max-width: 1200px; margin: 20px auto; gap: 20px; padding: 0 10px; }
+.main-container { display: flex; flex-wrap: wrap; max-width: 1200px; margin: 20px auto; gap: 20px; padding: 0 10px; }
         
-        aside.col-sidebar { flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 15px; }
-        main.col-center { flex: 2; min-width: 300px; }
+        aside.col-sidebar-left { flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 15px; order: 1; }
+        main.col-center { flex: 2; min-width: 300px; order: 2; }
+        aside.col-sidebar-right { flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 15px; order: 3; }
         
         .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
         .card img, .card video { max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto; }
@@ -418,7 +419,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="main-container">
         
-        <aside class="col-sidebar">
+<aside class="col-sidebar col-sidebar-left">
             <div class="card">
                 <div class="widget-title">Espacio Publicitario</div>
                 <?php if (empty($anuncios_izq)): ?>
@@ -460,52 +461,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
-                <?php endif; ?>
+<?php endif; ?>
             </div>
-            <div class="card">
-                <div class="widget-title">Economia</div>
-                <div class="crypto-item">
-                    <span>Bitcoin (BTC):</span>
-                    <span class="price" id="btc-price">Cargando...</span>
-                </div>
-                <div class="crypto-item">
-                    <span>Ethereum (ETH):</span>
-                    <span class="price" id="eth-price">Cargando...</span>
-                </div>
-                <div class="fx-item">
-                    <span>Oro (XAU/USD):</span>
-                    <span class="price" id="gold-price">Cargando...</span>
-                </div>
-                <div class="fx-item">
-                    <span>USD / DOP:</span>
-                    <span class="price" id="usd-dop">Cargando...</span>
-                </div>
-                <div class="fx-item">
-                    <span>EUR / DOP:</span>
-                    <span class="price" id="eur-dop">Cargando...</span>
-                </div>
-            </div>
-
-            <?php if (!empty($podcasts)): ?>
-                <div class="card" style="text-align: left;">
-                    <div class="widget-title">�ltimos Envivos</div>
-                    
-                    <?php foreach ($podcasts as $pod): ?>
-                        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                            <h4 style="margin: 0 0 8px 0; color: #333; font-size: 15px;"><?php echo htmlspecialchars($pod["titulo"]); ?></h4>
-                            
-                            <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-bottom: 10px;">
-                                <iframe src="<?php echo htmlspecialchars($pod["url_youtube"]); ?>" 
-                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; border: none;" 
-                                        allowfullscreen>
-                                </iframe>
-                            </div>
-                            
-                            <p style="font-size: 12px; color: #555; line-height: 1.4; margin: 0;"><?php echo nl2br(htmlspecialchars($pod["descripcion"])); ?></p>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
         </aside>
 
         <main class="col-center">
@@ -545,9 +502,55 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                         <div class="descripcion"><?php echo nl2br(htmlspecialchars($noticia['descripcion'])); ?></div>
                     </article>
                 <?php endforeach; ?>
-            <?php endif; ?>
+<?php endif; ?>
         </main>
 
+        <aside class="col-sidebar col-sidebar-right">
+            <div class="card">
+                <div class="widget-title">Economia</div>
+                <div class="crypto-item">
+                    <span>Bitcoin (BTC):</span>
+                    <span class="price" id="btc-price">Cargando...</span>
+                </div>
+                <div class="crypto-item">
+                    <span>Ethereum (ETH):</span>
+                    <span class="price" id="eth-price">Cargando...</span>
+                </div>
+                <div class="fx-item">
+                    <span>Oro (XAU/USD):</span>
+                    <span class="price" id="gold-price">Cargando...</span>
+                </div>
+                <div class="fx-item">
+                    <span>USD / DOP:</span>
+                    <span class="price" id="usd-dop">Cargando...</span>
+                </div>
+                <div class="fx-item">
+                    <span>EUR / DOP:</span>
+                    <span class="price" id="eur-dop">Cargando...</span>
+                </div>
+            </div>
+
+            <?php if (!empty($podcasts)): ?>
+                <div class="card" style="text-align: left;">
+                    <div class="widget-title">Últimos Envivos</div>
+                    
+                    <?php foreach ($podcasts as $pod): ?>
+                        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                            <h4 style="margin: 0 0 8px 0; color: #333; font-size: 15px;"><?php echo htmlspecialchars($pod["titulo"]); ?></h4>
+                            
+                            <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-bottom: 10px;">
+                                <iframe src="<?php echo htmlspecialchars($pod["url_youtube"]); ?>" 
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; border: none;" 
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                            
+                            <p style="font-size: 12px; color: #555; line-height: 1.4; margin: 0;"><?php echo nl2br(htmlspecialchars($pod["descripcion"])); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </aside>
 
     </div>
 
