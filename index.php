@@ -396,7 +396,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                     <div class="top-carousel-slide" data-ad-id="<?php echo $ad['id']; ?>">
                         <?php foreach ($items as $idx => $item): ?>
                             <?php if ($item['tipo'] == 'video'): ?>
-                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline></video>
+                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
                             <?php else: ?>
                                 <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="<?php echo htmlspecialchars($ad['titulo']); ?>">
                             <?php endif; ?>
@@ -424,7 +424,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (empty($anuncios_izq)): ?>
                     <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
                 <?php else: ?>
-                    <?php foreach ($anuncios_izq as $ad): ?>
+<?php foreach ($anuncios_izq as $ad): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
                             <?php 
                                 $stmt_ad_media = $pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
@@ -437,14 +437,14 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                     <div class="carrete-anuncio">
                                         <?php foreach ($ad_archivos as $item): ?>
                                             <?php if ($item['tipo'] == 'video'): ?>
-                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop></video>
+                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art├¡culo">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artículo" style="max-width:100%; height:auto; border-radius:4px;">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">Ô×í´©Å Desliza para ver m├ís</span>
+                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">➡️ Desliza para ver más</span>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
                                     <?php 
@@ -452,7 +452,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                         $es_video = in_array($extension, ['mp4', 'webm', 'ogg', 'mov']);
                                     ?>
                                     <?php if ($es_video): ?>
-                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop style="max-width:100%; height:auto; border-radius:4px;"></video>
+                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
                                     <?php else: ?>
                                         <img src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" alt="Anuncio" style="max-width:100%; height:auto; border-radius:4px;">
                                     <?php endif; ?>
@@ -483,17 +483,20 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                             $archivos_multimedia = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
                         ?>
 
-                        <?php if (!empty($archivos_multimedia)): ?>
+<?php if (!empty($archivos_multimedia)): ?>
                             <div class="carrete-multimedia">
                                 <?php foreach ($archivos_multimedia as $item): ?>
                                     <?php if ($item['tipo'] == 'video'): ?>
-                                        <video controls preload="metadata">
+                                        <video controls preload="metadata" playsinline>
                                             <source src="<?php echo htmlspecialchars($item['archivo']); ?>">
-                                            Tu navegador no soporta la reproducci├│n de videos.
+                                            Tu navegador no soporta la reproducción de videos.
                                         </video>
                                     <?php else: ?>
-                                        <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Multimedia de la noticia">
+                                        <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Multimedia de la noticia" style="max-width:100%; height:auto; border-radius:4px;">
                                     <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
@@ -555,7 +558,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (empty($anuncios_der)): ?>
                     <p style="font-size: 13px; color: #777;">Espacio publicitario disponible</p>
                 <?php else: ?>
-                    <?php foreach ($anuncios_der as $ad): ?>
+<?php foreach ($anuncios_der as $ad): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px dashed #ddd; padding-bottom: 15px;">
                             <?php 
                                 $stmt_ad_media = $pdo->prepare("SELECT * FROM anuncios_multimedia WHERE anuncio_id = ?");
@@ -568,14 +571,14 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                     <div class="carrete-anuncio">
                                         <?php foreach ($ad_archivos as $item): ?>
                                             <?php if ($item['tipo'] == 'video'): ?>
-                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop></video>
+                                                <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art├¡culo">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artículo" style="max-width:100%; height:auto; border-radius:4px;">
                                             <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 </a>
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">Ô×í´©Å Desliza para ver m├ís</span>
+                                <span style="font-size: 11px; color: #666; display: block; margin-top: 4px;">➡️ Desliza para ver más</span>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
                                 <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
                                     <?php 
@@ -583,7 +586,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                         $es_video = in_array($extension, ['mp4', 'webm', 'ogg', 'mov']);
                                     ?>
                                     <?php if ($es_video): ?>
-                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop style="max-width:100%; height:auto; border-radius:4px;"></video>
+                                        <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline controls style="max-width:100%; height:auto; border-radius:4px;"></video>
                                     <?php else: ?>
                                         <img src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" alt="Anuncio" style="max-width:100%; height:auto; border-radius:4px;">
                                     <?php endif; ?>
