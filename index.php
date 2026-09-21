@@ -8,8 +8,9 @@ require_once 'conexion.php';
 try {
     $tableCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias'")->fetchColumn();
     $mediaCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='anuncios_multimedia'")->fetchColumn();
-    $adminCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='admin_users'")->fetchColumn();
-    if (!$tableCheck || !$mediaCheck || !$adminCheck) {
+$adminCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='admin_users'")->fetchColumn();
+    $robotCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias_robot'")->fetchColumn();
+    if (!$tableCheck || !$mediaCheck || !$adminCheck || !$robotCheck) {
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
         error_log("Migraci�n ejecutada: tablas creadas/actualizadas");
@@ -18,7 +19,7 @@ try {
     error_log("Error en auto-migraci�n: " . $e->getMessage());
     // Forzar recreaci�n si falla
     try {
-        $pdo->exec("DROP TABLE IF EXISTS noticias_multimedia, anuncios_multimedia, podcasts, anuncios, noticias CASCADE;");
+        $pdo->exec("DROP TABLE IF EXISTS noticias_robot, noticias_multimedia, anuncios_multimedia, podcasts, anuncios, noticias CASCADE;");
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
         error_log("Migraci�n forzada completada");
