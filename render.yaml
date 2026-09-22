@@ -1,6 +1,19 @@
-# Render Build Configuration
-buildCommand: "composer install --no-dev --optimize-autoloader"
-startCommand: "php -S 0.0.0.0:10000 -t ."
-envVars:
-  - key: CLOUDINARY_URL
-    sync: false
+services:
+  - type: web
+    name: periodico-digital
+    env: php
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: heroku-php-apache2
+    envVars:
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CLAUDE_API_KEY
+        sync: false
