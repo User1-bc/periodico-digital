@@ -13,15 +13,11 @@ echo "API Key: $apiKey\n";
 echo "API Secret: $apiSecret\n";
 echo "Cloud Name: $cloudName\n";
 
-// Create a test image
+// Create a simple test file (1x1 pixel PNG)
 $testFile = sys_get_temp_dir() . '/test_cloudinary_' . time() . '.png';
-$img = imagecreatetruecolor(100, 100);
-$white = imagecolorallocate($img, 255, 255, 255);
-$red = imagecolorallocate($img, 255, 0, 0);
-imagefilledrectangle($img, 0, 0, 99, 99, $white);
-imagestring($img, 5, 20, 40, 'TEST', $red);
-imagepng($img, $testFile);
-imagedestroy($img);
+// 1x1 transparent PNG (base64 decoded)
+$pngData = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+file_put_contents($testFile, $pngData);
 
 echo "Test file created: $testFile\n";
 echo "File size: " . filesize($testFile) . " bytes\n";
