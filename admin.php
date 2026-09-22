@@ -7,6 +7,63 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 
 require_once 'conexion.php';
 
+// Función para generar imagen con DALL-E basada en la noticia
+function generarImagenNoticia($titulo, $contenido) {
+    $apiKey = getenv('OPENAI_API_KEY') ?: '';
+    if (empty($apiKey)) return null;
+    
+    // Extraer prompt visual del contenido (primeros 2 párrafos + título)
+    $parrafos = explode("\n\n", $contenido);
+    $resumenVisual = $titulo . '. ' . implode(' ', array_slice($parrafos, 0, 2));
+    $resumenVisual = mb_substr($resumenVisual, 0, 400);
+    
+    $prompt = "Ilustración periodística profesional para noticia dominicana: {$resumenVisual}. Estilo fotorrealista, composición limpia, colores vibrantes, adecuada para portada de periódico digital, sin texto, sin marcas de agua, aspecto 16:9.";
+    
+    try {
+        $data = [
+            'model' => 'dall-e-3',
+            'prompt' => $prompt,
+            'n' => 1,
+            'size' => '1792x1024', // 16:9 landscape
+            'quality' => 'standard',
+            'response_format' => 'url'
+        ];
+        
+        $ctx = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-Type: application/json\r\nAuthorization: Bearer {$apiKey}\r\n",
+                'content' => json_encode($data),
+                'timeout' => 60
+            ]
+        ]);
+        
+        $response = @file_get_contents('https://api.openai.com/v1/images/generations', false, $ctx);
+        if (!$response) return null;
+        
+        $result = json_decode($response, true);
+        $imageUrl = $result['data'][0]['url'] ?? null;
+        if (!$imageUrl) return null;
+        
+        // Descargar y guardar localmente
+        $imgData = @file_get_contents($imageUrl);
+        if (!$imgData) return $imageUrl; // Fallback a URL de OpenAI
+        
+        $safeTitle = preg_replace('/[^a-zA-Z0-9_-]/', '', str_replace(' ', '_', mb_substr($titulo, 0, 40)));
+        $filename = 'uploads/ia_' . $safeTitle . '_' . time() . '.png';
+        $filepath = __DIR__ . '/' . $filename;
+        
+        if (file_put_contents($filepath, $imgData)) {
+            return $filename;
+        }
+        return $imageUrl;
+        
+    } catch (Exception $e) {
+        error_log("Error generando imagen IA: " . $e->getMessage());
+        return null;
+    }
+}
+
 $mensaje_exito = "";
 $mensaje_error = "";
 
@@ -82,8 +139,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $fechaRD = new DateTime('now', new DateTimeZone('America/Santo_Domingo'));
                 $fechaPub = $fechaRD->format('Y-m-d H:i:s');
                 
+                // Generar imagen con IA basada en el contenido
+                $imagenGenerada = null;
+                if (!empty($robot['contenido_generado'])) {
+                    $imagenGenerada = generarImagenNoticia($robot['titulo_generado'], $robot['contenido_generado']);
+                }
+                $imagenFinal = $imagenGenerada ?: $robot['imagen_url'];
+                
+                // Usar contenido COMPLETO como descripción para mayor alcance SEO
+                $descripcionCompleta = $robot['contenido_generado'];
+                
                 $stmt2 = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria, imagen) VALUES (?, ?, ?, ?, 'Robot IA', ?, ?)");
-                $stmt2->execute([$robot['titulo_generado'], $robot['contenido_generado'], $robot['descripcion_generada'], $fechaPub, $robot['categoria'], $robot['imagen_url']]);
+                $stmt2->execute([$robot['titulo_generado'], $robot['contenido_generado'], $descripcionCompleta, $fechaPub, $robot['categoria'], $imagenFinal]);
             } catch (Exception $e) {
                 error_log("Error publicando noticia robot: " . $e->getMessage());
                 $mensaje_error = "Error al publicar en portada: " . $e->getMessage();
