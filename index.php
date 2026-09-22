@@ -426,7 +426,9 @@ header {
 
 <header>
         <div class="header-left">
-            <img src="uploads/125688.png" alt="Periodico Digital RD" style="height: 50px; width: auto; max-width: 100%;">
+            <a href="index.php" style="text-decoration: none;">
+                <img src="uploads/125688.png" alt="Periodico Digital RD" style="height: 50px; width: auto; max-width: 100%;">
+            </a>
         </div>
 
         <div class="header-title">
