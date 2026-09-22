@@ -382,7 +382,7 @@ foreach ($FUENTES_RSS as $fuente) {
             ");
             $stmt->execute([
                 $tituloOriginal, $tituloGenerado, $contenidoGenerado, $descripcionGenerada,
-                $enlace, $nombreFuente, $categoria, $imagenLocal, $esBreaking, $scoreFuente
+                $enlace, $nombreFuente, $categoria, $imagenLocal, $esBreaking ? true : false, (int)$scoreFuente
             ]);
             
             $noticiasNuevas++;
