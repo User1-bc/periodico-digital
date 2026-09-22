@@ -142,8 +142,17 @@ function descargarImagen($url, $titulo) {
         
         $timestamp = time();
         $publicId = 'periodico/robot_' . $safeTitle . '_' . $timestamp;
-        $paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
-        $signature = sha1($paramsToSign);
+        
+        // Cloudinary signature: all params except file, api_key, signature - sorted alphabetically
+        $paramsToSign = [
+            'folder' => 'periodico-digital',
+            'public_id' => $publicId,
+            'resource_type' => 'image',
+            'timestamp' => $timestamp
+        ];
+        ksort($paramsToSign);
+        $signatureString = http_build_query($paramsToSign, '', '&') . $apiSecret;
+        $signature = sha1($signatureString);
         
         $postFields = [
             'file' => new CURLFile($filepath),

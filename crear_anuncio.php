@@ -19,8 +19,16 @@ function subirMediaCloudinary($tmpPath, $originalName) {
     $publicId = 'periodico/ad_' . preg_replace('/[^a-zA-Z0-9_-]/', '', pathinfo($originalName, PATHINFO_FILENAME)) . '_' . $timestamp;
     $resourceType = in_array($ext, ['mp4','webm','ogg','mov','avi','mkv','m4v']) ? 'video' : 'image';
     
-    $paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
-    $signature = sha1($paramsToSign);
+    // Cloudinary signature: all params except file, api_key, signature - sorted alphabetically
+    $paramsToSign = [
+        'folder' => 'periodico-digital',
+        'public_id' => $publicId,
+        'resource_type' => $resourceType,
+        'timestamp' => $timestamp
+    ];
+    ksort($paramsToSign);
+    $signatureString = http_build_query($paramsToSign, '', '&') . $apiSecret;
+    $signature = sha1($signatureString);
     
     $postFields = [
         'file' => new CURLFile($tmpPath),
