@@ -261,10 +261,7 @@ header {
     top: 0;
     z-index: 1000;
     width: 100vw;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    margin-left: calc(-50vw + 50%);
     overflow: hidden;
     border-radius: 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
