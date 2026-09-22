@@ -99,7 +99,7 @@ function extraerImagen($item) {
     return null;
 }
 
-// Descargar imagen y guardar localmente
+// Descargar imagen y subir a Cloudinary (persistente)
 function descargarImagen($url, $titulo) {
     if (!$url) return null;
     try {
@@ -120,16 +120,67 @@ function descargarImagen($url, $titulo) {
         };
         
         $safeTitle = preg_replace('/[^a-zA-Z0-9_-]/', '', str_replace(' ', '_', mb_substr($titulo, 0, 50)));
-        $filename = 'uploads/robot_' . $safeTitle . '_' . time() . '.' . $ext;
-        $filepath = __DIR__ . '/' . $filename;
+        $filename = 'robot_' . $safeTitle . '_' . time() . '.' . $ext;
+        $filepath = sys_get_temp_dir() . '/' . $filename;
         
-        if (file_put_contents($filepath, $imgData)) {
-            return $filename; // Ruta local
+        if (!file_put_contents($filepath, $imgData)) {
+            return $url;
         }
+        
+        // Subir a Cloudinary
+        $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
+        if (empty($cloudinaryUrl)) {
+            error_log("CLOUDINARY_URL no configurado - imagen no persistirá");
+            return $url;
+        }
+        
+        if (!preg_match('/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/', $cloudinaryUrl, $m)) {
+            error_log("CLOUDINARY_URL formato inválido");
+            return $url;
+        }
+        $apiKey = $m[1]; $apiSecret = $m[2]; $cloudName = $m[3];
+        
+        $timestamp = time();
+        $publicId = 'periodico/robot_' . $safeTitle . '_' . $timestamp;
+        $paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+        $signature = sha1($paramsToSign);
+        
+        $postFields = [
+            'file' => new CURLFile($filepath),
+            'api_key' => $apiKey,
+            'timestamp' => $timestamp,
+            'public_id' => $publicId,
+            'signature' => $signature,
+            'folder' => 'periodico-digital',
+            'resource_type' => 'image'
+        ];
+        
+        $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/upload");
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $postFields,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        @unlink($filepath);
+        
+        if ($httpCode !== 200) {
+            error_log("Cloudinary upload failed: $response");
+            return $url;
+        }
+        
+        $result = json_decode($response, true);
+        return $result['secure_url'] ?? $url;
+        
     } catch (Exception $e) {
-        error_log("Error descargando imagen: " . $e->getMessage());
+        error_log("Error descargando/subiendo imagen: " . $e->getMessage());
     }
-    return $url; // Fallback
+    return $url;
 }
 
 // Generar artículo con IA (OpenAI o Claude)

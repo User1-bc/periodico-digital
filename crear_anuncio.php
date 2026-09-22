@@ -74,15 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $tipo_archivo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
 
                     $urlCloudinary = subirMediaCloudinary($tmpPath, $nombre_original);
-                    $ruta_final = $urlCloudinary ?: "uploads/" . time() . "_ad_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
-                    
                     if (!$urlCloudinary) {
-                        if (!is_dir('uploads')) mkdir('uploads', 0777, true);
-                        $nombre_archivo = time() . "_ad_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
-                        $ruta_destino = "uploads/" . $nombre_archivo;
-                        move_uploaded_file($tmpPath, $ruta_destino);
-                        $ruta_final = $ruta_destino;
+                        throw new Exception("Error subiendo multimedia a Cloudinary. Verifica CLOUDINARY_URL en variables de entorno.");
                     }
+                    $ruta_final = $urlCloudinary;
 
                     $stmtMedia = $pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
                     $stmtMedia->execute([$anuncio_id, $ruta_final, $tipo_archivo]);
