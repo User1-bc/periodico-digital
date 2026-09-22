@@ -8,12 +8,16 @@ require_once 'conexion.php';
 try {
     $tableCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias'")->fetchColumn();
     $mediaCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='anuncios_multimedia'")->fetchColumn();
-$adminCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='admin_users'")->fetchColumn();
+    $adminCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='admin_users'")->fetchColumn();
     $robotCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias_robot'")->fetchColumn();
-    if (!$tableCheck || !$mediaCheck || !$adminCheck || !$robotCheck) {
+    
+    $colBreaking = $pdo->query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='noticias_robot' AND column_name='es_breaking'")->fetchColumn();
+    $colScore = $pdo->query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='noticias_robot' AND column_name='fuente_score'")->fetchColumn();
+    
+    if (!$tableCheck || !$mediaCheck || !$adminCheck || !$robotCheck || !$colBreaking || !$colScore) {
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
-        error_log("Migraci�n ejecutada: tablas creadas/actualizadas");
+        error_log("Migraci�n ejecutada: tablas/columnas creadas/actualizadas");
     }
 } catch (PDOException $e) {
     error_log("Error en auto-migraci�n: " . $e->getMessage());
