@@ -11,8 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $descripcion = trim($_POST['descripcion']);
     
     // 1. Insertar primero la noticia principal (contenido es NOT NULL en schema)
-    $stmt = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion) VALUES (?, ?, ?)");
-    if ($stmt->execute([$titulo, $descripcion, $descripcion])) {
+    // Usar zona horaria RD para que coincida con el filtro de index.php
+    $fechaRD = new DateTime('now', new DateTimeZone('America/Santo_Domingo'));
+    $fechaPub = $fechaRD->format('Y-m-d H:i:s');
+    
+    $stmt = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion) VALUES (?, ?, ?, ?)");
+    if ($stmt->execute([$titulo, $descripcion, $descripcion, $fechaPub])) {
         $noticia_id = $pdo->lastInsertId();
 
         // 2. Procesar la subida múltiple de archivos multimedia
