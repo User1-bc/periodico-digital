@@ -108,3 +108,15 @@ INSERT INTO anuncios (titulo, imagen, imagen_banner, enlace_destino, posicion, a
 
 INSERT INTO podcasts (titulo, descripcion, url_youtube, audio_url, imagen, duracion) VALUES
 ('Episodio 1: Bienvenida', 'Primer podcast de prueba', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'https://example.com/audio.mp3', 'https://via.placeholder.com/300x300', '15:00');
+
+-- Tabla para suscripciones Push (Web Push Protocol)
+CREATE TABLE IF NOT EXISTS suscripciones_push (
+    id SERIAL PRIMARY KEY,
+    endpoint TEXT NOT NULL UNIQUE,
+    p256dh TEXT NOT NULL,
+    auth TEXT NOT NULL,
+    user_agent TEXT,
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_suscripciones_endpoint ON suscripciones_push(endpoint);

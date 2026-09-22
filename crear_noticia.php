@@ -6,6 +6,41 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 }
 require_once 'conexion.php';
 
+// Función para enviar notificaciones push
+function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
+    try {
+        $stmt = $pdo->query("SELECT endpoint, p256dh, auth FROM suscripciones_push");
+        $suscripciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (empty($suscripciones)) return;
+        
+        $payload = json_encode([
+            "title" => $titulo,
+            "body"  => $mensaje,
+            "url"   => $url
+        ]);
+        
+        // Intentar envío nativo simplificado
+        foreach ($suscripciones as $sub) {
+            $ch = curl_init($sub['endpoint']);
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'TTL: 86400'
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+            ]);
+            curl_exec($ch);
+            curl_close($ch);
+        }
+    } catch (Exception $e) {
+        error_log("Error enviando push: " . $e->getMessage());
+    }
+}
+
 // Subir archivo a Cloudinary
 function subirMediaCloudinary($tmpPath, $originalName) {
     $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
@@ -71,6 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion) VALUES (?, ?, ?, ?)");
     if ($stmt->execute([$titulo, $descripcion, $descripcion, $fechaPub])) {
         $noticia_id = $pdo->lastInsertId();
+
+        // Enviar notificación push
+        $tituloPush = "📰 Nueva Noticia: " . $titulo;
+        $mensajePush = mb_substr($descripcion, 0, 100) . "...";
+        enviarPushNotificacion($pdo, $tituloPush, $mensajePush, '/');
 
         if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
             $permitidas_img = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];

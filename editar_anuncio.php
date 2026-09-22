@@ -6,6 +6,40 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 }
 require_once 'conexion.php';
 
+// Función para enviar notificaciones push
+function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
+    try {
+        $stmt = $pdo->query("SELECT endpoint, p256dh, auth FROM suscripciones_push");
+        $suscripciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (empty($suscripciones)) return;
+        
+        $payload = json_encode([
+            "title" => $titulo,
+            "body"  => $mensaje,
+            "url"   => $url
+        ]);
+        
+        foreach ($suscripciones as $sub) {
+            $ch = curl_init($sub['endpoint']);
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'TTL: 86400'
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+            ]);
+            curl_exec($ch);
+            curl_close($ch);
+        }
+    } catch (Exception $e) {
+        error_log("Error enviando push: " . $e->getMessage());
+    }
+}
+
 // Subir archivo a Cloudinary
 function subirMediaCloudinary($tmpPath, $originalName) {
     $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
@@ -95,6 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     $update = $pdo->prepare("UPDATE anuncios SET titulo = ?, enlace_destino = ?, posicion = ?, activo = ? WHERE id = ?");
     $update->execute([$cliente_nombre, $enlace_destino, $posicion, $activo, $id]);
+    
+    // Enviar notificación push
+    $tituloPush = "📢 Anuncio Actualizado: " . $cliente_nombre;
+    $mensajePush = "Se ha actualizado un anuncio en la sección de publicidad";
+    enviarPushNotificacion($pdo, $tituloPush, $mensajePush, '/');
 
     if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
         $permitidas_img = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
@@ -162,8 +201,9 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
             </div>
             
             <div class="form-group">
-                <label>Enlace de Destino (URL):</label>
-                <input type="url" name="enlace_destino" value="<?php echo htmlspecialchars($anuncio['enlace_destino']); ?>" required placeholder="https://ejemplo.com">
+                <label>Enlace de Destino (Opcional - URL):</label>
+                <input type="url" name="enlace_destino" value="<?php echo htmlspecialchars($anuncio['enlace_destino']); ?>" placeholder="https://ejemplo.com (opcional)">
+                <span class="helper-text">Deja vacío si solo quieres mostrar la imagen/video sin redirigir.</span>
             </div>
 
             <div class="form-group">

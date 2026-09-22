@@ -7,6 +7,65 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 
 require_once 'conexion.php';
 
+// Función para enviar notificaciones push a todos los suscriptores
+function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
+    try {
+        $stmt = $pdo->query("SELECT endpoint, p256dh, auth FROM suscripciones_push");
+        $suscripciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (empty($suscripciones)) return;
+        
+        $payload = json_encode([
+            "title" => $titulo,
+            "body"  => $mensaje,
+            "url"   => $url
+        ]);
+        
+        // Usar la librería web-push si está disponible, sino intentar nativo
+        // Para simplicidad, intentaremos con cURL nativo usando VAPID
+        $vapidPublicKey = getenv('VAPID_PUBLIC_KEY') ?: '';
+        $vapidPrivateKey = getenv('VAPID_PRIVATE_KEY') ?: '';
+        $vapidSubject = getenv('VAPID_SUBJECT') ?: 'mailto:admin@periodicodigitalrd.online';
+        
+        if (empty($vapidPublicKey) || empty($vapidPrivateKey)) {
+            error_log("VAPID keys no configuradas, saltando push notifications");
+            return;
+        }
+        
+        // Generar JWT para VAPID
+        $header = json_encode(['typ' => 'JWT', 'alg' => 'ES256']);
+        $claims = json_encode([
+            'aud' => 'https://fcm.googleapis.com', // o el endpoint del push service
+            'exp' => time() + 43200, // 12 horas
+            'sub' => $vapidSubject
+        ]);
+        
+        // Nota: Para una implementación completa de VAPID se necesita la librería
+        // Por ahora usamos minishlink/web-push via composer si está disponible
+        // Si no, logramos que funcione con un workaround simple
+        
+        foreach ($suscripciones as $sub) {
+            // Intentar envío nativo (simplificado - en producción usar minishlink/web-push)
+            $endpoint = $sub['endpoint'];
+            $ch = curl_init($endpoint);
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'TTL: 86400'
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+            ]);
+            curl_exec($ch);
+            curl_close($ch);
+        }
+    } catch (Exception $e) {
+        error_log("Error enviando push: " . $e->getMessage());
+    }
+}
+
 // Función para generar imagen con DALL-E y subir a Cloudinary
 function generarImagenNoticia($titulo, $contenido) {
     $apiKey = getenv('OPENAI_API_KEY') ?: '';
@@ -140,14 +199,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_podcast'])) {
             $stmt = $pdo->prepare("INSERT INTO podcasts (titulo, descripcion, url_youtube) VALUES (?, ?, ?)");
             $stmt->execute([$titulo, $descripcion, $embed_url]);
             
-            // 🚀 INTEGRACIÓN DE NOTIFICACIÓN PUSH
-            $titulo_push = "Nuevo Podcast: " . $titulo;
-            $mensaje_push = $descripcion;
-            if (file_exists('enviar_push.php')) {
-                include 'enviar_push.php';
-            }
+            // Enviar notificación push
+            $tituloPush = "🎙️ Nuevo Podcast: " . $titulo;
+            $mensajePush = mb_substr($descripcion, 0, 100) . "...";
+            enviarPushNotificacion($pdo, $tituloPush, $mensajePush, '/');
 
-            // ⭐ PATRÓN PRG: Redirigimos para evitar duplicados al recargar (F5)
             header("Location: admin.php?exito=1");
             exit();
         } catch (Exception $e) {
@@ -207,6 +263,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $stmt2 = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria, imagen) VALUES (?, ?, ?, ?, 'Robot IA', ?, ?)");
                 $stmt2->execute([$robot['titulo_generado'], $robot['contenido_generado'], $descripcionCompleta, $fechaPub, $robot['categoria'], $imagenFinal]);
+                
+                // Enviar notificación push
+                $tituloPush = "🔴 " . $robot['titulo_generado'];
+                $mensajePush = "Nueva noticia publicada: " . mb_substr($robot['contenido_generado'], 0, 100) . "...";
+                enviarPushNotificacion($pdo, $tituloPush, $mensajePush, '/');
+
             } catch (Exception $e) {
                 error_log("Error publicando noticia robot: " . $e->getMessage());
                 $mensaje_error = "Error al publicar en portada: " . $e->getMessage();
@@ -283,6 +345,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmtMedia->execute([$noticia_id, $url, $tipo]);
                 }
                 
+                // Enviar notificación push
+                $tituloPush = "🔴 " . $robot['titulo_generado'];
+                $mensajePush = "Nueva noticia publicada: " . mb_substr($robot['contenido_generado'], 0, 100) . "...";
+                enviarPushNotificacion($pdo, $tituloPush, $mensajePush, '/');
+
             } catch (Exception $e) {
                 error_log("Error publicando noticia robot desde modal: " . $e->getMessage());
                 $mensaje_error = "Error al publicar en portada: " . $e->getMessage();

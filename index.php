@@ -379,9 +379,9 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             <p>La fuente mas confiable de Republica Dominicana</p>
         </div>
 
-        <div class="header-right">
-<button id="btn-notif" class="btn-notifications" onclick="toggleNotifications()">
-                &#x1F516; Activar Alertas
+<div class="header-right">
+<button id="btn-suscripcion" class="btn-notifications" onclick="toggleSuscripcion()">
+                &#x1F4E3; Suscribirse
             </button>
 
             <a href="https://wa.me/18295482901?text=Hola,%20deseo%20enviar%20una%20informacion%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-whatsapp-top">
@@ -454,7 +454,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                             ?>
 
 <?php if (!empty($ad_archivos)): ?>
-                                <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank" style="text-decoration: none;">
+                                <?php $hasLink = !empty($ad['enlace_destino']) && $ad['enlace_destino'] !== '#'; ?>
+                                <?php if ($hasLink): ?><a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank" style="text-decoration: none;"><?php endif; ?>
                                     <div class="carrete-anuncio sidebar-carousel" id="sidebar-carousel-<?php echo $ad['id']; ?>">
                                         <?php foreach ($ad_archivos as $item): ?>
                                             <?php if ($item['tipo'] == 'video'): ?>
@@ -462,11 +463,12 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                             <?php else: ?>
                                                 <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art�culo" class="sidebar-ad-media">
                                             <?php endif; ?>
-                                        <?php endforeach; ?>
+<?php endforeach; ?>
 </div>
-                                </a>
+                                <?php if ($hasLink): ?></a><?php endif; ?>
                             <?php elseif (!empty($ad['imagen_banner'])): ?>
-                                <a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank">
+                                <?php $hasLink = !empty($ad['enlace_destino']) && $ad['enlace_destino'] !== '#'; ?>
+                                <?php if ($hasLink): ?><a href="<?php echo htmlspecialchars($ad['enlace_destino']); ?>" target="_blank"><?php endif; ?>
                                     <?php 
                                         $extension = strtolower(pathinfo($ad['imagen_banner'], PATHINFO_EXTENSION));
                                         $es_video = in_array($extension, ['mp4', 'webm', 'ogg', 'mov']);
@@ -475,8 +477,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
                                         <video src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" autoplay muted loop playsinline preload="metadata" class="sidebar-ad-media"></video>
                                     <?php else: ?>
                                         <img src="<?php echo htmlspecialchars($ad['imagen_banner']); ?>" alt="Anuncio" class="sidebar-ad-media">
-                                    <?php endif; ?>
-                                </a>
+<?php endif; ?>
+                                <?php if ($hasLink): ?></a><?php endif; ?>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
@@ -627,15 +629,15 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         fetchMarketData();
         setInterval(fetchMarketData, 60000);
 
-        document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
             if (!("Notification" in window) || !('serviceWorker' in navigator)) {
-                const btn = document.getElementById("btn-notif");
+                const btn = document.getElementById("btn-suscripcion");
                 if(btn) btn.style.display = "none";
                 return;
             }
 
             if (Notification.permission === "granted") {
-                updateNotificationButtonState(true);
+                updateSuscripcionButtonState(true);
             }
         });
 
@@ -653,22 +655,22 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             return outputArray;
         }
 
-        async function toggleNotifications() {
+        async function toggleSuscripcion() {
             if (!("Notification" in window)) {
                 alert("Tu navegador no soporta notificaciones de escritorio.");
                 return;
             }
 
             if (Notification.permission === "granted") {
-                alert("Las notificaciones ya se encuentran activadas en este navegador.");
+                alert("Ya estás suscrito a las notificaciones.");
             } else if (Notification.permission !== "denied") {
                 let permission = await Notification.requestPermission();
                 if (permission === "granted") {
-                    updateNotificationButtonState(true);
+                    updateSuscripcionButtonState(true);
                     await suscribirUsuarioPush();
                 }
             } else {
-                alert("Las notificaciones est+�n bloqueadas en la configuraci+�n de tu navegador.");
+                alert("Las notificaciones están bloqueadas en la configuración de tu navegador.");
             }
         }
 
@@ -694,14 +696,14 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-function updateNotificationButtonState(active) {
-            const btn = document.getElementById("btn-notif");
+function updateSuscripcionButtonState(active) {
+            const btn = document.getElementById("btn-suscripcion");
             if (btn) {
                 if (active) {
-                    btn.innerHTML = "&#x1F514; Alertas Activas";
+                    btn.innerHTML = "&#x1F4E3; Suscrito";
                     btn.classList.add("active");
                 } else {
-                    btn.innerHTML = "&#x1F516; Activar Alertas";
+                    btn.innerHTML = "&#x1F4E3; Suscribirse";
                     btn.classList.remove("active");
                 }
             }
