@@ -65,73 +65,59 @@ function generarImagenNoticia($titulo, $contenido) {
     }
 }
 
-// Subir imagen a Cloudinary (persistente, CDN global)
-function subirACloudinary($filepath, $titulo) {
+// Subir archivo a Cloudinary (para multimedia - imágenes y videos)
+function subirMediaCloudinary($tmpPath, $originalName) {
     $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
     if (empty($cloudinaryUrl)) return null;
     
-    // Parsear cloudinary://api_key:api_secret@cloud_name
-    if (!preg_match('/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/', $cloudinaryUrl, $m)) {
-        error_log("CLOUDINARY_URL formato inválido");
-        return null;
-    }
-    $apiKey = $m[1];
-    $apiSecret = $m[2];
-    $cloudName = $m[3];
+    if (!preg_match('/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/', $cloudinaryUrl, $m)) return null;
+    $apiKey = $m[1]; $apiSecret = $m[2]; $cloudName = $m[3];
     
-    try {
-        $timestamp = time();
-        $publicId = 'periodico/' . preg_replace('/[^a-zA-Z0-9_-]/', '', str_replace(' ', '_', mb_substr($titulo, 0, 40))) . '_' . $timestamp;
-        
-        // Firmar según spec de Cloudinary - all params except file, api_key, signature - sorted alphabetically, RAW values
-        // Note: resource_type is NOT included in signature per Cloudinary's validation
-        $paramsToSign = [
-            'folder' => 'periodico-digital',
-            'public_id' => $publicId,
-            'timestamp' => $timestamp
-        ];
-        ksort($paramsToSign);
-        $signatureParts = [];
-        foreach ($paramsToSign as $k => $v) {
-            $signatureParts[] = "$k=$v";
-        }
-        $signatureString = implode('&', $signatureParts) . $apiSecret;
-        $signature = sha1($signatureString);
-        
-        $postFields = [
-            'file' => new CURLFile($filepath),
-            'api_key' => $apiKey,
-            'timestamp' => $timestamp,
-            'public_id' => $publicId,
-            'signature' => $signature,
-            'folder' => 'periodico-digital',
-            'resource_type' => 'auto'
-        ];
-        
-        $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/upload");
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $postFields,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30,
-        ]);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpCode !== 200) {
-            error_log("Cloudinary upload failed: $response");
-            return null;
-        }
-        
-        $result = json_decode($response, true);
-        return $result['secure_url'] ?? null;
-        
-    } catch (Exception $e) {
-        error_log("Error subiendo a Cloudinary: " . $e->getMessage());
-        return null;
+    $timestamp = time();
+    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $publicId = 'periodico/' . preg_replace('/[^a-zA-Z0-9_-]/', '', pathinfo($originalName, PATHINFO_FILENAME)) . '_' . $timestamp;
+    $resourceType = in_array($ext, ['mp4','webm','ogg','mov','avi','mkv','m4v']) ? 'video' : 'image';
+    
+    // Cloudinary signature: all params except file, api_key, signature - sorted alphabetically, RAW values
+    // Note: resource_type is NOT included in signature per Cloudinary's validation
+    $paramsToSign = [
+        'folder' => 'periodico-digital',
+        'public_id' => $publicId,
+        'timestamp' => $timestamp
+    ];
+    ksort($paramsToSign);
+    $signatureParts = [];
+    foreach ($paramsToSign as $k => $v) {
+        $signatureParts[] = "$k=$v";
     }
+    $signatureString = implode('&', $signatureParts) . $apiSecret;
+    $signature = sha1($signatureString);
+    
+    $postFields = [
+        'file' => new CURLFile($tmpPath),
+        'api_key' => $apiKey,
+        'timestamp' => $timestamp,
+        'public_id' => $publicId,
+        'signature' => $signature,
+        'folder' => 'periodico-digital',
+        'resource_type' => $resourceType
+    ];
+    
+    $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/upload");
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $postFields,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 60,
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) return null;
+    $result = json_decode($response, true);
+    return $result['secure_url'] ?? null;
 }
 
 $mensaje_exito = "";
