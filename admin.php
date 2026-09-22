@@ -13,7 +13,10 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
         $stmt = $pdo->query("SELECT endpoint, p256dh, auth FROM suscripciones_push");
         $suscripciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        if (empty($suscripciones)) return;
+        if (empty($suscripciones)) {
+            error_log("Push: No hay suscripciones en BD");
+            return;
+        }
         
         $payload = json_encode([
             "title" => $titulo,
@@ -25,6 +28,8 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
         $vapidPrivateKey = getenv('VAPID_PRIVATE_KEY') ?: '';
         $vapidSubject = getenv('VAPID_SUBJECT') ?: 'mailto:admin@periodicodigitalrd.online';
         
+        error_log("Push: Intentando enviar a " . count($suscripciones) . " suscriptores. VAPID_PUBLIC_KEY=" . (empty($vapidPublicKey) ? 'VACIO' : 'OK') . ", VAPID_PRIVATE_KEY=" . (empty($vapidPrivateKey) ? 'VACIO' : 'OK'));
+        
         if (empty($vapidPublicKey) || empty($vapidPrivateKey)) {
             error_log("VAPID keys no configuradas, saltando push notifications");
             return;
@@ -33,6 +38,7 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
         // Usar minishlink/web-push si está disponible
         $autoloadPath = __DIR__ . '/vendor/autoload.php';
         if (file_exists($autoloadPath)) {
+            error_log("Push: vendor/autoload.php ENCONTRADO");
             require_once $autoloadPath;
             
             $webPush = new \Minishlink\WebPush\WebPush([
@@ -68,10 +74,10 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
                 }
             }
         } else {
-            error_log("minishlink/web-push no instalado. Ejecuta composer install");
+            error_log("Push: minishlink/web-push NO instalado (vendor/autoload.php no existe en " . $autoloadPath . ")");
         }
     } catch (Exception $e) {
-        error_log("Error enviando push: " . $e->getMessage());
+        error_log("Error enviando push: " . $e->getMessage() . " en " . $e->getFile() . ":" . $e->getLine());
     }
 }
 
