@@ -460,4 +460,5 @@ echo "📊 Total: {$noticiasProcesadas}\n";
 echo "Fecha fin: " . date('Y-m-d H:i:s') . "\n";
 
 $logMsg = date('Y-m-d H:i:s') . " | Nuevas: {$noticiasNuevas} | Breaking: {$breakingCount} | Duplicadas: {$noticiasDuplicadas} | Errores: {$errores}\n";
-file_put_contents('robot_log.txt', $logMsg, FILE_APPEND);
+file_put_contents('robot_log.txt', $logMsg, FILE_APPEND);/ /   f o r c e   r e b u i l d   0 9 / 2 2 / 2 0 2 6   0 1 : 2 7 : 4 4  
+ 
