@@ -260,7 +260,7 @@ header {
     display: flex;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
-    height: 150px;
+    height: 80px;
 }
 .top-carousel-slide {
     flex: 0 0 100%;
@@ -273,7 +273,8 @@ header {
 .top-carousel-slide video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    background: #000;
     display: block;
 }
 .top-carousel-link {
@@ -347,13 +348,17 @@ header {
     box-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
 @media (max-width: 768px) {
-    .top-carousel-track { height: 240px; }
+    .top-carousel-track { height: 120px; }
     .top-carousel-btn { width: 40px; height: 40px; }
     .top-carousel-prev { left: 8px; }
     .top-carousel-next { right: 8px; }
     .top-carousel-dots { bottom: 12px; gap: 5px; }
     .top-carousel-dot { width: 22px; height: 3px; }
     .top-carousel-dot.active { width: 32px; }
+}
+@media (max-width: 480px) {
+    .top-carousel-track { height: 100px; }
+    .top-carousel-btn { width: 36px; height: 36px; }
 }
 
 @media (max-width: 768px) {
