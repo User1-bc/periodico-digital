@@ -9,14 +9,18 @@ self.addEventListener('push', function(event) {
             data.body = event.data.text();
         }
     }
-
+    
     const options = {
         body: data.body,
-        icon: 'favicon.ico', // Puedes cambiarlo por la ruta de tu logo
+        icon: 'favicon.ico',
         badge: 'favicon.ico',
-        data: { url: data.url || '/' }
+        data: { url: data.url || '/' },
+        requireInteraction: true,
+        silent: false,
+        vibrate: [200, 100, 200],
+        tag: 'periodico-notification'
     };
-
+    
     event.waitUntil(
         self.registration.showNotification(data.title, options)
     );
@@ -36,4 +40,8 @@ self.addEventListener('notificationclick', function(event) {
             }
         })
     );
+});
+
+self.addEventListener('notificationclose', function(event) {
+    console.log('Notificación cerrada:', event.notification.tag);
 });
