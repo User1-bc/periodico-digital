@@ -642,7 +642,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Clave VAPID p+�blica integrada para el env+�o de notificaciones
-        const publicVapidKey = 'TU_CLAVE_PUBLICA_VAPID_AQUI';
+        const publicVapidKey = 'BDNidqse1xgK0WW5rCgFJx7jxeDeEB6fFH_FQZ2JPMplderSAXF8Tl3eqOZM0OW-Oe6GVJqbKb2XIqLGtwV3iQ4';
 
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
