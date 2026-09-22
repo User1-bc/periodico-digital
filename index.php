@@ -79,7 +79,8 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Periodico Digital RD</title>
     <style>
-        * { box-sizing: border-box; }
+* { box-sizing: border-box; }
+        html, body { overflow-x: hidden; }
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
         
 header { 
@@ -261,7 +262,9 @@ header {
     top: 0;
     z-index: 1000;
     width: 100vw;
-    margin-left: calc(-50vw + 50%);
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
     overflow: hidden;
     border-radius: 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
