@@ -236,6 +236,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: admin.php?robot_edit_ok=1");
         exit();
     }
+    if (isset($_POST['robot_publicar_desde_modal'])) {
+        $id = (int)$_POST['robot_id'];
+        // Primero actualizar la noticia del robot con los cambios
+        $stmt = $pdo->prepare("UPDATE noticias_robot SET estado='publicado', fecha_publicacion=NOW(), admin_id=?, titulo_generado=?, contenido_generado=?, descripcion_generada=?, categoria=? WHERE id=?");
+        $stmt->execute([$_SESSION['admin_id'] ?? 1, $_POST['titulo'], $_POST['contenido'], $_POST['descripcion'], $_POST['categoria'], $id]);
+        
+        // Obtener la noticia actualizada
+        $nr = $pdo->prepare("SELECT * FROM noticias_robot WHERE id=?");
+        $nr->execute([$id]);
+        $robot = $nr->fetch(PDO::FETCH_ASSOC);
+        
+        if ($robot) {
+            try {
+                // Usar fecha en zona horaria RD
+                $fechaRD = new DateTime('now', new DateTimeZone('America/Santo_Domingo'));
+                $fechaPub = $fechaRD->format('Y-m-d H:i:s');
+                
+                // Imagen: usar la del robot o generar con IA
+                $imagenGenerada = null;
+                if (!empty($robot['contenido_generado'])) {
+                    $imagenGenerada = generarImagenNoticia($robot['titulo_generado'], $robot['contenido_generado']);
+                }
+                $imagenFinal = $imagenGenerada ?: $robot['imagen_url'];
+                
+                // Subir multimedia del formulario a Cloudinary
+                $multimediaUrls = [];
+                if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
+                    $permitidas_vid = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'm4v'];
+                    $total_archivos = count($_FILES['multimedia']['name']);
+                    for ($i = 0; $i < $total_archivos; $i++) {
+                        if ($_FILES['multimedia']['error'][$i] == 0) {
+                            $tmpPath = $_FILES['multimedia']['tmp_name'][$i];
+                            $nombre_original = $_FILES['multimedia']['name'][$i];
+                            $urlCloudinary = subirMediaCloudinary($tmpPath, $nombre_original);
+                            if ($urlCloudinary) {
+                                $multimediaUrls[] = $urlCloudinary;
+                            }
+                        }
+                    }
+                }
+                
+                // Si hay multimedia subida, usar la primera como imagen principal
+                if (!empty($multimediaUrls)) {
+                    $imagenFinal = $multimediaUrls[0];
+                }
+                
+                $descripcionCompleta = $robot['contenido_generado'];
+                
+                // Insertar en noticias
+                $stmt2 = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria, imagen) VALUES (?, ?, ?, ?, 'Robot IA', ?, ?)");
+                $stmt2->execute([$robot['titulo_generado'], $robot['contenido_generado'], $descripcionCompleta, $fechaPub, $robot['categoria'], $imagenFinal]);
+                $noticia_id = $pdo->lastInsertId();
+                
+                // Guardar multimedia en noticias_multimedia
+                foreach ($multimediaUrls as $url) {
+                    $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
+                    $tipo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
+                    $stmtMedia = $pdo->prepare("INSERT INTO noticias_multimedia (noticia_id, archivo, tipo) VALUES (?, ?, ?)");
+                    $stmtMedia->execute([$noticia_id, $url, $tipo]);
+                }
+                
+            } catch (Exception $e) {
+                error_log("Error publicando noticia robot desde modal: " . $e->getMessage());
+                $mensaje_error = "Error al publicar en portada: " . $e->getMessage();
+            }
+        }
+        header("Location: admin.php?robot_ok=1");
+        exit();
+    }
     if (isset($_POST['robot_rechazar'])) {
         $id = (int)$_POST['robot_id'];
         $stmt = $pdo->prepare("UPDATE noticias_robot SET estado='rechazado' WHERE id=?");
@@ -542,17 +611,17 @@ if (isset($_GET['robot_rechazado'])) {
                                     </span>
                                 </td>
                                 <td class="acciones-td">
-                                    <!-- Botón Ver/Editar -->
-                                    <button type="button" class="btn btn-edit" onclick="abrirModalEditar(<?php echo htmlspecialchars(json_encode($nr), ENT_QUOTES, 'UTF-8'); ?>)">✏️ Editar</button>
-                                    <!-- Botón Publicar -->
+                                    <!-- Botón Editar -->
+                                    <button type="button" class="btn btn-edit" onclick="abrirModalEditar(<?php echo htmlspecialchars(json_encode($nr), ENT_QUOTES, 'UTF-8'); ?>)" style="padding:4px 10px;font-size:11px;min-height:28px;">✏️ Editar</button>
+                                    <!-- Botón Publicar directo -->
                                     <form method="POST" style="display:inline;" onsubmit="return confirm('¿Publicar esta noticia en la portada?');">
                                         <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
                                         <button type="submit" name="robot_publicar" class="btn" style="background:#28a745;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🚀 Publicar</button>
                                     </form>
-                                    <!-- Botón Rechazar -->
-                                    <form method="POST" style="display:inline;" onsubmit="return confirm('¿Rechazar y eliminar de la cola?');">
+                                    <!-- Botón Eliminar -->
+                                    <form method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar esta noticia de la cola?');">
                                         <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
-                                        <button type="submit" name="robot_rechazar" class="btn" style="background:#6c757d;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🗑️</button>
+                                        <button type="submit" name="robot_rechazar" class="btn" style="background:#dc3545;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🗑️ Eliminar</button>
                                     </form>
                                 </td>
                             </tr>
@@ -570,7 +639,7 @@ if (isset($_GET['robot_rechazado'])) {
         <div style="background:white;max-width:800px;margin:50px auto;padding:30px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);position:relative;">
             <button onclick="cerrarModal()" style="position:absolute;top:10px;right:15px;background:none;border:none;font-size:24px;cursor:pointer;color:#666;">&times;</button>
             <h3 style="margin-top:0;color:#333;">✏️ Editar Noticia del Robot</h3>
-            <form id="formEditarRobot" method="POST">
+            <form id="formEditarRobot" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="robot_id" id="edit_id">
                 <div class="form-group">
                     <label>Título:</label>
@@ -595,9 +664,15 @@ if (isset($_GET['robot_rechazado'])) {
                     <label>Contenido completo (mín. 4 párrafos separados por línea en blanco):</label>
                     <textarea name="contenido" id="edit_contenido" rows="12" required style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:14px;box-sizing:border-box;font-family:inherit;"></textarea>
                 </div>
+                <div class="form-group">
+                    <label>📎 Multimedia (Imágenes o Videos) - Opcional:</label>
+                    <input type="file" name="multimedia[]" multiple accept="image/*,video/*" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                    <small style="color:#666;">Selecciona múltiples archivos manteniendo Ctrl/Cmd. Formatos: JPG, PNG, WebP, MP4, WebM, MOV.</small>
+                </div>
                 <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
                     <button type="button" class="btn" onclick="cerrarModal()" style="background:#6c757d;color:white;">Cancelar</button>
                     <button type="submit" name="robot_editar" class="btn btn-edit">💾 Guardar Cambios</button>
+                    <button type="submit" name="robot_publicar_desde_modal" class="btn" style="background:#28a745;color:white;">🚀 Publicar</button>
                 </div>
             </form>
         </div>
