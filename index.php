@@ -198,12 +198,7 @@ header {
             font-size: 14px;
             font-weight: bold;
         }
-        .btn-today:hover { background: #5a6268; }
-        .current-view-text {
-            font-weight: bold;
-            color: #333;
-            font-size: 15px;
-        }
+.btn-today:hover { background: #5a6268; }
 
 .main-container { display: flex; flex-wrap: wrap; max-width: 1200px; margin: 20px auto; gap: 20px; padding: 0 10px; }
         
@@ -451,10 +446,7 @@ header {
         </div>
     </header>
 
-    <div class="date-bar">
-<div class="current-view-text">
-            Mostrando Noticias del: <span style="color: #007bff;"><?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?></span>
-        </div>
+<div class="date-bar">
         <form method="GET" action="index.php">
             <input type="date" name="fecha" value="<?php echo htmlspecialchars($fecha_seleccionada); ?>">
             <button type="submit" class="btn-filter">Ver Fecha</button>
