@@ -82,24 +82,25 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
         * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
         
-        header { 
+header { 
             background: #1b263b; 
             color: white; 
-            padding: 20px 30px; 
+            padding: 12px 16px; 
             display: grid; 
-            grid-template-columns: 1fr auto 1fr; 
+            grid-template-columns: auto 1fr auto; 
             align-items: center; 
-            gap: 15px; 
-            border-bottom: 4px solid #007bff; 
+            gap: 10px; 
+            border-bottom: 3px solid #007bff; 
+            position: relative;
         }
         
         .header-left { justify-self: start; }
         
-        .header-title { text-align: center; justify-self: center; }
-        .header-title h1 { margin: 0; font-size: 26px; font-weight: bold; letter-spacing: 0.5px; }
-        .header-title p { margin: 5px 0 0; color: #adb5bd; font-size: 13px; }
+        .header-title { text-align: center; justify-self: center; min-width: 0; }
+        .header-title h1 { margin: 0; font-size: 20px; font-weight: bold; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .header-title p { margin: 2px 0 0; color: #adb5bd; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .header-right { justify-self: end; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
 
         .btn-whatsapp-top { 
             background: linear-gradient(135deg, #25d366, #1ebe57); 
@@ -359,11 +360,62 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 
 @media (max-width: 768px) {
     .main-container { flex-direction: column; }
-    header { grid-template-columns: 1fr; text-align: center; justify-items: center; }
-    .header-left, .header-title, .header-right { justify-self: center; text-align: center; }
-    .header-right { justify-content: center; }
+    header { 
+        grid-template-columns: auto 1fr auto; 
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .header-left { justify-self: start; }
+    .header-title { 
+        justify-self: center; 
+        text-align: center; 
+        min-width: 0;
+    }
+    .header-title h1 { font-size: 17px; }
+    .header-title p { font-size: 10px; }
+    .header-right { 
+        justify-self: end; 
+        gap: 6px;
+    }
+    .btn-whatsapp-top { 
+        padding: 8px 14px; 
+        font-size: 12px; 
+        gap: 6px;
+        min-height: 36px;
+    }
+    .btn-notifications {
+        padding: 8px 12px;
+        font-size: 12px;
+        gap: 6px;
+        min-height: 36px;
+    }
+    .btn-whatsapp-top svg, .btn-notifications svg { width: 16px; height: 16px; }
+    .header-left img { height: 40px; }
     .date-bar { flex-direction: column; align-items: stretch; text-align: center; }
     .date-bar form { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+    header { padding: 8px 10px; gap: 6px; }
+    .header-left img { height: 36px; }
+    .header-title h1 { font-size: 15px; }
+    .header-title p { font-size: 9px; }
+    .btn-whatsapp-top { 
+        padding: 6px 10px; 
+        font-size: 0; 
+        min-width: 36px;
+        justify-content: center;
+    }
+    .btn-whatsapp-top::before { content: "💬"; font-size: 16px; }
+    .btn-whatsapp-top svg { display: none; }
+    .btn-notifications {
+        padding: 6px 10px;
+        font-size: 0;
+        min-width: 36px;
+        justify-content: center;
+    }
+    .btn-notifications::before { content: "📧"; font-size: 16px; }
+    .btn-notifications.active::before { content: "✅"; font-size: 16px; }
 }
 </style>
 </head>
