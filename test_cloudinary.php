@@ -28,14 +28,13 @@ $publicId = 'periodico/test_' . $timestamp;
 $resourceType = 'image';
 
 // Cloudinary signature: all params except file, api_key, signature - sorted alphabetically, RAW values
+// Note: resource_type is NOT included in signature per Cloudinary's validation
 $paramsToSign = [
     'folder' => 'periodico-digital',
     'public_id' => $publicId,
-    'resource_type' => $resourceType,
     'timestamp' => $timestamp
 ];
 ksort($paramsToSign);
-// Build signature string manually with RAW values (no URL encoding)
 $signatureParts = [];
 foreach ($paramsToSign as $k => $v) {
     $signatureParts[] = "$k=$v";
