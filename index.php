@@ -485,9 +485,36 @@ header {
             <button class="top-carousel-btn top-carousel-prev" id="topCarouselPrev" aria-label="Anterior">&#10094;</button>
             <button class="top-carousel-btn top-carousel-next" id="topCarouselNext" aria-label="Siguiente">&#10095;</button>
             <div class="top-carousel-dots" id="topCarouselDots"></div>
-        <?php endif; ?>
+<?php endif; ?>
     </div>
     <?php endif; ?>
+
+    <!-- ECONOMÍA - Debajo del banner principal -->
+    <div class="section-box" style="max-width: 1200px; margin: 20px auto 0 auto; padding: 0 10px;">
+        <div class="card">
+            <div class="widget-title">Economía</div>
+            <div class="crypto-item">
+                <span>Bitcoin (BTC):</span>
+                <span class="price" id="btc-price">Cargando...</span>
+            </div>
+            <div class="crypto-item">
+                <span>Ethereum (ETH):</span>
+                <span class="price" id="eth-price">Cargando...</span>
+            </div>
+            <div class="fx-item">
+                <span>Oro (XAU/USD):</span>
+                <span class="price" id="gold-price">Cargando...</span>
+            </div>
+            <div class="fx-item">
+                <span>USD / DOP:</span>
+                <span class="price" id="usd-dop">Cargando...</span>
+            </div>
+            <div class="fx-item">
+                <span>EUR / DOP:</span>
+                <span class="price" id="eur-dop">Cargando...</span>
+            </div>
+        </div>
+    </div>
 
     <div class="main-container">
         
@@ -603,9 +630,8 @@ header {
                 </div>
             </div>
 
-            <?php if (!empty($podcasts)): ?>
-                <div class="card" style="text-align: left;">
-                    <div class="widget-title">Últimos Envivos</div>
+            <div class="card" style="text-align: left;">
+                <div class="widget-title">Últimos Envivos</div>
                     
                     <?php foreach ($podcasts as $pod): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
