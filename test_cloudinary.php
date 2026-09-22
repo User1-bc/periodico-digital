@@ -38,6 +38,10 @@ ksort($paramsToSign);
 $signatureString = http_build_query($paramsToSign, '', '&') . $apiSecret;
 $signature = sha1($signatureString);
 
+echo "DEBUG - Params to sign: " . print_r($paramsToSign, true) . "\n";
+echo "DEBUG - Signature string: $signatureString\n";
+echo "DEBUG - Signature: $signature\n";
+
 $postFields = [
     'file' => new CURLFile($testFile),
     'api_key' => $apiKey,
