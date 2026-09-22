@@ -8,11 +8,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$nombre = trim($_POST['nombre'] ?? '');
-$email = trim($_POST['email'] ?? '');
-$telefono = trim($_POST['telefono'] ?? '');
-$asunto = trim($_POST['asunto'] ?? '');
-$mensaje = trim($_POST['mensaje'] ?? '');
+// Support both JSON and form-data
+$input = file_get_contents('php://input');
+$data = json_decode($input, true);
+if ($data) {
+    $nombre = trim($data['nombre'] ?? '');
+    $email = trim($data['email'] ?? '');
+    $telefono = trim($data['telefono'] ?? '');
+    $asunto = trim($data['asunto'] ?? '');
+    $mensaje = trim($data['mensaje'] ?? '');
+} else {
+    $nombre = trim($_POST['nombre'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $telefono = trim($_POST['telefono'] ?? '');
+    $asunto = trim($_POST['asunto'] ?? '');
+    $mensaje = trim($_POST['mensaje'] ?? '');
+}
 
 if (empty($nombre) || empty($email) || empty($asunto) || empty($mensaje)) {
     echo json_encode(['success' => false, 'message' => 'Todos los campos obligatorios deben completarse']);
