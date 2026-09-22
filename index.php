@@ -412,9 +412,13 @@ header {
     header { padding: 8px 10px; gap: 6px; }
     .header-left img { height: 36px; }
     .header-title h1 { font-size: 15px; }
-.header-title p { font-size: 9px; }
+    .header-title p { font-size: 9px; }
     .btn-icon { width: 38px; height: 38px; }
     .btn-icon svg { width: 20px; height: 20px; }
+}
+@media (max-width: 768px) {
+    .mobile-economia { display: block !important; }
+    .col-sidebar-right .card:first-child { display: none; }
 }
 </style>
 </head>
@@ -489,29 +493,29 @@ header {
     </div>
     <?php endif; ?>
 
-    <!-- ECONOMÍA - Debajo del banner principal -->
-    <div class="section-box" style="max-width: 1200px; margin: 20px auto 0 auto; padding: 0 10px;">
+    <!-- ECONOMÍA MÓVIL - Solo visible en móvil debajo del carousel -->
+    <div class="mobile-economia section-box" style="max-width: 1200px; margin: 20px auto 0 auto; padding: 0 10px; display: none;">
         <div class="card">
             <div class="widget-title">Economía</div>
             <div class="crypto-item">
                 <span>Bitcoin (BTC):</span>
-                <span class="price" id="btc-price">Cargando...</span>
+                <span class="price" id="btc-price-mobile">Cargando...</span>
             </div>
             <div class="crypto-item">
                 <span>Ethereum (ETH):</span>
-                <span class="price" id="eth-price">Cargando...</span>
+                <span class="price" id="eth-price-mobile">Cargando...</span>
             </div>
             <div class="fx-item">
                 <span>Oro (XAU/USD):</span>
-                <span class="price" id="gold-price">Cargando...</span>
+                <span class="price" id="gold-price-mobile">Cargando...</span>
             </div>
             <div class="fx-item">
                 <span>USD / DOP:</span>
-                <span class="price" id="usd-dop">Cargando...</span>
+                <span class="price" id="usd-dop-mobile">Cargando...</span>
             </div>
             <div class="fx-item">
                 <span>EUR / DOP:</span>
-                <span class="price" id="eur-dop">Cargando...</span>
+                <span class="price" id="eur-dop-mobile">Cargando...</span>
             </div>
         </div>
     </div>
@@ -663,22 +667,18 @@ header {
             });
         }
 
-        async function fetchMarketData() {
+async function fetchMarketData() {
             try {
                 let responseCrypto = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,pax-gold&vs_currencies=usd');
                 let dataCrypto = await responseCrypto.json();
                 
-                if(dataCrypto.bitcoin) {
-                    document.getElementById('btc-price').innerText = "$" + dataCrypto.bitcoin.usd.toLocaleString() + " USD";
-                }
-                if(dataCrypto.ethereum) {
-                    document.getElementById('eth-price').innerText = "$" + dataCrypto.ethereum.usd.toLocaleString() + " USD";
-                }
-                if(dataCrypto['pax-gold']) {
-                    document.getElementById('gold-price').innerText = "$" + dataCrypto['pax-gold'].usd.toLocaleString() + " USD";
-                } else {
-                    document.getElementById('gold-price').innerText = "No disponible";
-                }
+                const btcText = dataCrypto.bitcoin ? "$" + dataCrypto.bitcoin.usd.toLocaleString() + " USD" : "Error";
+                const ethText = dataCrypto.ethereum ? "$" + dataCrypto.ethereum.usd.toLocaleString() + " USD" : "Error";
+                const goldText = dataCrypto['pax-gold'] ? "$" + dataCrypto['pax-gold'].usd.toLocaleString() + " USD" : "No disponible";
+                
+                ['btc-price', 'btc-price-mobile'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = btcText; });
+                ['eth-price', 'eth-price-mobile'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = ethText; });
+                ['gold-price', 'gold-price-mobile'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = goldText; });
 
                 let responseFx = await fetch('https://open.er-api.com/v6/latest/USD');
                 let dataFx = await responseFx.json();
@@ -688,11 +688,13 @@ header {
                     let rateEUR_USD = dataFx.rates.EUR; 
                     
                     if(rateUSD_DOP) {
-                        document.getElementById('usd-dop').innerText = "~ " + rateUSD_DOP.toFixed(2) + " RD$";
+                        const usdText = "~ " + rateUSD_DOP.toFixed(2) + " RD$";
+                        ['usd-dop', 'usd-dop-mobile'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = usdText; });
                         
                         if(rateEUR_USD) {
                             let rateEUR_DOP = rateUSD_DOP / rateEUR_USD;
-                            document.getElementById('eur-dop').innerText = "~ " + rateEUR_DOP.toFixed(2) + " RD$";
+                            const eurText = "~ " + rateEUR_DOP.toFixed(2) + " RD$";
+                            ['eur-dop', 'eur-dop-mobile'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = eurText; });
                         }
                     }
                 }
