@@ -182,7 +182,8 @@ function subirMediaCloudinary($tmpPath, $originalName) {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $postFields,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 60,
+        CURLOPT_TIMEOUT => 180,
+        CURLOPT_CONNECTTIMEOUT => 30,
     ]);
     
     $response = curl_exec($ch);
@@ -623,7 +624,7 @@ if (isset($_GET['robot_rechazado'])) {
             </h2>
             
             <!-- Formulario interno para publicar podcast rápidamente -->
-            <form action="admin.php" method="POST" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e9ecef;">
+            <form action="admin.php" method="POST" id="form-podcast" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e9ecef;">
                 <h3 style="margin-top: 0; font-size: 15px; color: #333; margin-bottom: 12px;">Publicar Nuevo Episodio</h3>
                 
                 <div class="form-group">
@@ -641,8 +642,16 @@ if (isset($_GET['robot_rechazado'])) {
                     <textarea name="descripcion_podcast" rows="3" required placeholder="Breve resumen del episodio..."></textarea>
                 </div>
 
-                <button type="submit" name="guardar_podcast" class="btn btn-add">Publicar Podcast</button>
+                <button type="submit" name="guardar_podcast" class="btn btn-add" id="btn-submit-podcast">Publicar Podcast</button>
             </form>
+
+            <script>
+                document.getElementById('form-podcast').addEventListener('submit', function() {
+                    const btn = document.getElementById('btn-submit-podcast');
+                    btn.classList.add('loading');
+                    btn.innerHTML = 'Publicando... ⏳';
+                });
+            </script>
 
             <!-- Tabla de podcasts existentes -->
             <?php if (empty($podcasts)): ?>
@@ -794,10 +803,20 @@ if (isset($_GET['robot_rechazado'])) {
                 </div>
                 <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
                     <button type="button" class="btn" onclick="cerrarModal()" style="background:#6c757d;color:white;">Cancelar</button>
-                    <button type="submit" name="robot_editar" class="btn btn-edit">💾 Guardar Cambios</button>
-                    <button type="submit" name="robot_publicar_desde_modal" class="btn" style="background:#28a745;color:white;">🚀 Publicar</button>
+                    <button type="submit" name="robot_editar" class="btn btn-edit" id="btn-robot-guardar">💾 Guardar Cambios</button>
+                    <button type="submit" name="robot_publicar_desde_modal" class="btn" style="background:#28a745;color:white;" id="btn-robot-publicar">🚀 Publicar</button>
                 </div>
             </form>
+
+            <script>
+                document.getElementById('formEditarRobot').addEventListener('submit', function(e) {
+                    const submitter = e.submitter;
+                    if (submitter && submitter.id) {
+                        submitter.classList.add('loading');
+                        submitter.innerHTML = submitter.id === 'btn-robot-publicar' ? 'Publicando... ⏳' : 'Guardando... ⏳';
+                    }
+                });
+            </script>
         </div>
     </div>
 

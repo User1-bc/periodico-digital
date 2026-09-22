@@ -119,7 +119,8 @@ function subirMediaCloudinary($tmpPath, $originalName) {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $postFields,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 60,
+        CURLOPT_TIMEOUT => 180,
+        CURLOPT_CONNECTTIMEOUT => 30,
     ]);
     
     $response = curl_exec($ch);
@@ -192,12 +193,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .btn-submit { background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; }
         .btn-back { background: #6c757d; color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; display: inline-block; margin-right: 10px; }
         .helper-text { font-size: 12px; color: #666; margin-top: 4px; display: block; }
+        .btn-submit.loading { opacity: 0.7; cursor: wait; pointer-events: none; }
+        .btn-submit.loading::after { content: " ⏳"; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h2>📢 Publicar Anuncio / Catálogo</h2>
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form action="" method="POST" enctype="multipart/form-data" id="form-anuncio">
             <div class="form-group">
                 <label>Nombre del Cliente / Marca:</label>
                 <input type="text" name="cliente_nombre" required>
@@ -230,10 +234,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <div style="margin-top: 20px;">
                 <a href="admin.php" class="btn-back">Cancelar</a>
-                <button type="submit" class="btn-submit">Publicar Anuncio</button>
+                <button type="submit" class="btn-submit" id="btn-submit-anuncio">Publicar Anuncio</button>
             </div>
         </form>
     </div>
+    <script>
+        document.getElementById('form-anuncio').addEventListener('submit', function() {
+            const btn = document.getElementById('btn-submit-anuncio');
+            btn.classList.add('loading');
+            btn.innerHTML = 'Publicando... ⏳';
+        });
+    </script>
 </body>
 </html>
 

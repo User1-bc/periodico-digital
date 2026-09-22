@@ -106,7 +106,8 @@ function subirMediaCloudinary($tmpPath, $originalName) {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $postFields,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 60,
+        CURLOPT_TIMEOUT => 180,
+        CURLOPT_CONNECTTIMEOUT => 30,
     ]);
     
     $response = curl_exec($ch);
