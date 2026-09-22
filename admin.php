@@ -77,8 +77,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nr->execute([$id]);
         $robot = $nr->fetch(PDO::FETCH_ASSOC);
         if ($robot) {
-            $stmt2 = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria, imagen) VALUES (?, ?, ?, NOW(), 'Robot IA', ?, ?)");
-            $stmt2->execute([$robot['titulo_generado'], $robot['contenido_generado'], $robot['descripcion_generada'], $robot['categoria'], $robot['imagen_url']]);
+            try {
+                // Usar fecha en zona horaria RD para que coincida con el filtro de index.php
+                $fechaRD = new DateTime('now', new DateTimeZone('America/Santo_Domingo'));
+                $fechaPub = $fechaRD->format('Y-m-d H:i:s');
+                
+                $stmt2 = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria, imagen) VALUES (?, ?, ?, ?, 'Robot IA', ?, ?)");
+                $stmt2->execute([$robot['titulo_generado'], $robot['contenido_generado'], $robot['descripcion_generada'], $fechaPub, $robot['categoria'], $robot['imagen_url']]);
+            } catch (Exception $e) {
+                error_log("Error publicando noticia robot: " . $e->getMessage());
+                $mensaje_error = "Error al publicar en portada: " . $e->getMessage();
+            }
         }
         header("Location: admin.php?robot_ok=1");
         exit();
