@@ -260,11 +260,13 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
-    margin: 0 auto;
-    max-width: 1200px;
-    padding: 0 10px;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
     overflow: hidden;
-    border-radius: 0 0 12px 12px;
+    border-radius: 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     background: #000;
     aspect-ratio: 16/9;
