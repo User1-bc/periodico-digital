@@ -6,41 +6,86 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 }
 require_once 'conexion.php';
 
+// Subir archivo a Cloudinary
+function subirMediaCloudinary($tmpPath, $originalName) {
+    $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
+    if (empty($cloudinaryUrl)) return null;
+    
+    if (!preg_match('/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/', $cloudinaryUrl, $m)) return null;
+    $apiKey = $m[1]; $apiSecret = $m[2]; $cloudName = $m[3];
+    
+    $timestamp = time();
+    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $publicId = 'periodico/ad_' . preg_replace('/[^a-zA-Z0-9_-]/', '', pathinfo($originalName, PATHINFO_FILENAME)) . '_' . $timestamp;
+    $resourceType = in_array($ext, ['mp4','webm','ogg','mov','avi','mkv','m4v']) ? 'video' : 'image';
+    
+    $paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+    $signature = sha1($paramsToSign);
+    
+    $postFields = [
+        'file' => new CURLFile($tmpPath),
+        'api_key' => $apiKey,
+        'timestamp' => $timestamp,
+        'public_id' => $publicId,
+        'signature' => $signature,
+        'folder' => 'periodico-digital',
+        'resource_type' => $resourceType
+    ];
+    
+    $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/upload");
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $postFields,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 60,
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) return null;
+    $result = json_decode($response, true);
+    return $result['secure_url'] ?? null;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $cliente_nombre = trim($_POST['cliente_nombre']);
     $enlace_destino = trim($_POST['enlace_destino']);
-    $posicion = $_POST['posicion']; // 'izquierda' o 'derecha'
+    $posicion = $_POST['posicion'];
     $activo = isset($_POST['activo']) ? 1 : 0;
     
-    // 1. Insertar el anuncio principal (columna es 'titulo' en schema)
     $stmt = $pdo->prepare("INSERT INTO anuncios (titulo, enlace_destino, posicion, activo, imagen_banner) VALUES (?, ?, ?, ?, '')");
     if ($stmt->execute([$cliente_nombre, $enlace_destino, $posicion, $activo])) {
         $anuncio_id = $pdo->lastInsertId();
 
-        // 2. Procesar la subida múltiple de archivos para el carrete del anuncio
         if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
             $permitidas_img = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
             $permitidas_vid = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'm4v'];
-
-            if (!is_dir('uploads')) {
-                mkdir('uploads', 0777, true);
-            }
 
             $total_archivos = count($_FILES['multimedia']['name']);
 
             for ($i = 0; $i < $total_archivos; $i++) {
                 if ($_FILES['multimedia']['error'][$i] == 0) {
-                    $nombre_original = preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $_FILES['multimedia']['name'][$i]);
-                    $nombre_archivo = time() . "_ad_" . $i . "_" . $nombre_original;
-                    $ruta_destino = "uploads/" . $nombre_archivo;
+                    $tmpPath = $_FILES['multimedia']['tmp_name'][$i];
+                    $nombre_original = $_FILES['multimedia']['name'][$i];
                     $ext = strtolower(pathinfo($nombre_original, PATHINFO_EXTENSION));
 
-                    if (move_uploaded_file($_FILES['multimedia']['tmp_name'][$i], $ruta_destino)) {
-                        $tipo_archivo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
+                    $tipo_archivo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
 
-                        $stmtMedia = $pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
-                        $stmtMedia->execute([$anuncio_id, $ruta_destino, $tipo_archivo]);
+                    $urlCloudinary = subirMediaCloudinary($tmpPath, $nombre_original);
+                    $ruta_final = $urlCloudinary ?: "uploads/" . time() . "_ad_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
+                    
+                    if (!$urlCloudinary) {
+                        if (!is_dir('uploads')) mkdir('uploads', 0777, true);
+                        $nombre_archivo = time() . "_ad_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
+                        $ruta_destino = "uploads/" . $nombre_archivo;
+                        move_uploaded_file($tmpPath, $ruta_destino);
+                        $ruta_final = $ruta_destino;
                     }
+
+                    $stmtMedia = $pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
+                    $stmtMedia->execute([$anuncio_id, $ruta_final, $tipo_archivo]);
                 }
             }
         }

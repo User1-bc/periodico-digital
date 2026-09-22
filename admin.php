@@ -7,12 +7,11 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 
 require_once 'conexion.php';
 
-// Función para generar imagen con DALL-E basada en la noticia
+// Función para generar imagen con DALL-E y subir a Cloudinary
 function generarImagenNoticia($titulo, $contenido) {
     $apiKey = getenv('OPENAI_API_KEY') ?: '';
     if (empty($apiKey)) return null;
     
-    // Extraer prompt visual del contenido (primeros 2 párrafos + título)
     $parrafos = explode("\n\n", $contenido);
     $resumenVisual = $titulo . '. ' . implode(' ', array_slice($parrafos, 0, 2));
     $resumenVisual = mb_substr($resumenVisual, 0, 400);
@@ -24,7 +23,7 @@ function generarImagenNoticia($titulo, $contenido) {
             'model' => 'dall-e-3',
             'prompt' => $prompt,
             'n' => 1,
-            'size' => '1792x1024', // 16:9 landscape
+            'size' => '1792x1024',
             'quality' => 'standard',
             'response_format' => 'url'
         ];
@@ -45,21 +44,81 @@ function generarImagenNoticia($titulo, $contenido) {
         $imageUrl = $result['data'][0]['url'] ?? null;
         if (!$imageUrl) return null;
         
-        // Descargar y guardar localmente
+        // Descargar imagen temporal
         $imgData = @file_get_contents($imageUrl);
-        if (!$imgData) return $imageUrl; // Fallback a URL de OpenAI
+        if (!$imgData) return $imageUrl;
         
-        $safeTitle = preg_replace('/[^a-zA-Z0-9_-]/', '', str_replace(' ', '_', mb_substr($titulo, 0, 40)));
-        $filename = 'uploads/ia_' . $safeTitle . '_' . time() . '.png';
-        $filepath = __DIR__ . '/' . $filename;
+        $tmpFile = sys_get_temp_dir() . '/ia_' . preg_replace('/[^a-zA-Z0-9_-]/', '', str_replace(' ', '_', mb_substr($titulo, 0, 40))) . '_' . time() . '.png';
+        file_put_contents($tmpFile, $imgData);
         
-        if (file_put_contents($filepath, $imgData)) {
-            return $filename;
-        }
-        return $imageUrl;
+        // Subir a Cloudinary (persistente)
+        $cloudinaryUrl = subirACloudinary($tmpFile, $titulo);
+        
+        // Limpiar temp
+        @unlink($tmpFile);
+        
+        return $cloudinaryUrl ?: $imageUrl;
         
     } catch (Exception $e) {
         error_log("Error generando imagen IA: " . $e->getMessage());
+        return null;
+    }
+}
+
+// Subir imagen a Cloudinary (persistente, CDN global)
+function subirACloudinary($filepath, $titulo) {
+    $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
+    if (empty($cloudinaryUrl)) return null;
+    
+    // Parsear cloudinary://api_key:api_secret@cloud_name
+    if (!preg_match('/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/', $cloudinaryUrl, $m)) {
+        error_log("CLOUDINARY_URL formato inválido");
+        return null;
+    }
+    $apiKey = $m[1];
+    $apiSecret = $m[2];
+    $cloudName = $m[3];
+    
+    try {
+        $timestamp = time();
+        $publicId = 'periodico/' . preg_replace('/[^a-zA-Z0-9_-]/', '', str_replace(' ', '_', mb_substr($titulo, 0, 40))) . '_' . $timestamp;
+        
+        // Firmar según spec de Cloudinary
+        $paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+        $signature = sha1($paramsToSign);
+        
+        $postFields = [
+            'file' => new CURLFile($filepath),
+            'api_key' => $apiKey,
+            'timestamp' => $timestamp,
+            'public_id' => $publicId,
+            'signature' => $signature,
+            'folder' => 'periodico-digital',
+            'resource_type' => 'auto'
+        ];
+        
+        $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/upload");
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $postFields,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            error_log("Cloudinary upload failed: $response");
+            return null;
+        }
+        
+        $result = json_decode($response, true);
+        return $result['secure_url'] ?? null;
+        
+    } catch (Exception $e) {
+        error_log("Error subiendo a Cloudinary: " . $e->getMessage());
         return null;
     }
 }

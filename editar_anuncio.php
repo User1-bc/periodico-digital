@@ -6,6 +6,49 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 }
 require_once 'conexion.php';
 
+// Subir archivo a Cloudinary
+function subirMediaCloudinary($tmpPath, $originalName) {
+    $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
+    if (empty($cloudinaryUrl)) return null;
+    
+    if (!preg_match('/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/', $cloudinaryUrl, $m)) return null;
+    $apiKey = $m[1]; $apiSecret = $m[2]; $cloudName = $m[3];
+    
+    $timestamp = time();
+    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $publicId = 'periodico/ad_' . preg_replace('/[^a-zA-Z0-9_-]/', '', pathinfo($originalName, PATHINFO_FILENAME)) . '_' . $timestamp;
+    $resourceType = in_array($ext, ['mp4','webm','ogg','mov','avi','mkv','m4v']) ? 'video' : 'image';
+    
+    $paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+    $signature = sha1($paramsToSign);
+    
+    $postFields = [
+        'file' => new CURLFile($tmpPath),
+        'api_key' => $apiKey,
+        'timestamp' => $timestamp,
+        'public_id' => $publicId,
+        'signature' => $signature,
+        'folder' => 'periodico-digital',
+        'resource_type' => $resourceType
+    ];
+    
+    $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/upload");
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $postFields,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 60,
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) return null;
+    $result = json_decode($response, true);
+    return $result['secure_url'] ?? null;
+}
+
 $id = $_GET['id'] ?? null;
 if (!$id) { header("Location: admin.php"); exit(); }
 
@@ -15,7 +58,6 @@ $anuncio = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$anuncio) { header("Location: admin.php"); exit(); }
 
-// Procesar eliminación de un archivo multimedia específico del anuncio
 if (isset($_GET['eliminar_media'])) {
     $media_id = $_GET['eliminar_media'];
     $stmt_del = $pdo->prepare("SELECT archivo FROM anuncios_multimedia WHERE id = ? AND anuncio_id = ?");
@@ -23,7 +65,7 @@ if (isset($_GET['eliminar_media'])) {
     $archivo_info = $stmt_del->fetch(PDO::FETCH_ASSOC);
 
     if ($archivo_info) {
-        if (file_exists($archivo_info['archivo'])) {
+        if (str_starts_with($archivo_info['archivo'], 'uploads/') && file_exists($archivo_info['archivo'])) {
             unlink($archivo_info['archivo']);
         }
         $stmt_drop = $pdo->prepare("DELETE FROM anuncios_multimedia WHERE id = ?");
@@ -39,34 +81,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $posicion = $_POST['posicion'];
     $activo = isset($_POST['activo']) ? 1 : 0;
     
-    // Actualizar datos del anuncio (columna es 'titulo' en schema)
     $update = $pdo->prepare("UPDATE anuncios SET titulo = ?, enlace_destino = ?, posicion = ?, activo = ? WHERE id = ?");
     $update->execute([$cliente_nombre, $enlace_destino, $posicion, $activo, $id]);
 
-    // Procesar nuevos archivos múltiples agregados
     if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
         $permitidas_img = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
         $permitidas_vid = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'm4v'];
-
-        if (!is_dir('uploads')) {
-            mkdir('uploads', 0777, true);
-        }
 
         $total_archivos = count($_FILES['multimedia']['name']);
 
         for ($i = 0; $i < $total_archivos; $i++) {
             if ($_FILES['multimedia']['error'][$i] == 0) {
-                $nombre_original = preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $_FILES['multimedia']['name'][$i]);
-                $nombre_archivo = time() . "_ad_" . $i . "_" . $nombre_original;
-                $ruta_destino = "uploads/" . $nombre_archivo;
+                $tmpPath = $_FILES['multimedia']['tmp_name'][$i];
+                $nombre_original = $_FILES['multimedia']['name'][$i];
                 $ext = strtolower(pathinfo($nombre_original, PATHINFO_EXTENSION));
 
-                if (move_uploaded_file($_FILES['multimedia']['tmp_name'][$i], $ruta_destino)) {
-                    $tipo_archivo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
+                $tipo_archivo = in_array($ext, $permitidas_vid) ? 'video' : 'imagen';
 
-                    $stmtMedia = $pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
-                    $stmtMedia->execute([$id, $ruta_destino, $tipo_archivo]);
+                $urlCloudinary = subirMediaCloudinary($tmpPath, $nombre_original);
+                $ruta_final = $urlCloudinary ?: "uploads/" . time() . "_ad_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
+                
+                if (!$urlCloudinary) {
+                    if (!is_dir('uploads')) mkdir('uploads', 0777, true);
+                    $nombre_archivo = time() . "_ad_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
+                    $ruta_destino = "uploads/" . $nombre_archivo;
+                    move_uploaded_file($tmpPath, $ruta_destino);
+                    $ruta_final = $ruta_destino;
                 }
+
+                $stmtMedia = $pdo->prepare("INSERT INTO anuncios_multimedia (anuncio_id, archivo, tipo) VALUES (?, ?, ?)");
+                $stmtMedia->execute([$id, $ruta_final, $tipo_archivo]);
             }
         }
     }
@@ -91,7 +135,7 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
         h2 { margin-top: 0; color: #333; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-group input[type="text"], .form-group select, .form-group input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-group input[type="text"], .form-group input[type="url"], .form-group select, .form-group input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-submit { background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; }
         .btn-back { background: #6c757d; color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; display: inline-block; margin-right: 10px; }
         .grid-multimedia-admin { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; background: #f8f9fa; padding: 10px; border-radius: 6px; }
@@ -106,13 +150,13 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
         <h2>✏️ Editar Anuncio / Catálogo</h2>
         <form action="" method="POST" enctype="multipart/form-data">
             <div class="form-group">
-                <label>Nombre del Cliente / Marca:</label>
+                <label>Nombre del Cliente / Título:</label>
                 <input type="text" name="cliente_nombre" value="<?php echo htmlspecialchars($anuncio['titulo']); ?>" required>
             </div>
             
             <div class="form-group">
-                <label>Enlace de Destino:</label>
-                <input type="text" name="enlace_destino" value="<?php echo htmlspecialchars($anuncio['enlace_destino']); ?>" required>
+                <label>Enlace de Destino (URL):</label>
+                <input type="url" name="enlace_destino" value="<?php echo htmlspecialchars($anuncio['enlace_destino']); ?>" required placeholder="https://ejemplo.com">
             </div>
 
             <div class="form-group">
@@ -124,19 +168,26 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="form-group">
-                <label>Artículos actuales en el catálogo:</label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="activo" value="1" <?php echo $anuncio['activo'] ? 'checked' : ''; ?> style="width: auto;">
+                    Anuncio Activo / Visible
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>Multimedia actual en el carrete:</label>
                 <?php if (empty($archivos_actuales)): ?>
-                    <p style="font-size: 13px; color: #777;">No hay archivos en este anuncio. (También puedes revisar si usaba el formato antiguo en <code>imagen_banner</code>: <?php echo htmlspecialchars($anuncio['imagen_banner']); ?>)</p>
+                    <p style="font-size: 13px; color: #777;">No hay archivos multimedia en este anuncio.</p>
                 <?php else: ?>
                     <div class="grid-multimedia-admin">
                         <?php foreach ($archivos_actuales as $media): ?>
                             <div class="item-admin">
                                 <?php if ($media['tipo'] == 'video'): ?>
-                                    <video src="<?php echo htmlspecialchars($media['archivo']); ?>"></video>
+                                    <video src="<?php echo htmlspecialchars($media['archivo']); ?>" controls></video>
                                 <?php else: ?>
                                     <img src="<?php echo htmlspecialchars($media['archivo']); ?>" alt="Media">
                                 <?php endif; ?>
-                                <a href="editar_anuncio.php?id=<?php echo $id; ?>&eliminar_media=<?php echo $media['id']; ?>" class="btn-eliminar-item" onclick="return confirm('¿Seguro que deseas eliminar este artículo?');" title="Eliminar">×</a>
+                                <a href="editar_anuncio.php?id=<?php echo $id; ?>&eliminar_media=<?php echo $media['id']; ?>" class="btn-eliminar-item" onclick="return confirm('¿Seguro que deseas eliminar este archivo?');" title="Eliminar archivo">×</a>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -144,14 +195,9 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="form-group">
-                <label style="margin-top: 15px;">Añadir más artículos (Opcional):</label>
+                <label style="margin-top: 15px;">Añadir más archivos al carrete (Opcional):</label>
                 <input type="file" name="multimedia[]" multiple>
-                <span class="helper-text">Selecciona más fotos o videos para sumar al catálogo.</span>
-            </div>
-
-            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" name="activo" id="activo" value="1" <?php echo ($anuncio['activo'] == 1) ? 'checked' : ''; ?> style="width: auto;">
-                <label for="activo" style="margin: 0; cursor: pointer;">Anuncio Activo / Visible</label>
+                <span class="helper-text">Puedes seleccionar múltiples imágenes o videos manteniendo presionado Ctrl (o Cmd en Mac).</span>
             </div>
 
             <div style="margin-top: 20px;">
@@ -162,5 +208,3 @@ $archivos_actuales = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </body>
 </html>
-
-

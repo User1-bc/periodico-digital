@@ -6,17 +6,58 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 }
 require_once 'conexion.php';
 
+// Subir archivo a Cloudinary (reutilizable)
+function subirMediaCloudinary($tmpPath, $originalName) {
+    $cloudinaryUrl = getenv('CLOUDINARY_URL') ?: '';
+    if (empty($cloudinaryUrl)) return null;
+    
+    if (!preg_match('/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/', $cloudinaryUrl, $m)) return null;
+    $apiKey = $m[1]; $apiSecret = $m[2]; $cloudName = $m[3];
+    
+    $timestamp = time();
+    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $publicId = 'periodico/' . preg_replace('/[^a-zA-Z0-9_-]/', '', pathinfo($originalName, PATHINFO_FILENAME)) . '_' . $timestamp;
+    $resourceType = in_array($ext, ['mp4','webm','ogg','mov','avi','mkv','m4v']) ? 'video' : 'image';
+    
+    $paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+    $signature = sha1($paramsToSign);
+    
+    $postFields = [
+        'file' => new CURLFile($tmpPath),
+        'api_key' => $apiKey,
+        'timestamp' => $timestamp,
+        'public_id' => $publicId,
+        'signature' => $signature,
+        'folder' => 'periodico-digital',
+        'resource_type' => $resourceType
+    ];
+    
+    $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/upload");
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $postFields,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 60,
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) return null;
+    $result = json_decode($response, true);
+    return $result['secure_url'] ?? null;
+}
+
 $id = $_GET['id'] ?? null;
 if (!$id) { header("Location: admin.php"); exit(); }
 
-// Obtener la noticia principal
 $stmt = $pdo->prepare("SELECT * FROM noticias WHERE id = ?");
 $stmt->execute([$id]);
 $noticia = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$noticia) { header("Location: admin.php"); exit(); }
 
-// Procesar eliminación de un archivo multimedia específico del carrete
 if (isset($_GET['eliminar_media'])) {
     $media_id = $_GET['eliminar_media'];
     $stmt_del = $pdo->prepare("SELECT archivo FROM noticias_multimedia WHERE id = ? AND noticia_id = ?");
@@ -24,7 +65,8 @@ if (isset($_GET['eliminar_media'])) {
     $archivo_info = $stmt_del->fetch(PDO::FETCH_ASSOC);
 
     if ($archivo_info) {
-        if (file_exists($archivo_info['archivo'])) {
+        // Si es archivo local, borrarlo
+        if (str_starts_with($archivo_info['archivo'], 'uploads/') && file_exists($archivo_info['archivo'])) {
             unlink($archivo_info['archivo']);
         }
         $stmt_drop = $pdo->prepare("DELETE FROM noticias_multimedia WHERE id = ?");
@@ -38,38 +80,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $titulo = trim($_POST['titulo']);
     $descripcion = trim($_POST['descripcion']);
     
-    // Actualizar datos de texto de la noticia principal
     $update = $pdo->prepare("UPDATE noticias SET titulo = ?, descripcion = ? WHERE id = ?");
     $update->execute([$titulo, $descripcion, $id]);
 
-    // Procesar nuevos archivos múltiples subidos en la edición
     if (isset($_FILES['multimedia']) && !empty($_FILES['multimedia']['name'][0])) {
         $permitidas_img = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
         $permitidas_vid = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'm4v'];
-
-        if (!is_dir('uploads')) {
-            mkdir('uploads', 0777, true);
-        }
 
         $total_archivos = count($_FILES['multimedia']['name']);
 
         for ($i = 0; $i < $total_archivos; $i++) {
             if ($_FILES['multimedia']['error'][$i] == 0) {
-                $nombre_original = preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $_FILES['multimedia']['name'][$i]);
-                $nombre_archivo = time() . "_" . $i . "_" . $nombre_original;
-                $ruta_destino = "uploads/" . $nombre_archivo;
+                $tmpPath = $_FILES['multimedia']['tmp_name'][$i];
+                $nombre_original = $_FILES['multimedia']['name'][$i];
                 $ext = strtolower(pathinfo($nombre_original, PATHINFO_EXTENSION));
 
-                if (move_uploaded_file($_FILES['multimedia']['tmp_name'][$i], $ruta_destino)) {
-                    if (in_array($ext, $permitidas_vid)) {
-                        $tipo_archivo = 'video';
-                    } else {
-                        $tipo_archivo = 'imagen';
-                    }
+                if (in_array($ext, $permitidas_vid)) $tipo_archivo = 'video';
+                else $tipo_archivo = 'imagen';
 
-                    $stmtMedia = $pdo->prepare("INSERT INTO noticias_multimedia (noticia_id, archivo, tipo) VALUES (?, ?, ?)");
-                    $stmtMedia->execute([$id, $ruta_destino, $tipo_archivo]);
+                $urlCloudinary = subirMediaCloudinary($tmpPath, $nombre_original);
+                $ruta_final = $urlCloudinary ?: "uploads/" . time() . "_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
+                
+                if (!$urlCloudinary) {
+                    if (!is_dir('uploads')) mkdir('uploads', 0777, true);
+                    $nombre_archivo = time() . "_" . $i . "_" . preg_replace("/[^a-zA-Z0-9.\-_]/", "_", $nombre_original);
+                    $ruta_destino = "uploads/" . $nombre_archivo;
+                    move_uploaded_file($tmpPath, $ruta_destino);
+                    $ruta_final = $ruta_destino;
                 }
+
+                $stmtMedia = $pdo->prepare("INSERT INTO noticias_multimedia (noticia_id, archivo, tipo) VALUES (?, ?, ?)");
+                $stmtMedia->execute([$id, $ruta_final, $tipo_archivo]);
             }
         }
     }
