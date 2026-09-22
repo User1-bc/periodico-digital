@@ -120,3 +120,19 @@ CREATE TABLE IF NOT EXISTS suscripciones_push (
 );
 
 CREATE INDEX IF NOT EXISTS idx_suscripciones_endpoint ON suscripciones_push(endpoint);
+
+-- Tabla para formularios de contacto
+CREATE TABLE IF NOT EXISTS contactos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    telefono VARCHAR(50),
+    asunto VARCHAR(100) NOT NULL,
+    mensaje TEXT NOT NULL,
+    fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    leido BOOLEAN NOT NULL DEFAULT false,
+    respondido BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE INDEX IF NOT EXISTS idx_contactos_fecha ON contactos(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_contactos_leido ON contactos(leido);
