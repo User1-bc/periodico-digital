@@ -102,51 +102,49 @@ header {
         
         .header-right { justify-self: end; display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
 
-        .btn-whatsapp-top { 
-            background: linear-gradient(135deg, #25d366, #1ebe57); 
-            color: white; 
-            padding: 12px 22px; 
-            border-radius: 30px; 
-            text-decoration: none; 
-            font-weight: bold; 
-            font-size: 15px; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 10px; 
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            white-space: nowrap;
-        }
-        .btn-whatsapp-top:hover { 
-            background: linear-gradient(135deg, #20ba5a, #189e47); 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
-        }
-
-        .btn-notifications {
-            background: linear-gradient(135deg, #ffc107, #e0a800);
-            color: #212529;
-            padding: 12px 18px;
-            border-radius: 30px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
+.btn-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
-            transition: all 0.3s ease;
-            white-space: nowrap;
+            justify-content: center;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
         }
-        .btn-notifications:hover {
-            background: linear-gradient(135deg, #e0a800, #c69500);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255, 193, 7, 0.4);
+        .btn-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
         }
+        .btn-icon:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-whatsapp-top { 
+            background: #25d366;
+            color: white;
+        }
+        .btn-whatsapp-top:hover { background: #20ba5a; }
+        
+        .btn-notifications {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-notifications:hover { background: #e0a800; }
         .btn-notifications.active {
-            background: linear-gradient(135deg, #28a745, #218838);
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2.5;
+        }
             color: white;
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
         }
@@ -399,23 +397,9 @@ header {
     header { padding: 8px 10px; gap: 6px; }
     .header-left img { height: 36px; }
     .header-title h1 { font-size: 15px; }
-    .header-title p { font-size: 9px; }
-    .btn-whatsapp-top { 
-        padding: 6px 10px; 
-        font-size: 0; 
-        min-width: 36px;
-        justify-content: center;
-    }
-    .btn-whatsapp-top::before { content: "💬"; font-size: 16px; }
-    .btn-whatsapp-top svg { display: none; }
-    .btn-notifications {
-        padding: 6px 10px;
-        font-size: 0;
-        min-width: 36px;
-        justify-content: center;
-    }
-    .btn-notifications::before { content: "📧"; font-size: 16px; }
-    .btn-notifications.active::before { content: "✅"; font-size: 16px; }
+.header-title p { font-size: 9px; }
+    .btn-icon { width: 38px; height: 38px; }
+    .btn-icon svg { width: 20px; height: 20px; }
 }
 </style>
 </head>
@@ -432,13 +416,17 @@ header {
         </div>
 
 <div class="header-right">
-<button id="btn-suscripcion" class="btn-notifications" onclick="toggleSuscripcion()">
-                &#x1F4E3; Suscribirse
+            <button id="btn-suscripcion" class="btn-icon btn-notifications" onclick="toggleSuscripcion()" aria-label="Suscribirse a notificaciones">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
             </button>
 
-            <a href="https://wa.me/18295482901?text=Hola,%20deseo%20enviar%20una%20informacion%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-whatsapp-top">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                Contactos/Whatsapp
+            <a href="https://wa.me/18295482901?text=Hola,%20deseo%20enviar%20una%20informacion%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-icon btn-whatsapp-top" aria-label="Contactar por WhatsApp">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.5">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.15-.173.2-.296.3-.495.099-.198.05-.372-.025-.522-.075-.148-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.226 1.36.194 1.872.118.571-.085 1.759-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.076-.133-.274-.239-.573-.353-.573-.213-1.164-.847-1.375-1.654-.214-.823-.37-1.725-.343-2.341.027-.617.245-.98.483-1.22.24-.24.528-.375.877-.457.11-.026.222-.04.334-.052.11-.012.22-.02.33-.03.11-.01.163-.01.26 0 .107.01.248.046.376.118.426.236.774.732 1.234 1.565 1.895 2.725 3.553 4.72 5.88 1.277 1.14 2.465 2.123 3.436 2.92.674.56 1.326.82 1.948 1.013.32.1.638.12.957.04.137-.03.274-.075.38-.19.107-.117.19-.217.26-.337.07-.125.11-.246.11-.367 0-.13-.07-.263-.2-.39-.148-.148-.343-.293-.59-.444-.47-.28-1.08-.564-1.554-.807-.144-.075-.28-.18-.432-.277-.149-.098-.29-.2-.457-.31-.166-.108-.37-.24-.607-.39-.23-.145-.493-.31-.765-.51-.267-.2-.563-.42-.867-.67-.3-.247-.613-.51-.922-.8-.31-.287-.603-.58-.866-.887-.263-.307-.5-.62-.717-.94-.13-.2-.246-.41-.34-.622-.097-.21-.173-.413-.24-.613-.066-.197-.11-.393-.14-.58-.028-.193-.04-.377-.04-.577 0-.29.09-.57.26-.823.17-.25.37-.48.6-.7.23-.21.48-.4.74-.61.26-.2.54-.41.84-.64.205-.155.42-.3.636-.45.217-.148.43-.3.653-.46.224-.162.45-.33.68-.5.23-.17.46-.35.69-.54.23-.18.45-.37.68-.56.23-.19.45-.38.68-.57.23-.19.46-.38.69-.57.02-.02.04-.04.06-.06.13-.13.25-.26.37-.39.13-.13.25-.26.37-.39.25-.25.5-.5.75-.75.13-.13.25-.26.37-.39.13-.13.25-.26.37-.39"/>
+                </svg>
             </a>
         </div>
     </header>
@@ -752,11 +740,13 @@ function updateSuscripcionButtonState(active) {
             const btn = document.getElementById("btn-suscripcion");
             if (btn) {
                 if (active) {
-                    btn.innerHTML = "&#x1F4E3; Suscrito";
                     btn.classList.add("active");
+                    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                    btn.setAttribute('aria-label', 'Suscrito - Click para ver estado');
                 } else {
-                    btn.innerHTML = "&#x1F4E3; Suscribirse";
                     btn.classList.remove("active");
+                    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+                    btn.setAttribute('aria-label', 'Suscribirse a notificaciones');
                 }
             }
         }
