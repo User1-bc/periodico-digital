@@ -27,7 +27,7 @@ $timestamp = time();
 $publicId = 'periodico/test_' . $timestamp;
 $resourceType = 'image';
 
-// Cloudinary signature: all params except file, api_key, signature - sorted alphabetically
+// Cloudinary signature: all params except file, api_key, signature - sorted alphabetically, RAW values
 $paramsToSign = [
     'folder' => 'periodico-digital',
     'public_id' => $publicId,
@@ -35,11 +35,15 @@ $paramsToSign = [
     'timestamp' => $timestamp
 ];
 ksort($paramsToSign);
-$signatureString = http_build_query($paramsToSign, '', '&') . $apiSecret;
+// Build signature string manually with RAW values (no URL encoding)
+$signatureParts = [];
+foreach ($paramsToSign as $k => $v) {
+    $signatureParts[] = "$k=$v";
+}
+$signatureString = implode('&', $signatureParts) . $apiSecret;
 $signature = sha1($signatureString);
 
-echo "DEBUG - Params to sign: " . print_r($paramsToSign, true) . "\n";
-echo "DEBUG - Signature string: $signatureString\n";
+echo "DEBUG - Signature string (raw): $signatureString\n";
 echo "DEBUG - Signature: $signature\n";
 
 $postFields = [
