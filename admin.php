@@ -350,8 +350,9 @@ if (isset($_GET['robot_rechazado'])) {
                 <button type="button" class="btn btn-add" onclick="ejecutarRobot()">🔄 Ejecutar Robot Ahora</button>
             </h2>
             <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-                El robot busca noticias en fuentes RSS de RD y Google News, genera artículos completos (4+ párrafos) y los pone en cola para tu revisión.
-                <strong>Meta: 50+ noticias/día</strong> de última hora, política, economía, deportes y sociedad.
+                El robot busca noticias en fuentes RSS de RD y Google News, genera artículos completos (5+ párrafos) con IA (OpenAI/Claude) o plantilla profesional, detecta 🔴 <strong>Breaking News</strong>, descarga imágenes y prioriza fuentes confiables.
+                <strong>Meta: 50+ noticias/día</strong> de última hora, política, economía, deportes, sociedad, cultura, tecnología.
+                <br><small>⚙️ Para activar IA: configurar <code>OPENAI_API_KEY</code> o <code>CLAUDE_API_KEY</code> en Variables de Entorno de Render.</small>
             </p>
             
             <?php if (empty($noticias_robot)): ?>
@@ -363,7 +364,8 @@ if (isset($_GET['robot_rechazado'])) {
                         <tr>
                             <th>ID</th>
                             <th>Título Generado</th>
-                            <th>Fuente / Cat.</th>
+                            <th>Fuente / Score</th>
+                            <th>Cat.</th>
                             <th>Fecha</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -371,15 +373,21 @@ if (isset($_GET['robot_rechazado'])) {
                     </thead>
                     <tbody>
                         <?php foreach ($noticias_robot as $nr): ?>
-                            <tr>
+                            <tr style="<?php echo $nr['es_breaking'] ? 'background:#fff8f8;' : ''; ?>">
                                 <td><?php echo $nr['id']; ?></td>
                                 <td style="max-width: 300px;">
+                                    <?php if ($nr['es_breaking']): ?>
+                                        <span style="color:#dc3545;font-weight:bold;">🔴 </span>
+                                    <?php endif; ?>
                                     <strong><?php echo htmlspecialchars($nr['titulo_generado'] ?? $nr['titulo_original']); ?></strong>
                                     <br><small style="color: #888;">Original: <?php echo htmlspecialchars(mb_substr($nr['titulo_original'], 0, 80)); ?>...</small>
                                 </td>
+                                <td style="font-size:11px;">
+                                    <?php echo htmlspecialchars($nr['fuente_nombre']); ?>
+                                    <br><span style="color:#007bff;">Score: <?php echo (int)($nr['fuente_score'] ?? 0); ?>/10</span>
+                                </td>
                                 <td>
-                                    <span style="font-size: 11px;"><?php echo htmlspecialchars($nr['fuente_nombre']); ?></span>
-                                    <br><span class="badge" style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 10px;"><?php echo htmlspecialchars($nr['categoria']); ?></span>
+                                    <span class="badge" style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 10px;"><?php echo htmlspecialchars($nr['categoria']); ?></span>
                                 </td>
                                 <td><?php echo date('d/m H:i', strtotime($nr['fecha_creacion'])); ?></td>
                                 <td>

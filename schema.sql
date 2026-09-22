@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS noticias_robot (
     categoria VARCHAR(100),
     imagen_url VARCHAR(1000),
     estado VARCHAR(20) NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','editando','publicado','rechazado')),
+    es_breaking BOOLEAN NOT NULL DEFAULT false,
+    fuente_score INTEGER DEFAULT 0,
     fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_publicacion TIMESTAMP,
     admin_id INTEGER REFERENCES admin_users(id)
