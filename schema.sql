@@ -83,8 +83,20 @@ CREATE TABLE IF NOT EXISTS noticias_robot (
     admin_id INTEGER REFERENCES admin_users(id)
 );
 
+-- Agregar columnas si no existen (migración segura)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='noticias_robot' AND column_name='es_breaking') THEN
+        ALTER TABLE noticias_robot ADD COLUMN es_breaking BOOLEAN NOT NULL DEFAULT false;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='noticias_robot' AND column_name='fuente_score') THEN
+        ALTER TABLE noticias_robot ADD COLUMN fuente_score INTEGER DEFAULT 0;
+    END IF;
+END $$;
+
 CREATE INDEX IF NOT EXISTS idx_noticias_robot_estado ON noticias_robot(estado);
 CREATE INDEX IF NOT EXISTS idx_noticias_robot_fecha ON noticias_robot(fecha_creacion DESC);
+CREATE INDEX IF NOT EXISTS idx_noticias_robot_breaking ON noticias_robot(es_breaking);
 
 -- Datos de prueba mínimos
 INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria) VALUES
