@@ -25,8 +25,18 @@ echo "File size: " . filesize($testFile) . " bytes\n";
 // Upload to Cloudinary
 $timestamp = time();
 $publicId = 'periodico/test_' . $timestamp;
-$paramsToSign = "public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
-$signature = sha1($paramsToSign);
+$resourceType = 'image';
+
+// Cloudinary signature: all params except file, api_key, signature - sorted alphabetically
+$paramsToSign = [
+    'folder' => 'periodico-digital',
+    'public_id' => $publicId,
+    'resource_type' => $resourceType,
+    'timestamp' => $timestamp
+];
+ksort($paramsToSign);
+$signatureString = http_build_query($paramsToSign, '', '&') . $apiSecret;
+$signature = sha1($signatureString);
 
 $postFields = [
     'file' => new CURLFile($testFile),
