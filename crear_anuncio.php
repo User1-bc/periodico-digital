@@ -54,7 +54,20 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
                 ]);
                 $webPush->queueNotification($subscription, $payload);
             }
-            $webPush->flush();
+            
+            foreach ($webPush->flush() as $report) {
+                $endpoint = $report->getRequest()->getUri()->__toString();
+                if ($report->getResponse()) {
+                    $status = $report->getResponse()->getStatusCode();
+                    error_log("Push Anuncio enviado a $endpoint: $status");
+                } else {
+                    $reason = $report->getReason();
+                    error_log("Push Anuncio falló a $endpoint: $reason");
+                    if ($reason === '410 Gone' || $reason === '404 Not Found') {
+                        $pdo->prepare("DELETE FROM suscripciones_push WHERE endpoint = ?")->execute([$endpoint]);
+                    }
+                }
+            }
         } else {
             error_log("Push: minishlink/web-push NO instalado (vendor/autoload.php no existe en " . $autoloadPath . ")");
         }
