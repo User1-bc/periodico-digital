@@ -234,6 +234,37 @@ if (isset($_GET['exito']) && $_GET['exito'] == 1) {
     $mensaje_exito = "¡Podcast publicado y notificación enviada con éxito!";
 }
 
+// Bulk delete handlers
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['bulk_delete_noticias'])) {
+        $ids = $_POST['noticia_ids'] ?? [];
+        if (!empty($ids)) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $stmt = $pdo->prepare("DELETE FROM noticias WHERE id IN ($placeholders)");
+            $stmt->execute($ids);
+            $mensaje_exito = "✅ " . count($ids) . " noticia(s) eliminada(s) correctamente.";
+        }
+    }
+    if (isset($_POST['bulk_delete_anuncios'])) {
+        $ids = $_POST['anuncio_ids'] ?? [];
+        if (!empty($ids)) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $stmt = $pdo->prepare("DELETE FROM anuncios WHERE id IN ($placeholders)");
+            $stmt->execute($ids);
+            $mensaje_exito = "✅ " . count($ids) . " anuncio(s) eliminado(s) correctamente.";
+        }
+    }
+    if (isset($_POST['bulk_delete_podcasts'])) {
+        $ids = $_POST['podcast_ids'] ?? [];
+        if (!empty($ids)) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $stmt = $pdo->prepare("DELETE FROM podcasts WHERE id IN ($placeholders)");
+            $stmt->execute($ids);
+            $mensaje_exito = "✅ " . count($ids) . " podcast(s) eliminado(s) correctamente.";
+        }
+    }
+}
+
 // Obtener todas las noticias
 $stmt_noticias = $pdo->query("SELECT * FROM noticias ORDER BY fecha_publicacion DESC");
 $noticias = $stmt_noticias->fetchAll(PDO::FETCH_ASSOC);
@@ -496,31 +527,39 @@ if (isset($_GET['robot_rechazado'])) {
             <?php if (empty($noticias)): ?>
                 <p style="color: #666; font-size: 14px;">No hay noticias publicadas.</p>
             <?php else: ?>
-                <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Título</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($noticias as $noticia): ?>
+                <form method="POST" id="form-bulk-noticias">
+                    <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button type="submit" name="bulk_delete_noticias" class="btn btn-delete" onclick="return confirm('¿Eliminar las noticias seleccionadas?');" style="display: none;" id="btn-bulk-delete-noticias">🗑️ Eliminar seleccionadas</button>
+                        <span id="noticias-selected-count" style="font-size: 13px; color: #666; display: none;">0 seleccionadas</span>
+                    </div>
+                    <div class="table-wrapper">
+                    <table>
+                        <thead>
                             <tr>
-                                <td><?php echo $noticia['id']; ?></td>
-                                <td><?php echo htmlspecialchars($noticia['titulo']); ?></td>
-                                <td><?php echo $noticia['fecha_publicacion']; ?></td>
-                                <td class="acciones-td">
-                                    <a href="editar_noticia.php?id=<?php echo $noticia['id']; ?>" class="btn btn-edit">Editar</a>
-                                    <a href="eliminar_noticia.php?id=<?php echo $noticia['id']; ?>" class="btn btn-delete" onclick="return confirm('¿Estás seguro de eliminar esta noticia?');">Eliminar</a>
-                                </td>
+                                <th style="width: 40px;"><input type="checkbox" id="select-all-noticias" onchange="toggleSelectAll(this, 'noticia_ids')"></th>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                </div>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($noticias as $noticia): ?>
+                                <tr>
+                                    <td><input type="checkbox" name="noticia_ids[]" value="<?php echo $noticia['id']; ?>" class="row-checkbox" data-table="noticias"></td>
+                                    <td><?php echo $noticia['id']; ?></td>
+                                    <td><?php echo htmlspecialchars($noticia['titulo']); ?></td>
+                                    <td><?php echo $noticia['fecha_publicacion']; ?></td>
+                                    <td class="acciones-td">
+                                        <a href="editar_noticia.php?id=<?php echo $noticia['id']; ?>" class="btn btn-edit">Editar</a>
+                                        <a href="eliminar_noticia.php?id=<?php echo $noticia['id']; ?>" class="btn btn-delete" onclick="return confirm('¿Estás seguro de eliminar esta noticia?');">Eliminar</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    </div>
+                </form>
             <?php endif; ?>
         </div>
 
@@ -533,39 +572,47 @@ if (isset($_GET['robot_rechazado'])) {
             <?php if (empty($anuncios)): ?>
                 <p style="color: #666; font-size: 14px;">No hay anuncios registrados.</p>
             <?php else: ?>
-                <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Cliente</th>
-                            <th>Posición</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($anuncios as $anuncio): ?>
+                <form method="POST" id="form-bulk-anuncios">
+                    <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button type="submit" name="bulk_delete_anuncios" class="btn btn-delete" onclick="return confirm('¿Eliminar los anuncios seleccionados?');" style="display: none;" id="btn-bulk-delete-anuncios">🗑️ Eliminar seleccionados</button>
+                        <span id="anuncios-selected-count" style="font-size: 13px; color: #666; display: none;">0 seleccionados</span>
+                    </div>
+                    <div class="table-wrapper">
+                    <table>
+                        <thead>
                             <tr>
-                                <td><?php echo $anuncio['id']; ?></td>
-                                <td><?php echo htmlspecialchars($anuncio['titulo']); ?></td>
-                                <td style="text-transform: capitalize;"><?php echo $anuncio['posicion']; ?></td>
-                                <td>
-                                    <?php if ($anuncio['activo']): ?>
-                                        <span style="color: green; font-weight: bold;">Activo</span>
-                                    <?php else: ?>
-                                        <span style="color: red; font-weight: bold;">Inactivo</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="acciones-td">
-                                    <a href="editar_anuncio.php?id=<?php echo $anuncio['id']; ?>" class="btn btn-edit">Editar</a>
-                                    <a href="eliminar_anuncio.php?id=<?php echo $anuncio['id']; ?>" class="btn btn-delete" onclick="return confirm('¿Estás seguro de eliminar este anuncio?');">Eliminar</a>
-                                </td>
+                                <th style="width: 40px;"><input type="checkbox" id="select-all-anuncios" onchange="toggleSelectAll(this, 'anuncio_ids')"></th>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Posición</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                </div>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($anuncios as $anuncio): ?>
+                                <tr>
+                                    <td><input type="checkbox" name="anuncio_ids[]" value="<?php echo $anuncio['id']; ?>" class="row-checkbox" data-table="anuncios"></td>
+                                    <td><?php echo $anuncio['id']; ?></td>
+                                    <td><?php echo htmlspecialchars($anuncio['titulo']); ?></td>
+                                    <td style="text-transform: capitalize;"><?php echo $anuncio['posicion']; ?></td>
+                                    <td>
+                                        <?php if ($anuncio['activo']): ?>
+                                            <span style="color: green; font-weight: bold;">Activo</span>
+                                        <?php else: ?>
+                                            <span style="color: red; font-weight: bold;">Inactivo</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="acciones-td">
+                                        <a href="editar_anuncio.php?id=<?php echo $anuncio['id']; ?>" class="btn btn-edit">Editar</a>
+                                        <a href="eliminar_anuncio.php?id=<?php echo $anuncio['id']; ?>" class="btn btn-delete" onclick="return confirm('¿Estás seguro de eliminar este anuncio?');">Eliminar</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    </div>
+                </form>
             <?php endif; ?>
         </div>
 
@@ -601,28 +648,36 @@ if (isset($_GET['robot_rechazado'])) {
             <?php if (empty($podcasts)): ?>
                 <p style="color: #666; font-size: 14px;">No hay podcasts publicados.</p>
             <?php else: ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Título</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($podcasts as $podcast): ?>
+                <form method="POST" id="form-bulk-podcasts">
+                    <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button type="submit" name="bulk_delete_podcasts" class="btn btn-delete" onclick="return confirm('¿Eliminar los podcasts seleccionados?');" style="display: none;" id="btn-bulk-delete-podcasts">🗑️ Eliminar seleccionados</button>
+                        <span id="podcasts-selected-count" style="font-size: 13px; color: #666; display: none;">0 seleccionados</span>
+                    </div>
+                    <table>
+                        <thead>
                             <tr>
-                                <td><?php echo $podcast['id']; ?></td>
-                                <td><?php echo htmlspecialchars($podcast['titulo']); ?></td>
-                                <td><?php echo $podcast['fecha_publicacion']; ?></td>
-                                <td class="acciones-td">
-                                    <a href="eliminar_podcast.php?id=<?php echo $podcast['id']; ?>" class="btn btn-delete" onclick="return confirm('¿Estás seguro de eliminar este podcast?');">Eliminar</a>
-                                </td>
+                                <th style="width: 40px;"><input type="checkbox" id="select-all-podcasts" onchange="toggleSelectAll(this, 'podcast_ids')"></th>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($podcasts as $podcast): ?>
+                                <tr>
+                                    <td><input type="checkbox" name="podcast_ids[]" value="<?php echo $podcast['id']; ?>" class="row-checkbox" data-table="podcasts"></td>
+                                    <td><?php echo $podcast['id']; ?></td>
+                                    <td><?php echo htmlspecialchars($podcast['titulo']); ?></td>
+                                    <td><?php echo $podcast['fecha_publicacion']; ?></td>
+                                    <td class="acciones-td">
+                                        <a href="eliminar_podcast.php?id=<?php echo $podcast['id']; ?>" class="btn btn-delete" onclick="return confirm('¿Estás seguro de eliminar este podcast?');">Eliminar</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </form>
             <?php endif; ?>
         </div>
 
@@ -788,6 +843,53 @@ if (isset($_GET['robot_rechazado'])) {
         document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
         // Cerrar modal click fuera
         document.getElementById('modalEditar').addEventListener('click', e => { if (e.target.id === 'modalEditar') cerrarModal(); });
+
+        // Bulk selection functions
+        function toggleSelectAll(selectAllCheckbox, checkboxName) {
+            const checkboxes = document.querySelectorAll('input[name="' + checkboxName + '[]"]');
+            const btnBulkDelete = document.getElementById('btn-bulk-delete-' + checkboxName.replace('_ids', ''));
+            const selectedCount = document.getElementById(checkboxName.replace('_ids', '') + '-selected-count');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAllCheckbox.checked;
+            });
+            updateSelectedCount(checkboxName);
+        }
+
+        function updateSelectedCount(checkboxName) {
+            const checkboxes = document.querySelectorAll('input[name="' + checkboxName + '[]"]');
+            const btnBulkDelete = document.getElementById('btn-bulk-delete-' + checkboxName.replace('_ids', ''));
+            const selectedCount = document.getElementById(checkboxName.replace('_ids', '') + '-selected-count');
+            
+            let count = 0;
+            checkboxes.forEach(cb => { if (cb.checked) count++; });
+            
+            if (count > 0) {
+                btnBulkDelete.style.display = 'inline-flex';
+                selectedCount.style.display = 'inline';
+                selectedCount.textContent = count + ' seleccionad' + (count === 1 ? 'a' : 'as');
+            } else {
+                btnBulkDelete.style.display = 'none';
+                selectedCount.style.display = 'none';
+            }
+            
+            // Update select all checkbox state
+            const selectAllCheckbox = document.getElementById('select-all-' + checkboxName.replace('_ids', ''));
+            if (selectAllCheckbox) {
+                selectAllCheckbox.indeterminate = count > 0 && count < checkboxes.length;
+                selectAllCheckbox.checked = count === checkboxes.length && checkboxes.length > 0;
+            }
+        }
+
+        // Attach event listeners to row checkboxes
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.row-checkbox').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const name = cb.name;
+                    updateSelectedCount(name);
+                });
+            });
+        });
     </script>
 
 </body>
