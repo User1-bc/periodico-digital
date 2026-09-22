@@ -256,11 +256,25 @@ header {
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     background: #000;
 }
+.top-carousel-container {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0 10px;
+    overflow: hidden;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    background: #000;
+    aspect-ratio: 16/9;
+    max-height: 200px;
+}
 .top-carousel-track {
     display: flex;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
-    height: 80px;
+    height: 100%;
 }
 .top-carousel-slide {
     flex: 0 0 100%;
@@ -273,8 +287,7 @@ header {
 .top-carousel-slide video {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    background: #000;
+    object-fit: cover;
     display: block;
 }
 .top-carousel-link {
@@ -348,7 +361,7 @@ header {
     box-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
 @media (max-width: 768px) {
-    .top-carousel-track { height: 120px; }
+    .top-carousel-container { max-height: 180px; }
     .top-carousel-btn { width: 40px; height: 40px; }
     .top-carousel-prev { left: 8px; }
     .top-carousel-next { right: 8px; }
@@ -357,7 +370,7 @@ header {
     .top-carousel-dot.active { width: 32px; }
 }
 @media (max-width: 480px) {
-    .top-carousel-track { height: 100px; }
+    .top-carousel-container { max-height: 160px; }
     .top-carousel-btn { width: 36px; height: 36px; }
 }
 
