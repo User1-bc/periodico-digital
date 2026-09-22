@@ -20,21 +20,35 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
             "url"   => $url
         ]);
         
-        // Intentar envío nativo simplificado
-        foreach ($suscripciones as $sub) {
-            $ch = curl_init($sub['endpoint']);
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $payload,
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'TTL: 86400'
+        $vapidPublicKey = getenv('VAPID_PUBLIC_KEY') ?: '';
+        $vapidPrivateKey = getenv('VAPID_PRIVATE_KEY') ?: '';
+        $vapidSubject = getenv('VAPID_SUBJECT') ?: 'mailto:admin@periodicodigitalrd.online';
+        
+        if (empty($vapidPublicKey) || empty($vapidPrivateKey)) return;
+        
+        $autoloadPath = __DIR__ . '/vendor/autoload.php';
+        if (file_exists($autoloadPath)) {
+            require_once $autoloadPath;
+            
+            $webPush = new \Minishlink\WebPush\WebPush([
+                'VAPID' => [
+                    'subject' => $vapidSubject,
+                    'publicKey' => $vapidPublicKey,
+                    'privateKey' => $vapidPrivateKey,
                 ],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 10,
             ]);
-            curl_exec($ch);
-            curl_close($ch);
+            
+            foreach ($suscripciones as $sub) {
+                $subscription = \Minishlink\WebPush\Subscription::create([
+                    'endpoint' => $sub['endpoint'],
+                    'keys' => [
+                        'p256dh' => $sub['p256dh'],
+                        'auth' => $sub['auth'],
+                    ],
+                ]);
+                $webPush->queueNotification($subscription, $payload);
+            }
+            $webPush->flush();
         }
     } catch (Exception $e) {
         error_log("Error enviando push: " . $e->getMessage());

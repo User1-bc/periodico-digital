@@ -21,8 +21,6 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
             "url"   => $url
         ]);
         
-        // Usar la librería web-push si está disponible, sino intentar nativo
-        // Para simplicidad, intentaremos con cURL nativo usando VAPID
         $vapidPublicKey = getenv('VAPID_PUBLIC_KEY') ?: '';
         $vapidPrivateKey = getenv('VAPID_PRIVATE_KEY') ?: '';
         $vapidSubject = getenv('VAPID_SUBJECT') ?: 'mailto:admin@periodicodigitalrd.online';
@@ -32,34 +30,45 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
             return;
         }
         
-        // Generar JWT para VAPID
-        $header = json_encode(['typ' => 'JWT', 'alg' => 'ES256']);
-        $claims = json_encode([
-            'aud' => 'https://fcm.googleapis.com', // o el endpoint del push service
-            'exp' => time() + 43200, // 12 horas
-            'sub' => $vapidSubject
-        ]);
-        
-        // Nota: Para una implementación completa de VAPID se necesita la librería
-        // Por ahora usamos minishlink/web-push via composer si está disponible
-        // Si no, logramos que funcione con un workaround simple
-        
-        foreach ($suscripciones as $sub) {
-            // Intentar envío nativo (simplificado - en producción usar minishlink/web-push)
-            $endpoint = $sub['endpoint'];
-            $ch = curl_init($endpoint);
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $payload,
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'TTL: 86400'
+        // Usar minishlink/web-push si está disponible
+        $autoloadPath = __DIR__ . '/vendor/autoload.php';
+        if (file_exists($autoloadPath)) {
+            require_once $autoloadPath;
+            
+            $webPush = new \Minishlink\WebPush\WebPush([
+                'VAPID' => [
+                    'subject' => $vapidSubject,
+                    'publicKey' => $vapidPublicKey,
+                    'privateKey' => $vapidPrivateKey,
                 ],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 10,
             ]);
-            curl_exec($ch);
-            curl_close($ch);
+            
+            foreach ($suscripciones as $sub) {
+                $subscription = \Minishlink\WebPush\Subscription::create([
+                    'endpoint' => $sub['endpoint'],
+                    'keys' => [
+                        'p256dh' => $sub['p256dh'],
+                        'auth' => $sub['auth'],
+                    ],
+                ]);
+                
+                $webPush->queueNotification($subscription, $payload);
+            }
+            
+            foreach ($webPush->flush() as $report) {
+                $endpoint = $report->getRequest()->getUri()->__toString();
+                if ($report->getResponse()) {
+                    error_log("Push enviado a $endpoint: " . $report->getResponse()->getStatusCode());
+                } else {
+                    error_log("Push falló a $endpoint: " . $report->getReason());
+                    // Si 410 Gone, eliminar suscripción inválida
+                    if ($report->getReason() === '410 Gone' || $report->getReason() === '404 Not Found') {
+                        $pdo->prepare("DELETE FROM suscripciones_push WHERE endpoint = ?")->execute([$endpoint]);
+                    }
+                }
+            }
+        } else {
+            error_log("minishlink/web-push no instalado. Ejecuta composer install");
         }
     } catch (Exception $e) {
         error_log("Error enviando push: " . $e->getMessage());
