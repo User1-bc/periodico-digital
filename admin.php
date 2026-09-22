@@ -83,15 +83,19 @@ function subirACloudinary($filepath, $titulo) {
         $timestamp = time();
         $publicId = 'periodico/' . preg_replace('/[^a-zA-Z0-9_-]/', '', str_replace(' ', '_', mb_substr($titulo, 0, 40))) . '_' . $timestamp;
         
-        // Firmar según spec de Cloudinary - all params except file, api_key, signature - sorted alphabetically
+        // Firmar según spec de Cloudinary - all params except file, api_key, signature - sorted alphabetically, RAW values
+        // Note: resource_type is NOT included in signature per Cloudinary's validation
         $paramsToSign = [
             'folder' => 'periodico-digital',
             'public_id' => $publicId,
-            'resource_type' => 'auto',
             'timestamp' => $timestamp
         ];
         ksort($paramsToSign);
-        $signatureString = http_build_query($paramsToSign, '', '&') . $apiSecret;
+        $signatureParts = [];
+        foreach ($paramsToSign as $k => $v) {
+            $signatureParts[] = "$k=$v";
+        }
+        $signatureString = implode('&', $signatureParts) . $apiSecret;
         $signature = sha1($signatureString);
         
         $postFields = [
