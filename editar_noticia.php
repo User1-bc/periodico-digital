@@ -42,9 +42,13 @@ function subirMediaCloudinary($tmpPath, $originalName) {
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
     
-    if ($httpCode !== 200) return null;
+    if ($httpCode !== 200) {
+        error_log("Cloudinary upload failed: HTTP=$httpCode, Response=$response, CurlError=$curlError");
+        return null;
+    }
     $result = json_decode($response, true);
     return $result['secure_url'] ?? null;
 }
