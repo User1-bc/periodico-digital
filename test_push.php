@@ -82,5 +82,9 @@ function enviarPushNotificacion($pdo, $titulo, $mensaje, $url = '/') {
 }
 
 // Test
-$result = enviarPushNotificacion($pdo, 'Test Push', 'Notificación de prueba desde test_push.php', '/');
-echo json_encode($result);
+try {
+    $result = enviarPushNotificacion($pdo, 'Test Push', 'Notificación de prueba desde test_push.php', '/');
+    echo json_encode($result);
+} catch (Throwable $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+}
