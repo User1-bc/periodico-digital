@@ -634,6 +634,7 @@ header {
                 </div>
             </div>
 
+            <?php if (!empty($podcasts)): ?>
             <div class="card" style="text-align: left;">
                 <div class="widget-title">Últimos Envivos</div>
                     
