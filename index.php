@@ -249,6 +249,11 @@ header {
         }
 
 .descripcion { color: #444; line-height: 1.6; white-space: pre-line; text-align: left; }
+.descripcion.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+.btn-ver-mas { background: none; border: none; color: #007bff; cursor: pointer; font-size: 14px; font-weight: 600; padding: 8px 0 0; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s; }
+.btn-ver-mas:hover { color: #0056b3; }
+.btn-ver-mas svg { width: 16px; height: 16px; transition: transform 0.2s; }
+.btn-ver-mas.expanded svg { transform: rotate(180deg); }
 
 /* TOP CAROUSEL - Banner Superior Fijo (ancho = contenedor principal) */
 .top-carousel-container {
@@ -632,7 +637,21 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
                             </div>
 <?php endif; ?>
 
-                        <div class="descripcion"><?php echo nl2br(htmlspecialchars($noticia['descripcion'])); ?></div>
+                        <?php 
+$descripcion = $noticia['descripcion'];
+$paragraphs = explode("\n\n", trim($descripcion));
+$first_paragraph = $paragraphs[0];
+$rest = isset($paragraphs[1]) ? implode("\n\n", array_slice($paragraphs, 1)) : '';
+$has_more = !empty($rest);
+?>
+<div class="descripcion collapsed" data-full="<?php echo htmlspecialchars($descripcion); ?>" data-preview="<?php echo htmlspecialchars($first_paragraph); ?>">
+    <?php echo nl2br(htmlspecialchars($first_paragraph)); ?>
+</div>
+<?php if ($has_more): ?>
+<button class="btn-ver-mas" onclick="toggleDescripcion(this)" aria-expanded="false" aria-label="Ver más">
+    Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+</button>
+<?php endif; ?>
                     </article>
                 <?php endforeach; ?>
 <?php endif; ?>
@@ -820,6 +839,26 @@ function updateSuscripcionButtonState(active) {
                 }
             }
         }
+
+        function toggleDescripcion(btn) {
+            const container = btn.closest('article').querySelector('.descripcion');
+            const isExpanded = btn.classList.toggle('expanded');
+            btn.setAttribute('aria-expanded', isExpanded);
+            if (isExpanded) {
+                container.classList.remove('collapsed');
+                btn.innerHTML = 'Ver menos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+            } else {
+                container.classList.add('collapsed');
+                btn.innerHTML = 'Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+            }
+        }
+
+        // Initialize descriptions on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.descripcion[data-full]').forEach(el => {
+                el.classList.add('collapsed');
+            });
+        });
 
 // TOP CAROUSEL FUNCTIONALITY
         (function() {
