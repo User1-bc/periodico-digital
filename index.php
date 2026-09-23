@@ -250,9 +250,10 @@ header {
 
 .descripcion { color: #444; line-height: 1.6; white-space: pre-line; text-align: left; }
 .descripcion.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
-.btn-ver-mas { background: none; border: none; color: #007bff; cursor: pointer; font-size: 14px; font-weight: 600; padding: 8px 0 0; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s; }
-.btn-ver-mas:hover { color: #0056b3; }
-.btn-ver-mas svg { width: 16px; height: 16px; transition: transform 0.2s; }
+.btn-ver-mas { background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; padding: 8px 16px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,123,255,0.3); margin-top: 8px; }
+.btn-ver-mas:hover { background: linear-gradient(135deg, #0056b3, #004099); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,123,255,0.4); }
+.btn-ver-mas:active { transform: translateY(0); }
+.btn-ver-mas svg { width: 14px; height: 14px; transition: transform 0.2s; flex-shrink: 0; }
 .btn-ver-mas.expanded svg { transform: rotate(180deg); }
 
 /* TOP CAROUSEL - Banner Superior Fijo (ancho = contenedor principal) */
