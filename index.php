@@ -816,10 +816,8 @@ $share_url = 'https://periodicodigitalrd.online/index.php#noticia-' . $noticia['
 $share_titulo = $noticia['titulo'];
 $share_desc = $noticia['descripcion'];
 $share_img = $noticia['imagen'] ?? 'https://periodicodigitalrd.online/uploads/125688.png';
-// include __DIR__ . '/compartir.php';
-// echo getShareButtons($share_titulo, $share_url, $share_desc, $share_img);
-// TEMP: Commented out to debug parse error
-echo '<!-- Share buttons disabled for debugging -->';
+include __DIR__ . '/compartir.php';
+echo getShareButtons($share_titulo, $share_url, $share_desc, $share_img);
 ?>
 
 <?php
@@ -1410,8 +1408,6 @@ function updateSuscripcionButtonState(active) {
 
 </body>
 </html>
-<?php /* cache-buster: 2024-09-23-03 */ ?>
-<?php // End of file ?>
 
 
 
