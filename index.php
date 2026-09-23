@@ -36,9 +36,20 @@ try {
 $fecha_hoy = date('Y-m-d');
 $fecha_seleccionada = isset($_GET['fecha']) && !empty($_GET['fecha']) ? $_GET['fecha'] : $fecha_hoy;
 
-// 2. Obtener noticias filtradas por la fecha seleccionada
-$stmt_noticias = $pdo->prepare("SELECT * FROM noticias WHERE DATE(fecha_publicacion) = ? ORDER BY fecha_publicacion DESC");
-$stmt_noticias->execute([$fecha_seleccionada]);
+// 2. Categoría opcional para filtrar noticias
+$categoria_seleccionada = isset($_GET['categoria']) && !empty($_GET['categoria']) ? $_GET['categoria'] : '';
+
+// 3. Obtener noticias filtradas por fecha y opcionalmente por categoría
+$where = "WHERE DATE(fecha_publicacion) = ?";
+$params = [$fecha_seleccionada];
+
+if ($categoria_seleccionada !== '') {
+    $where .= " AND categoria = ?";
+    $params[] = $categoria_seleccionada;
+}
+
+$stmt_noticias = $pdo->prepare("SELECT * FROM noticias $where ORDER BY fecha_publicacion DESC");
+$stmt_noticias->execute($params);
 $noticias = $stmt_noticias->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener anuncios activos para la columna izquierda
@@ -1026,10 +1037,10 @@ function updateSuscripcionButtonState(active) {
             <h4>Secciones</h4>
             <ul>
                 <li><a href="index.php">Inicio</a></li>
-                <li><a href="index.php#politica">Política</a></li>
-                <li><a href="index.php#economia">Economía</a></li>
-                <li><a href="index.php#deportes">Deportes</a></li>
-                <li><a href="index.php#sociedad">Sociedad</a></li>
+                <li><a href="index.php?categoria=Politica">Política</a></li>
+                <li><a href="index.php?categoria=Economia">Economía</a></li>
+                <li><a href="index.php?categoria=Deportes">Deportes</a></li>
+                <li><a href="index.php?categoria=Sociedad">Sociedad</a></li>
             </ul>
         </div>
         <div class="footer-col">
