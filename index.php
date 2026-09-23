@@ -387,6 +387,9 @@ header {
 
 @media (max-width: 768px) {
     .main-container { flex-direction: column; }
+    .col-sidebar-left { order: 2; }
+    .col-center { order: 3; }
+    .col-sidebar-right { order: 1; }
     header { 
         grid-template-columns: auto 1fr auto; 
         padding: 10px 12px;
