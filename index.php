@@ -1037,8 +1037,8 @@ function updateSuscripcionButtonState(active) {
             <h4>Secciones</h4>
             <ul>
                 <li><a href="index.php">Inicio</a></li>
-                <li><a href="index.php?categoria=Politica">Política</a></li>
-                <li><a href="index.php?categoria=Economia">Economía</a></li>
+                <li><a href="index.php?categoria=Política">Política</a></li>
+                <li><a href="index.php?categoria=Economía">Economía</a></li>
                 <li><a href="index.php?categoria=Deportes">Deportes</a></li>
                 <li><a href="index.php?categoria=Sociedad">Sociedad</a></li>
             </ul>
