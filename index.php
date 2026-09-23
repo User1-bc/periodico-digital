@@ -844,7 +844,7 @@ if (!empty($relacionadas)):
 <?php endif; ?>
 
                     </article>
-<?php endif; ?>
+<?php endforeach; ?>
         </main>
 
         <aside class="col-sidebar col-sidebar-right">
