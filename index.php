@@ -453,130 +453,6 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
 @media (max-width: 480px) {
     .footer-grid { grid-template-columns: 1fr; }
 }
-
-/* Dark Mode */
-body.dark-mode { background: #121212; color: #e0e0e0; }
-body.dark-mode header { background: #1e1e1e; border-bottom-color: #333; }
-body.dark-mode .noticia-card { background: #1e1e1e; color: #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-body.dark-mode .descripcion { color: #ccc; }
-body.dark-mode .fecha { color: #888; }
-body.dark-mode .card { background: #1e1e1e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-body.dark-mode .widget-title { color: #ffc107; border-bottom-color: #333; }
-body.dark-mode .crypto-item, body.dark-mode .fx-item { border-bottom-color: #333; color: #e0e0e0; }
-body.dark-mode .price { color: #4ade80; }
-body.dark-mode .sidebar-ad-media { background: #000; }
-body.dark-mode .carousel-anuncio { background: #1e1e1e; }
-body.dark-mode .sidebar-carousel { background: #1e1e1e; }
-body.dark-mode .btn-whatsapp-top { background: #25d366; }
-body.dark-mode .btn-notifications { background: #ffc107; color: #121212; }
-body.dark-mode .btn-notifications.active { background: #28a745; color: white; }
-body.dark-mode .btn-filter { background: #007bff; }
-body.dark-mode .btn-filter:hover { background: #0056b3; }
-body.dark-mode .btn-today { background: #6c757d; }
-body.dark-mode .btn-today:hover { background: #5a6268; }
-body.dark-mode .date-bar { background: #1e1e1e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-body.dark-mode .date-bar input[type="date"] { background: #1e1e1e; border-color: #333; color: #e0e0e0; }
-body.dark-mode .btn-ver-mas { background: linear-gradient(135deg, #007bff, #0056b3); }
-body.dark-mode .btn-ver-mas:hover { background: linear-gradient(135deg, #0056b3, #004099); }
-body.dark-mode .articulos-relacionados { border-top-color: #333; }
-body.dark-mode .relacionado-card { background: #2a2a2a; border-color: #333; }
-body.dark-mode .relacionado-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-body.dark-mode .relacionado-card h4 { color: #fff; }
-body.dark-mode .relacionado-card span { color: #aaa; }
-body.dark-mode .vistas-badge { background: #1a237e; color: #8c9eff; }
-body.dark-mode .lectura-badge { background: #311b3f; color: #ce93d8; }
-body.dark-mode .mobile-economia .card { background: #1e1e1e; }
-body.dark-mode .mobile-economia .widget-title { color: #ffc107; }
-body.dark-mode .mobile-economia .crypto-item, body.dark-mode .mobile-economia .fx-item { border-bottom-color: #333; }
-body.dark-mode .col-sidebar-right .card { background: #1e1e1e; }
-body.dark-mode footer { background: #0d0d0d; }
-body.dark-mode .footer-col a { color: #aaa; }
-body.dark-mode .footer-col a:hover { color: #ffc107; }
-body.dark-mode .footer-bottom { border-top-color: #333; color: #888; }
-body.dark-mode .share-btn { box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
-body.dark-mode .share-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-body.dark-mode .btn-ad { background: #007bff; }
-body.dark-mode .btn-ad:hover { background: #0056b3; }
-body.dark-mode .ad-space-card { background: #2a2a2a; border-color: #333; }
-body.dark-mode .ad-space-info h3 { color: #fff; }
-body.dark-mode .benefit-card { background: #2a2a2a; border-color: #333; }
-body.dark-mode .cta-section { background: linear-gradient(135deg, #1e1e1e 0%, #007bff 100%); }
-body.dark-mode .legal-notice { background: #3e2723; border-left-color: #f57c00; }
-body.dark-mode .legal-notice h4 { color: #ffb74d; }
-body.dark-mode .legal-notice p { color: #ffcc80; }
-body.dark-mode .clause-card { background: #2a2a2a; border-color: #333; }
-body.dark-mode .clause-card h3 { color: #fff; }
-body.dark-mode .clause-card p { color: #ccc; }
-body.dark-mode .contact-section { background: #1e1e1e; }
-body.dark-mode .form-group input, body.dark-mode .form-group select, body.dark-mode .form-group textarea { background: #1e1e1e; border-color: #333; color: #e0e0e0; }
-body.dark-mode .form-group input:focus, body.dark-mode .form-group select:focus, body.dark-mode .form-group textarea:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.3); }
-body.dark-mode .btn-submit { background: #007bff; }
-body.dark-mode .btn-submit:hover { background: #0056b3; }
-body.dark-mode .btn-back { background: #6c757d; }
-body.dark-mode .btn-back:hover { background: #5a6268; }
-body.dark-mode .page-header { border-bottom-color: #333; }
-body.dark-mode .page-header h1 { color: #fff; }
-body.dark-mode .page-header .subtitle { color: #aaa; }
-body.dark-mode .highlight-box { background: #1a237e; border-left-color: #3f51b5; }
-body.dark-mode .highlight-box h4 { color: #8c9eff; }
-body.dark-mode .highlight-box p { color: #c5cae9; }
-body.dark-mode .top-carousel-container { background: #000; }
-body.dark-mode .top-carousel-btn { background: rgba(255,255,255,0.2); color: #fff; }
-body.dark-mode .top-carousel-btn:hover { background: rgba(255,255,255,0.3); }
-body.dark-mode .top-carousel-dot { background: rgba(255,255,255,0.3); }
-body.dark-mode .top-carousel-dot.active { background: #fff; }
-body.dark-mode .top-carousel-dot:hover { background: rgba(255,255,255,0.5); }
-
-<?php
-// Open Graph / Twitter Card data for home
-$og_title = "Periódico Digital RD - La fuente más confiable de República Dominicana";
-$og_desc = "Noticias de última hora, política, economía, deportes y sociedad en República Dominicana. Periodismo independiente y veraz.";
-$og_image = "https://periodicodigitalrd.online/uploads/125688.png";
-$og_url = "https://periodicodigitalrd.online/";
-$canonical_url = "https://periodicodigitalrd.online/";
-
-// Detectar si estamos en categoría o fecha
-if (isset($_GET['categoria']) && !empty($_GET['categoria'])) {
-    $cat = htmlspecialchars($_GET['categoria']);
-    $og_title = "Sección $cat - Periódico Digital RD";
-    $og_desc = "Todas las noticias de $cat en República Dominicana. Últimas novedades y análisis.";
-    $canonical_url = "https://periodicodigitalrd.online/index.php?categoria=" . urlencode($_GET['categoria']);
-} elseif (isset($_GET['fecha']) && !empty($_GET['fecha'])) {
-    $fecha = htmlspecialchars($_GET['fecha']);
-    $og_title = "Noticias del $fecha - Periódico Digital RD";
-    $og_desc = "Todas las noticias publicadas el $fecha en Periódico Digital RD.";
-    $canonical_url = "https://periodicodigitalrd.online/index.php?fecha=" . urlencode($_GET['fecha']);
-}
-?>
-<!-- SEO & Social Meta Tags -->
-<meta name="description" content="<?php echo $og_desc; ?>">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="<?php echo $canonical_url; ?>">
-
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="<?php echo $og_title; ?>">
-<meta property="og:description" content="<?php echo $og_desc; ?>">
-<meta property="og:image" content="<?php echo $og_image; ?>">
-<meta property="og:url" content="<?php echo $canonical_url; ?>">
-<meta property="og:site_name" content="Periódico Digital RD">
-<meta property="og:locale" content="es_DO">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="<?php echo $og_title; ?>">
-<meta name="twitter:description" content="<?php echo $og_desc; ?>">
-<meta name="twitter:image" content="<?php echo $og_image; ?>">
-<meta name="twitter:site" content="@PeriodicoDigitalRD">
-
-<!-- RSS Feed -->
-<link rel="alternate" type="application/rss+xml" title="Periódico Digital RD - RSS" href="/rss.php">
-
-<!-- Preconnect para performance -->
-<link rel="preconnect" href="https://res.cloudinary.com">
-<link rel="preconnect" href="https://api.cloudinary.com">
-<link rel="dns-prefetch" href="https://fonts.googleapis.com">
-
 </style>
 </head>
 <body>
@@ -594,23 +470,6 @@ if (isset($_GET['categoria']) && !empty($_GET['categoria'])) {
         </div>
 
 <div class="header-right">
-            <button id="btn-darkmode" class="btn-icon" onclick="toggleDarkMode()" aria-label="Alternar modo oscuro" style="background: #6c757d; color: white;">
-                <svg id="darkmode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                </svg>
-            </button>
-
-            <button id="btn-fontsize" class="btn-icon" onclick="changeFontSize(1)" aria-label="Aumentar tamaño de fuente" style="background: #17a2b8; color: white;" title="A+ Tamaño">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="14" font-weight="bold">A+</text>
-                </svg>
-            </button>
-            <button id="btn-fontsize-down" class="btn-icon" onclick="changeFontSize(-1)" aria-label="Disminuir tamaño de fuente" style="background: #6c757d; color: white;" title="A- Tamaño">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="14" font-weight="bold">A-</text>
-                </svg>
-            </button>
-
             <button id="btn-suscripcion" class="btn-icon btn-notifications" onclick="toggleSuscripcion()" aria-label="Suscribirse a notificaciones">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -754,23 +613,9 @@ if (isset($_GET['categoria']) && !empty($_GET['categoria'])) {
                 </div>
             <?php else: ?>
                 <?php foreach ($noticias as $noticia): ?>
-<article class="noticia-card" id="noticia-<?php echo $noticia['id']; ?>">
+                    <article class="noticia-card">
                         <h2><?php echo htmlspecialchars($noticia['titulo']); ?></h2>
-                        <div class="fecha">
-                            Publicado el: <?php echo $noticia['fecha_publicacion']; ?>
-                            <?php if (!empty($noticia['vistas'])): ?>
-                            <span class="vistas-badge" style="margin-left: 12px; padding: 2px 8px; background: #e3f2fd; color: #1976d2; border-radius: 12px; font-size: 11px; font-weight: 600;">
-                                👁 <?php echo number_format($noticia['vistas']); ?>
-                            </span>
-                            <?php endif; ?>
-                            <?php 
-                                $palabras = str_word_count($noticia['descripcion'] ?? '');
-                                $minutos = max(1, ceil($palabras / 200));
-                            ?>
-                            <span class="lectura-badge" style="margin-left: 8px; padding: 2px 8px; background: #f3e5f5; color: #7b1fa2; border-radius: 12px; font-size: 11px; font-weight: 600;">
-                                📖 <?php echo $minutos; ?> min
-                            </span>
-                        </div>
+                        <div class="fecha">Publicado el: <?php echo $noticia['fecha_publicacion']; ?></div>
                         
                         <?php 
                             $stmt_media = $pdo->prepare("SELECT * FROM noticias_multimedia WHERE noticia_id = ?");
@@ -798,8 +643,7 @@ $descripcion = $noticia['descripcion'];
 $paragraphs = explode("\n\n", trim($descripcion));
 $first_paragraph = $paragraphs[0];
 $rest = isset($paragraphs[1]) ? implode("\n\n", array_slice($paragraphs, 1)) : '';
-// Show button if explicit paragraphs OR if content is long (>200 chars)
-$has_more = !empty($rest) || (strlen($descripcion) > 200);
+$has_more = !empty($rest);
 ?>
 <div class="descripcion collapsed" data-full="<?php echo htmlspecialchars($descripcion); ?>" data-preview="<?php echo htmlspecialchars($first_paragraph); ?>">
     <?php echo nl2br(htmlspecialchars($first_paragraph)); ?>
@@ -809,69 +653,12 @@ $has_more = !empty($rest) || (strlen($descripcion) > 200);
     Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
 </button>
 <?php endif; ?>
-
-<?php
-// Botones de compartir
-$share_url = 'https://periodicodigitalrd.online/index.php#noticia-' . $noticia['id'];
-$share_titulo = $noticia['titulo'];
-$share_desc = $noticia['descripcion'];
-$share_img = $noticia['imagen'] ?? 'https://periodicodigitalrd.online/uploads/125688.png';
-include __DIR__ . '/compartir.php';
-echo getShareButtons($share_titulo, $share_url, $share_desc, $share_img);
-?>
-
-<?php
-// Artículos relacionados (misma categoría, excluyendo el actual, máximo 3)
-$stmt_rel = $pdo->prepare("SELECT id, titulo, imagen, fecha_publicacion FROM noticias WHERE categoria = ? AND id != ? ORDER BY fecha_publicacion DESC LIMIT 3");
-$stmt_rel->execute([$noticia['categoria'], $noticia['id']]);
-$relacionadas = $stmt_rel->fetchAll(PDO::FETCH_ASSOC);
-if (!empty($relacionadas)):
-?>
-<div class="articulos-relacionados" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee;">
-    <h3 style="font-size: 16px; font-weight: 700; color: #1b263b; margin-bottom: 12px;">📖 Artículos relacionados</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
-        <?php foreach ($relacionadas as $rel): ?>
-        <a href="index.php#noticia-<?php echo $rel['id']; ?>" class="relacionado-card" style="text-decoration: none; color: inherit; background: #f8f9fa; border-radius: 8px; padding: 12px; border: 1px solid #eee; transition: transform 0.2s, box-shadow 0.2s; display: block;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            <?php if (!empty($rel['imagen'])): ?>
-            <img src="<?php echo htmlspecialchars($rel['imagen']); ?>" alt="" style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
-            <?php endif; ?>
-            <h4 style="font-size: 14px; font-weight: 600; color: #1b263b; margin: 0 0 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($rel['titulo']); ?></h4>
-            <span style="font-size: 11px; color: #888;"><?php echo date('d/m/Y', strtotime($rel['fecha_publicacion'])); ?></span>
-        </a>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
-
                     </article>
-<?php endforeach; ?>
+                <?php endforeach; ?>
+<?php endif; ?>
         </main>
 
         <aside class="col-sidebar col-sidebar-right">
-            <?php
-            // Más leídos widget
-            $stmt_popular = $pdo->prepare("SELECT id, titulo, imagen, vistas, fecha_publicacion FROM noticias WHERE estado = 'publicado' ORDER BY vistas DESC LIMIT 5");
-            $stmt_popular->execute();
-            $populares = $stmt_popular->fetchAll(PDO::FETCH_ASSOC);
-            if (!empty($populares)):
-            ?>
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="widget-title">🔥 Más leídos</div>
-                <?php foreach ($populares as $i => $pop): ?>
-                <a href="index.php#noticia-<?php echo $pop['id']; ?>" style="text-decoration: none; color: inherit; display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
-                    <span style="font-weight: 700; color: #ffc107; font-size: 14px; min-width: 24px;"><?php echo $i + 1; ?></span>
-                    <?php if (!empty($pop['imagen'])): ?>
-                    <img src="<?php echo htmlspecialchars($pop['imagen']); ?>" alt="" style="width: 60px; height: 45px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">
-                    <?php endif; ?>
-                    <div style="flex: 1; min-width: 0;">
-                        <h5 style="margin: 0 0 2px; font-size: 12px; font-weight: 600; color: #1b263b; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($pop['titulo']); ?></h5>
-                        <span style="font-size: 10px; color: #888;">👁 <?php echo number_format($pop['vistas']); ?> · <?php echo date('d/m', strtotime($pop['fecha_publicacion'])); ?></span>
-                    </div>
-                </a>
-                <?php endforeach; ?>
-            </div>
-            <?php endif; ?>
-
             <div class="card">
                 <div class="widget-title">Economia</div>
                 <div class="crypto-item">
@@ -1071,92 +858,6 @@ function updateSuscripcionButtonState(active) {
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.descripcion[data-full]').forEach(el => {
                 el.classList.add('collapsed');
-            });
-
-            // View counter - increment when article enters viewport
-            const viewTracked = new Set();
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && !viewTracked.has(entry.target.id)) {
-                        viewTracked.add(entry.target.id);
-                        const id = entry.target.id.replace('noticia-', '');
-                        fetch('incrementar_vista.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id: id })
-                        }).catch(() => {});
-                    }
-                });
-            }, { threshold: 0.5, rootMargin: '0px 0px -100px 0px' });
-
-            document.querySelectorAll('article[id^="noticia-"]').forEach(article => {
-                observer.observe(article);
-            });
-
-// Dark mode
-            const darkBtn = document.getElementById('btn-darkmode');
-            const darkIcon = document.getElementById('darkmode-icon');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const savedDark = localStorage.getItem('darkMode') === 'true';
-            const isDark = savedDark || (!localStorage.getItem('darkMode') && prefersDark);
-            
-            if (isDark) {
-                document.body.classList.add('dark-mode');
-                darkIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="4.22" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-                darkBtn.setAttribute('aria-label', 'Cambiar a modo claro');
-            } else {
-                darkIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-                darkBtn.setAttribute('aria-label', 'Cambiar a modo oscuro');
-            }
-            
-            darkBtn.addEventListener('click', () => {
-                const isDark = document.body.classList.toggle('dark-mode');
-                localStorage.setItem('darkMode', isDark);
-                if (isDark) {
-                    darkIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="4.22" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-                    darkBtn.setAttribute('aria-label', 'Cambiar a modo claro');
-                } else {
-                    darkIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-                    darkBtn.setAttribute('aria-label', 'Cambiar a modo oscuro');
-                }
-            });
-
-            // Font size
-            const fontBtnUp = document.getElementById('btn-fontsize');
-            const fontBtnDown = document.getElementById('btn-fontsize-down');
-            let fontScale = parseFloat(localStorage.getItem('fontScale') || '1');
-            document.body.style.fontSize = fontScale + 'rem';
-            
-            fontBtnUp.addEventListener('click', () => {
-                fontScale = Math.min(fontScale + 0.1, 1.5);
-                document.body.style.fontSize = fontScale + 'rem';
-                localStorage.setItem('fontScale', fontScale.toString());
-            });
-            
-            fontBtnDown.addEventListener('click', () => {
-                fontScale = Math.max(fontScale - 0.1, 0.8);
-                document.body.style.fontSize = fontScale + 'rem';
-                localStorage.setItem('fontScale', fontScale.toString());
-            });
-
-            // View counter - increment when article enters viewport
-            const viewTracked = new Set();
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && !viewTracked.has(entry.target.id)) {
-                        viewTracked.add(entry.target.id);
-                        const id = entry.target.id.replace('noticia-', '');
-                        fetch('incrementar_vista.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id: id })
-                        }).catch(() => {});
-                    }
-                });
-            }, { threshold: 0.5, rootMargin: '0px 0px -100px 0px' });
-
-            document.querySelectorAll('article[id^="noticia-"]').forEach(article => {
-                observer.observe(article);
             });
         });
 
