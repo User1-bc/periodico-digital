@@ -643,7 +643,8 @@ $descripcion = $noticia['descripcion'];
 $paragraphs = explode("\n\n", trim($descripcion));
 $first_paragraph = $paragraphs[0];
 $rest = isset($paragraphs[1]) ? implode("\n\n", array_slice($paragraphs, 1)) : '';
-$has_more = !empty($rest);
+// Show button if explicit paragraphs OR if content is long (>200 chars)
+$has_more = !empty($rest) || (strlen($descripcion) > 200);
 ?>
 <div class="descripcion collapsed" data-full="<?php echo htmlspecialchars($descripcion); ?>" data-preview="<?php echo htmlspecialchars($first_paragraph); ?>">
     <?php echo nl2br(htmlspecialchars($first_paragraph)); ?>
