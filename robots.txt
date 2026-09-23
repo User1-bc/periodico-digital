@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://periodicodigitalrd.online/sitemap.xml
+
+# Crawl-delay para no saturar
+Crawl-delay: 10
+
+# Disallow admin y APIs
+Disallow: /admin.php
+Disallow: /crear_*.php
+Disallow: /editar_*.php
+Disallow: /eliminar_*.php
+Disallow: /guardar_*.php
+Disallow: /enviar_*.php
+Disallow: /login.php
+Disallow: /logout.php
+Disallow: /*.json

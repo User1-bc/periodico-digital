@@ -21,8 +21,17 @@ CREATE TABLE IF NOT EXISTS noticias (
     imagen VARCHAR(500),
     fecha_publicacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     autor VARCHAR(100),
-    categoria VARCHAR(50)
+    categoria VARCHAR(50),
+    vistas INTEGER NOT NULL DEFAULT 0,
+    fecha_programada TIMESTAMP NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'publicado' CHECK (estado IN ('borrador','publicado','programado','archivado'))
 );
+
+-- Índices para performance
+CREATE INDEX IF NOT EXISTS idx_noticias_fecha ON noticias(fecha_publicacion DESC);
+CREATE INDEX IF NOT EXISTS idx_noticias_categoria ON noticias(categoria);
+CREATE INDEX IF NOT EXISTS idx_noticias_estado ON noticias(estado);
+CREATE INDEX IF NOT EXISTS idx_noticias_programada ON noticias(fecha_programada) WHERE estado = 'programado';
 
 CREATE TABLE IF NOT EXISTS anuncios (
     id SERIAL PRIMARY KEY,
