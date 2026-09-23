@@ -1,10 +1,10 @@
-﻿﻿<?php
-// Forzar la zona horaria local de Rep+´┐¢blica Dominicana para evitar desfases de fecha
+<?php
+// Forzar la zona horaria local de República Dominicana para evitar desfases de fecha
 date_default_timezone_set('America/Santo_Domingo');
 
 require_once 'conexion.php';
 
-// Auto-migraci´┐¢n: crear tablas si no existen
+// Auto-migración: crear tablas si no existen
 try {
     $tableCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='noticias'")->fetchColumn();
     $mediaCheck = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='anuncios_multimedia'")->fetchColumn();
@@ -17,29 +17,29 @@ try {
     if (!$tableCheck || !$mediaCheck || !$adminCheck || !$robotCheck || !$colBreaking || !$colScore) {
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
-        error_log("Migraci´┐¢n ejecutada: tablas/columnas creadas/actualizadas");
+        error_log("Migración ejecutada: tablas/columnas creadas/actualizadas");
     }
 } catch (PDOException $e) {
-    error_log("Error en auto-migraci´┐¢n: " . $e->getMessage());
-    // Forzar recreaci´┐¢n si falla
+    error_log("Error en auto-migración: " . $e->getMessage());
+    // Forzar recreación si falla
     try {
         $pdo->exec("DROP TABLE IF EXISTS noticias_robot, noticias_multimedia, anuncios_multimedia, podcasts, anuncios, noticias CASCADE;");
         $sql = file_get_contents(__DIR__ . '/schema.sql');
         $pdo->exec($sql);
-        error_log("Migraci´┐¢n forzada completada");
+        error_log("Migración forzada completada");
     } catch (PDOException $e2) {
-        error_log("Error en migraci´┐¢n forzada: " . $e2->getMessage());
+        error_log("Error en migración forzada: " . $e2->getMessage());
     }
 }
 
-// 1. Determinar la fecha a consultar (si el usuario seleccion+´┐¢ una fecha, usamos esa; si no, usamos la fecha de hoy local)
+// 1. Determinar la fecha a consultar (si el usuario seleccionó una fecha, usamos esa; si no, usamos la fecha de hoy local)
 $fecha_hoy = date('Y-m-d');
 $fecha_seleccionada = isset($_GET['fecha']) && !empty($_GET['fecha']) ? $_GET['fecha'] : $fecha_hoy;
 
-// 2. Categor├¡a opcional para filtrar noticias
+// 2. Categoría opcional para filtrar noticias
 $categoria_seleccionada = isset($_GET['categoria']) && !empty($_GET['categoria']) ? $_GET['categoria'] : '';
 
-// 3. Obtener noticias filtradas por fecha y opcionalmente por categor├¡a
+// 3. Obtener noticias filtradas por fecha y opcionalmente por categoría
 $where = "WHERE DATE(fecha_publicacion) = ?";
 $params = [$fecha_seleccionada];
 
@@ -79,7 +79,7 @@ foreach ($anuncios_top_raw as $row) {
 }
 $anuncios_top = array_values($anuncios_top);
 
-// Obtener los podcasts m+´┐¢s recientes
+// Obtener los podcasts más recientes
 $stmt_podcasts = $pdo->query("SELECT * FROM podcasts ORDER BY id DESC LIMIT 3");
 $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -88,7 +88,7 @@ $podcasts = $stmt_podcasts->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Periodico Digital RD</title>
+    <title>Periódico Digital RD</title>
     <style>
 * { box-sizing: border-box; }
         html, body { overflow-x: hidden; }
@@ -156,9 +156,6 @@ header {
             width: 22px;
             height: 22px;
             stroke-width: 2.5;
-        }
-            color: white;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
         }
         
         .date-bar {
@@ -310,7 +307,7 @@ header {
     z-index: 2;
 }
 
-/* Flechas modernas: solo SVG, sin c´┐¢rculo */
+/* Flechas modernas: solo SVG, sin círculo */
 .top-carousel-btn {
     position: absolute;
     top: 50%;
@@ -460,13 +457,13 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
 <header>
         <div class="header-left">
             <a href="index.php" style="text-decoration: none;">
-                <img src="uploads/125688.png" alt="Periodico Digital RD" style="height: 50px; width: auto; max-width: 100%;">
+                <img src="uploads/125688.png" alt="Periódico Digital RD" style="height: 50px; width: auto; max-width: 100%;">
             </a>
         </div>
 
         <div class="header-title">
-            <h1>Periodico Digital RD</h1>
-            <p>La fuente mas confiable de Republica Dominicana</p>
+            <h1>Periódico Digital RD</h1>
+            <p>La fuente más confiable de República Dominicana</p>
         </div>
 
 <div class="header-right">
@@ -477,7 +474,7 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
                 </svg>
             </button>
 
-            <a href="https://wa.me/18295482901?text=Hola,%20deseo%20enviar%20una%20informacion%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-icon btn-whatsapp-top" aria-label="Contactar por tel├®fono">
+            <a href="https://wa.me/18295482901?text=Hola,%20deseo%20enviar%20una%20informacion%20o%20consultar%20sobre%20espacios%20publicitarios." target="_blank" class="btn-icon btn-whatsapp-top" aria-label="Contactar por teléfono">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
@@ -528,10 +525,10 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
     </div>
     <?php endif; ?>
 
-    <!-- ECONOM├ìA M├ôVIL - Solo visible en m├│vil debajo del carousel -->
+    <!-- ECONOMÍA MÓVIL - Solo visible en móvil debajo del carousel -->
     <div class="mobile-economia section-box" style="max-width: 1200px; margin: 20px auto 0 auto; padding: 0 10px; display: none;">
         <div class="card">
-            <div class="widget-title">Econom├¡a</div>
+            <div class="widget-title">Economía</div>
             <div class="crypto-item">
                 <span>Bitcoin (BTC):</span>
                 <span class="price" id="btc-price-mobile">Cargando...</span>
@@ -579,7 +576,7 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
                                             <?php if ($item['tipo'] == 'video'): ?>
                                                 <video src="<?php echo htmlspecialchars($item['archivo']); ?>" autoplay muted loop playsinline preload="metadata" class="sidebar-ad-media"></video>
                                             <?php else: ?>
-                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Art´┐¢culo" class="sidebar-ad-media">
+                                                <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Artículo" class="sidebar-ad-media">
                                             <?php endif; ?>
 <?php endforeach; ?>
 </div>
@@ -607,7 +604,7 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
         <main class="col-center">
             <?php if (empty($noticias)): ?>
                 <div class="noticia-card" style="text-align: center; padding: 40px 20px;">
-                    <h3 style="color: #555;">No hay noticias publicadas para el d├¡a <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
+                    <h3 style="color: #555;">No hay noticias publicadas para el día <?php echo date('d/m/Y', strtotime($fecha_seleccionada)); ?>.</h3>
                     <p style="color: #777; font-size: 14px;">Intenta seleccionando otra fecha en el calendario superior o regresa a las noticias de hoy.</p>
                     <a href="index.php?fecha=<?php echo $fecha_hoy; ?>" class="btn-filter" style="display: inline-block; text-decoration: none; margin-top: 10px;">Ver noticias de Hoy</a>
                 </div>
@@ -629,7 +626,7 @@ footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top:
                                     <?php if ($item['tipo'] == 'video'): ?>
                                         <video controls preload="metadata" playsinline class="sidebar-ad-media">
                                             <source src="<?php echo htmlspecialchars($item['archivo']); ?>">
-                                            Tu navegador no soporta la reproducci´┐¢n de videos.
+                                            Tu navegador no soporta la reproducción de videos.
                                         </video>
                                     <?php else: ?>
                                         <img src="<?php echo htmlspecialchars($item['archivo']); ?>" alt="Multimedia de la noticia" class="sidebar-ad-media">
@@ -650,8 +647,8 @@ $has_more = !empty($rest) || (strlen($descripcion) > 200);
     <?php echo nl2br(htmlspecialchars($first_paragraph)); ?>
 </div>
 <?php if ($has_more): ?>
-<button class="btn-ver-mas" onclick="toggleDescripcion(this)" aria-expanded="false" aria-label="Ver m├ís">
-    Ver m├ís <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+<button class="btn-ver-mas" onclick="toggleDescripcion(this)" aria-expanded="false" aria-label="Ver más">
+    Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
 </button>
 <?php endif; ?>
                     </article>
@@ -661,7 +658,7 @@ $has_more = !empty($rest) || (strlen($descripcion) > 200);
 
         <aside class="col-sidebar col-sidebar-right">
             <div class="card">
-                <div class="widget-title">Economia</div>
+                <div class="widget-title">Economía</div>
                 <div class="crypto-item">
                     <span>Bitcoin (BTC):</span>
                     <span class="price" id="btc-price">Cargando...</span>
@@ -686,7 +683,7 @@ $has_more = !empty($rest) || (strlen($descripcion) > 200);
 
             <?php if (!empty($podcasts)): ?>
             <div class="card" style="text-align: left;">
-                <div class="widget-title">├Ültimos Envivos</div>
+                <div class="widget-title">Últimos Envivos</div>
                     
                     <?php foreach ($podcasts as $pod): ?>
                         <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
@@ -709,11 +706,11 @@ $has_more = !empty($rest) || (strlen($descripcion) > 200);
     </div>
 
     <script>
-        // Registrar Service Worker al cargar la p+´┐¢gina
+        // Registrar Service Worker al cargar la página
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrado con +´┐¢xito:', reg))
+                    .then(reg => console.log('Service Worker registrado con éxito:', reg))
                     .catch(err => console.error('Error al registrar el Service Worker:', err));
             });
         }
@@ -772,7 +769,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Clave VAPID p+´┐¢blica integrada para el env+´┐¢o de notificaciones
+        // Clave VAPID pública integrada para el envío de notificaciones
         const publicVapidKey = 'BDNidqse1xgK0WW5rCgFJx7jxeDeEB6fFH_FQZ2JPMplderSAXF8Tl3eqOZM0OW-Oe6GVJqbKb2XIqLGtwV3iQ4';
 
         function urlBase64ToUint8Array(base64String) {
@@ -793,7 +790,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (Notification.permission === "granted") {
-                alert("Ya est├ís suscrito a las notificaciones.");
+                alert("Ya estás suscrito a las notificaciones.");
             } else if (Notification.permission !== "denied") {
                 let permission = await Notification.requestPermission();
                 if (permission === "granted") {
@@ -801,7 +798,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     await suscribirUsuarioPush();
                 }
             } else {
-                alert("Las notificaciones est├ín bloqueadas en la configuraci├│n de tu navegador.");
+                alert("Las notificaciones están bloqueadas en la configuración de tu navegador.");
             }
         }
 
@@ -851,7 +848,7 @@ function updateSuscripcionButtonState(active) {
                 btn.innerHTML = 'Ver menos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
             } else {
                 container.classList.add('collapsed');
-                btn.innerHTML = 'Ver m├ís <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+                btn.innerHTML = 'Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
             }
         }
 
@@ -1071,15 +1068,15 @@ function updateSuscripcionButtonState(active) {
 <footer>
     <div class="footer-grid">
         <div class="footer-col">
-            <h4>Peri├│dico Digital RD</h4>
-            <p style="color: #adb5bd; font-size: 14px; line-height: 1.6;">Tu fuente confiable de noticias en Rep├║blica Dominicana. Periodismo independiente, veraz y accesible.</p>
+            <h4>Periódico Digital RD</h4>
+            <p style="color: #adb5bd; font-size: 14px; line-height: 1.6;">Tu fuente confiable de noticias en República Dominicana. Periodismo independiente, veraz y accesible.</p>
         </div>
         <div class="footer-col">
             <h4>Secciones</h4>
             <ul>
                 <li><a href="index.php">Inicio</a></li>
-                <li><a href="index.php?categoria=Pol├¡tica">Pol├¡tica</a></li>
-                <li><a href="index.php?categoria=Econom├¡a">Econom├¡a</a></li>
+                <li><a href="index.php?categoria=Política">Política</a></li>
+                <li><a href="index.php?categoria=Economía">Economía</a></li>
                 <li><a href="index.php?categoria=Deportes">Deportes</a></li>
                 <li><a href="index.php?categoria=Sociedad">Sociedad</a></li>
             </ul>
@@ -1087,45 +1084,26 @@ function updateSuscripcionButtonState(active) {
         <div class="footer-col">
             <h4>Enlaces Legales</h4>
             <ul>
-                <li><a href="quienes_somos.php">Qui├®nes Somos</a></li>
+                <li><a href="quienes_somos.php">Quiénes Somos</a></li>
                 <li><a href="contactos.php">Contactos</a></li>
                 <li><a href="publicidad.php">Publicidad</a></li>
-                <li><a href="politica_privacidad.php">Pol├¡tica de Privacidad</a></li>
+                <li><a href="politica_privacidad.php">Política de Privacidad</a></li>
                 <li><a href="derechos_reservados.php">Derechos Reservados</a></li>
             </ul>
         </div>
         <div class="footer-col">
             <h4>Contacto</h4>
             <ul>
-                <li>­ƒôì Santo Domingo, RD</li>
-                <li>Ô£ë´©Å redaccion@periodicodigitalrd.online</li>
-                <li>­ƒô▒ <a href="https://wa.me/18295482901" style="color: #25d366;">WhatsApp: +1 829 548 2901</a></li>
+                <li>📍 Santo Domingo, RD</li>
+                <li>✉️ redaccion@periodicodigitalrd.online</li>
+                <li>📱 <a href="https://wa.me/18295482901" style="color: #25d366;">WhatsApp: +1 829 548 2901</a></li>
             </ul>
         </div>
     </div>
     <div class="footer-bottom">
-        &copy; 2024 Peri├│dico Digital RD. Todos los derechos reservados.
+        &copy; 2024 Periódico Digital RD. Todos los derechos reservados.
     </div>
 </footer>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
- 
