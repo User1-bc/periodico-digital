@@ -420,6 +420,22 @@ header {
     .mobile-economia { display: block !important; }
     .col-sidebar-right .card:first-child { display: none; }
 }
+
+footer { background: #1b263b; color: white; padding: 40px 20px 20px; margin-top: 50px; }
+.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto 30px; }
+.footer-col h4 { color: #ffc107; margin-bottom: 15px; font-size: 16px; }
+.footer-col ul { list-style: none; padding: 0; }
+.footer-col li { margin-bottom: 10px; }
+.footer-col a { color: #adb5bd; text-decoration: none; transition: color 0.2s; font-size: 14px; }
+.footer-col a:hover { color: #ffc107; }
+.footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid #34495e; color: #8898aa; font-size: 13px; }
+
+@media (max-width: 768px) {
+    .footer-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .footer-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -998,7 +1014,48 @@ function updateSuscripcionButtonState(active) {
                 });
             });
         })();
-    </script>
+</script>
+
+<footer>
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>Periódico Digital RD</h4>
+            <p style="color: #adb5bd; font-size: 14px; line-height: 1.6;">Tu fuente confiable de noticias en República Dominicana. Periodismo independiente, veraz y accesible.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Secciones</h4>
+            <ul>
+                <li><a href="index.php">Inicio</a></li>
+                <li><a href="index.php#politica">Política</a></li>
+                <li><a href="index.php#economia">Economía</a></li>
+                <li><a href="index.php#deportes">Deportes</a></li>
+                <li><a href="index.php#sociedad">Sociedad</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Enlaces Legales</h4>
+            <ul>
+                <li><a href="quienes_somos.php">Quiénes Somos</a></li>
+                <li><a href="contactos.php">Contactos</a></li>
+                <li><a href="publicidad.php">Publicidad</a></li>
+                <li><a href="politica_privacidad.php">Política de Privacidad</a></li>
+                <li><a href="derechos_reservados.php">Derechos Reservados</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contacto</h4>
+            <ul>
+                <li>📍 Santo Domingo, RD</li>
+                <li>✉️ redaccion@periodicodigitalrd.online</li>
+                <li>📱 <a href="https://wa.me/18295482901" style="color: #25d366;">WhatsApp: +1 829 548 2901</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        &copy; 2024 Periódico Digital RD. Todos los derechos reservados.
+    </div>
+</footer>
+
 </body>
 </html>
 
