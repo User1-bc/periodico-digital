@@ -126,7 +126,7 @@ function generarImagenNoticia($titulo, $contenido) {
         file_put_contents($tmpFile, $imgData);
         
         // Subir a Cloudinary (persistente)
-        $cloudinaryUrl = subirACloudinary($tmpFile, $titulo);
+        $cloudinaryUrl = subirMediaCloudinary($tmpFile, $titulo);
         
         // Limpiar temp
         @unlink($tmpFile);
@@ -195,6 +195,30 @@ function subirMediaCloudinary($tmpPath, $originalName) {
     return $result['secure_url'] ?? null;
 }
 
+function normalizarIdsSeleccionados($ids) {
+    if (!is_array($ids)) {
+        return [];
+    }
+
+    $ids = array_map(static fn($id) => is_scalar($id) ? (int)$id : 0, $ids);
+    $ids = array_filter($ids, static fn($id) => $id > 0);
+
+    return array_values(array_unique($ids));
+}
+
+function placeholdersParaIds($cantidad) {
+    return implode(',', array_fill(0, $cantidad, '?'));
+}
+
+function finalizarAccionMasiva($mensaje, $tipo = 'exito') {
+    $_SESSION['admin_flash'] = [
+        'mensaje' => $mensaje,
+        'tipo' => $tipo
+    ];
+    header('Location: admin.php');
+    exit();
+}
+
 $mensaje_exito = "";
 $mensaje_error = "";
 
@@ -235,33 +259,222 @@ if (isset($_GET['exito']) && $_GET['exito'] == 1) {
     $mensaje_exito = "¡Podcast publicado y notificación enviada con éxito!";
 }
 
-// Bulk delete handlers
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $noticia_ids = normalizarIdsSeleccionados($_POST['noticia_ids'] ?? []);
+    $anuncio_ids = normalizarIdsSeleccionados($_POST['anuncio_ids'] ?? []);
+    $podcast_ids = normalizarIdsSeleccionados($_POST['podcast_ids'] ?? []);
+    $robot_ids = normalizarIdsSeleccionados($_POST['robot_ids'] ?? []);
+
     if (isset($_POST['bulk_delete_noticias'])) {
-        $ids = $_POST['noticia_ids'] ?? [];
-        if (!empty($ids)) {
-            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        if (empty($noticia_ids)) {
+            finalizarAccionMasiva('Selecciona al menos una noticia.', 'error');
+        }
+
+        try {
+            $pdo->beginTransaction();
+            $placeholders = placeholdersParaIds(count($noticia_ids));
             $stmt = $pdo->prepare("DELETE FROM noticias WHERE id IN ($placeholders)");
-            $stmt->execute($ids);
-            $mensaje_exito = "✅ " . count($ids) . " noticia(s) eliminada(s) correctamente.";
+            $stmt->execute($noticia_ids);
+            $count = $stmt->rowCount();
+            $pdo->commit();
+            finalizarAccionMasiva("✅ $count noticia(s) eliminada(s) correctamente.");
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Error eliminando noticias seleccionadas: ' . $e->getMessage());
+            finalizarAccionMasiva('No se pudieron eliminar las noticias seleccionadas.', 'error');
         }
     }
+
     if (isset($_POST['bulk_delete_anuncios'])) {
-        $ids = $_POST['anuncio_ids'] ?? [];
-        if (!empty($ids)) {
-            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        if (empty($anuncio_ids)) {
+            finalizarAccionMasiva('Selecciona al menos un anuncio.', 'error');
+        }
+
+        try {
+            $pdo->beginTransaction();
+            $placeholders = placeholdersParaIds(count($anuncio_ids));
             $stmt = $pdo->prepare("DELETE FROM anuncios WHERE id IN ($placeholders)");
-            $stmt->execute($ids);
-            $mensaje_exito = "✅ " . count($ids) . " anuncio(s) eliminado(s) correctamente.";
+            $stmt->execute($anuncio_ids);
+            $count = $stmt->rowCount();
+            $pdo->commit();
+            finalizarAccionMasiva("✅ $count anuncio(s) eliminado(s) correctamente.");
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Error eliminando anuncios seleccionados: ' . $e->getMessage());
+            finalizarAccionMasiva('No se pudieron eliminar los anuncios seleccionados.', 'error');
         }
     }
+
+    if (isset($_POST['bulk_activate_anuncios'])) {
+        if (empty($anuncio_ids)) {
+            finalizarAccionMasiva('Selecciona al menos un anuncio.', 'error');
+        }
+
+        try {
+            $pdo->beginTransaction();
+            $placeholders = placeholdersParaIds(count($anuncio_ids));
+            $stmt = $pdo->prepare("UPDATE anuncios SET activo = TRUE WHERE id IN ($placeholders)");
+            $stmt->execute($anuncio_ids);
+            $count = $stmt->rowCount();
+            $pdo->commit();
+            enviarPushNotificacion($pdo, '📢 Anuncios activados', "Se activaron $count anuncio(s) seleccionado(s).", '/');
+            finalizarAccionMasiva("✅ $count anuncio(s) activado(s) correctamente.");
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Error activando anuncios seleccionados: ' . $e->getMessage());
+            finalizarAccionMasiva('No se pudieron activar los anuncios seleccionados.', 'error');
+        }
+    }
+
+    if (isset($_POST['bulk_deactivate_anuncios'])) {
+        if (empty($anuncio_ids)) {
+            finalizarAccionMasiva('Selecciona al menos un anuncio.', 'error');
+        }
+
+        try {
+            $pdo->beginTransaction();
+            $placeholders = placeholdersParaIds(count($anuncio_ids));
+            $stmt = $pdo->prepare("UPDATE anuncios SET activo = FALSE WHERE id IN ($placeholders)");
+            $stmt->execute($anuncio_ids);
+            $count = $stmt->rowCount();
+            $pdo->commit();
+            finalizarAccionMasiva("✅ $count anuncio(s) desactivado(s) correctamente.");
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Error desactivando anuncios seleccionados: ' . $e->getMessage());
+            finalizarAccionMasiva('No se pudieron desactivar los anuncios seleccionados.', 'error');
+        }
+    }
+
     if (isset($_POST['bulk_delete_podcasts'])) {
-        $ids = $_POST['podcast_ids'] ?? [];
-        if (!empty($ids)) {
-            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        if (empty($podcast_ids)) {
+            finalizarAccionMasiva('Selecciona al menos un podcast.', 'error');
+        }
+
+        try {
+            $pdo->beginTransaction();
+            $placeholders = placeholdersParaIds(count($podcast_ids));
             $stmt = $pdo->prepare("DELETE FROM podcasts WHERE id IN ($placeholders)");
-            $stmt->execute($ids);
-            $mensaje_exito = "✅ " . count($ids) . " podcast(s) eliminado(s) correctamente.";
+            $stmt->execute($podcast_ids);
+            $count = $stmt->rowCount();
+            $pdo->commit();
+            finalizarAccionMasiva("✅ $count podcast(s) eliminado(s) correctamente.");
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Error eliminando podcasts seleccionados: ' . $e->getMessage());
+            finalizarAccionMasiva('No se pudieron eliminar los podcasts seleccionados.', 'error');
+        }
+    }
+
+    if (isset($_POST['robot_rechazar_seleccionadas'])) {
+        if (empty($robot_ids)) {
+            finalizarAccionMasiva('Selecciona al menos una noticia del robot.', 'error');
+        }
+
+        try {
+            $pdo->beginTransaction();
+            $placeholders = placeholdersParaIds(count($robot_ids));
+            $stmt = $pdo->prepare("UPDATE noticias_robot SET estado = 'rechazado' WHERE id IN ($placeholders) AND estado IN ('pendiente','editando')");
+            $stmt->execute($robot_ids);
+            $count = $stmt->rowCount();
+            $pdo->commit();
+            finalizarAccionMasiva("✅ $count noticia(s) del robot eliminada(s) de la cola.");
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Error rechazando noticias del robot seleccionadas: ' . $e->getMessage());
+            finalizarAccionMasiva('No se pudieron eliminar las noticias seleccionadas de la cola.', 'error');
+        }
+    }
+
+    if (isset($_POST['robot_publicar_seleccionadas'])) {
+        if (empty($robot_ids)) {
+            finalizarAccionMasiva('Selecciona al menos una noticia del robot.', 'error');
+        }
+
+        try {
+            $placeholders = placeholdersParaIds(count($robot_ids));
+            $stmt = $pdo->prepare("SELECT * FROM noticias_robot WHERE id IN ($placeholders) AND estado IN ('pendiente','editando')");
+            $stmt->execute($robot_ids);
+            $robots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($robots)) {
+                finalizarAccionMasiva('Las noticias seleccionadas ya no están disponibles en la cola.', 'error');
+            }
+
+            $fechaPub = (new DateTime('now', new DateTimeZone('America/Santo_Domingo')))->format('Y-m-d H:i:s');
+            $items = [];
+
+            foreach ($robots as $robot) {
+                $titulo = trim((string)($robot['titulo_generado'] ?: $robot['titulo_original']));
+                $contenido = (string)($robot['contenido_generado'] ?? '');
+                $descripcion = (string)($robot['descripcion_generada'] ?: $contenido);
+                $imagenFinal = $robot['imagen_url'] ?: null;
+
+                if ($contenido !== '') {
+                    $imagenGenerada = generarImagenNoticia($titulo, $contenido);
+                    if ($imagenGenerada) {
+                        $imagenFinal = $imagenGenerada;
+                    }
+                }
+
+                $items[] = [
+                    'id' => (int)$robot['id'],
+                    'titulo' => $titulo,
+                    'contenido' => $contenido,
+                    'descripcion' => $descripcion,
+                    'categoria' => $robot['categoria'] ?? null,
+                    'imagen' => $imagenFinal
+                ];
+            }
+
+            $pdo->beginTransaction();
+            $actualizar = $pdo->prepare("UPDATE noticias_robot SET estado = 'publicado', fecha_publicacion = NOW(), admin_id = ? WHERE id = ? AND estado IN ('pendiente','editando')");
+            $insertar = $pdo->prepare("INSERT INTO noticias (titulo, contenido, descripcion, fecha_publicacion, autor, categoria, imagen) VALUES (?, ?, ?, ?, 'Robot IA', ?, ?)");
+            $publicados = 0;
+
+            foreach ($items as $item) {
+                $actualizar->execute([$_SESSION['admin_id'] ?? 1, $item['id']]);
+                if ($actualizar->rowCount() !== 1) {
+                    continue;
+                }
+
+                $insertar->execute([
+                    $item['titulo'],
+                    $item['contenido'],
+                    $item['descripcion'],
+                    $fechaPub,
+                    $item['categoria'],
+                    $item['imagen']
+                ]);
+                $publicados++;
+            }
+
+            $pdo->commit();
+
+            if ($publicados > 0) {
+                enviarPushNotificacion($pdo, '📰 Noticias del robot publicadas', "Se publicaron $publicados noticia(s) seleccionada(s).", '/');
+                finalizarAccionMasiva("✅ $publicados noticia(s) del robot publicada(s) correctamente.");
+            }
+
+            finalizarAccionMasiva('Las noticias seleccionadas ya no están disponibles en la cola.', 'error');
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('Error publicando noticias del robot seleccionadas: ' . $e->getMessage());
+            finalizarAccionMasiva('No se pudieron publicar las noticias seleccionadas.', 'error');
         }
     }
 }
@@ -414,6 +627,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+if (isset($_SESSION['admin_flash'])) {
+    $flash = $_SESSION['admin_flash'];
+    unset($_SESSION['admin_flash']);
+
+    if (($flash['tipo'] ?? '') === 'error') {
+        $mensaje_error = $flash['mensaje'] ?? '';
+    } else {
+        $mensaje_exito = $flash['mensaje'] ?? '';
+    }
+}
+
 // Capturar mensaje de éxito mediante parámetro GET tras la redirección
 if (isset($_GET['exito']) && $_GET['exito'] == 1) {
     $mensaje_exito = "¡Podcast publicado y notificación enviada con éxito!";
@@ -469,7 +693,13 @@ if (isset($_GET['robot_rechazado'])) {
         
         .acciones-td { white-space: nowrap; }
         .acciones-td .btn { margin-right: 4px; margin-bottom: 0; padding: 4px 8px; font-size: 11px; min-height: 28px; }
-        .tabla-robot { min-width: 980px; }
+        .selection-cell { width: 42px; text-align: center; }
+        .bulk-toolbar { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .bulk-selected-count { font-size: 13px; color: #666; display: none; }
+        .tabla-robot { min-width: 1020px; }
+        .tabla-robot td:nth-child(2) { width: 50px; max-width: 50px; }
+        .tabla-robot td:nth-child(3) { width: 32%; max-width: 320px; }
+        .tabla-robot td:nth-child(4) { width: 18%; max-width: 150px; }
         .tabla-robot .acciones-td { width: 300px; overflow: visible; }
         .acciones-robot { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
         .acciones-robot form { display: inline-flex; margin: 0; }
@@ -515,12 +745,12 @@ if (isset($_GET['robot_rechazado'])) {
         <!-- MENSAJES DE ALERTA -->
         <?php if (!empty($mensaje_exito)): ?>
             <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
-                <?php echo $mensaje_exito; ?>
+                <?php echo htmlspecialchars($mensaje_exito, ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
         <?php if (!empty($mensaje_error)): ?>
             <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
-                <?php echo $mensaje_error; ?>
+                <?php echo htmlspecialchars($mensaje_error, ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
 
@@ -534,15 +764,15 @@ if (isset($_GET['robot_rechazado'])) {
                 <p style="color: #666; font-size: 14px;">No hay noticias publicadas.</p>
             <?php else: ?>
                 <form method="POST" id="form-bulk-noticias">
-                    <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <button type="submit" name="bulk_delete_noticias" class="btn btn-delete" onclick="return confirm('¿Eliminar las noticias seleccionadas?');" style="display: none;" id="btn-bulk-delete-noticias">🗑️ Eliminar seleccionadas</button>
-                        <span id="noticias-selected-count" style="font-size: 13px; color: #666; display: none;">0 seleccionadas</span>
+                    <div class="bulk-toolbar">
+                        <button type="submit" name="bulk_delete_noticias" class="btn btn-delete" data-bulk-action onclick="return confirm('¿Eliminar las noticias seleccionadas?');" style="display: none;" id="btn-bulk-delete-noticias">🗑️ Eliminar seleccionadas</button>
+                        <span id="noticias-selected-count" class="bulk-selected-count" data-selected-count data-singular="seleccionada" data-plural="seleccionadas">0 seleccionadas</span>
                     </div>
                     <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="select-all-noticias" onchange="toggleSelectAll(this, 'noticia_ids')"></th>
+                                <th class="selection-cell"><input type="checkbox" id="select-all-noticias" data-select-all data-bulk-form="form-bulk-noticias" onchange="toggleSelectAll(this, 'noticia_ids', 'form-bulk-noticias')"></th>
                                 <th>ID</th>
                                 <th>Título</th>
                                 <th>Fecha</th>
@@ -552,7 +782,7 @@ if (isset($_GET['robot_rechazado'])) {
                         <tbody>
                             <?php foreach ($noticias as $noticia): ?>
                                 <tr>
-                                    <td><input type="checkbox" name="noticia_ids[]" value="<?php echo $noticia['id']; ?>" class="row-checkbox" data-table="noticias"></td>
+                                    <td class="selection-cell"><input type="checkbox" name="noticia_ids[]" value="<?php echo $noticia['id']; ?>" class="row-checkbox" data-bulk-form="form-bulk-noticias"></td>
                                     <td><?php echo $noticia['id']; ?></td>
                                     <td><?php echo htmlspecialchars($noticia['titulo']); ?></td>
                                     <td><?php echo $noticia['fecha_publicacion']; ?></td>
@@ -579,15 +809,17 @@ if (isset($_GET['robot_rechazado'])) {
                 <p style="color: #666; font-size: 14px;">No hay anuncios registrados.</p>
             <?php else: ?>
                 <form method="POST" id="form-bulk-anuncios">
-                    <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <button type="submit" name="bulk_delete_anuncios" class="btn btn-delete" onclick="return confirm('¿Eliminar los anuncios seleccionados?');" style="display: none;" id="btn-bulk-delete-anuncios">🗑️ Eliminar seleccionados</button>
-                        <span id="anuncios-selected-count" style="font-size: 13px; color: #666; display: none;">0 seleccionados</span>
+                    <div class="bulk-toolbar">
+                        <button type="submit" name="bulk_activate_anuncios" class="btn btn-add" data-bulk-action onclick="return confirm('¿Activar los anuncios seleccionados?');" style="display: none;" id="btn-bulk-activate-anuncios">🚀 Publicar seleccionadas</button>
+                        <button type="submit" name="bulk_deactivate_anuncios" class="btn btn-edit" data-bulk-action onclick="return confirm('¿Desactivar los anuncios seleccionados?');" style="display: none;" id="btn-bulk-deactivate-anuncios">⏸️ Desactivar seleccionadas</button>
+                        <button type="submit" name="bulk_delete_anuncios" class="btn btn-delete" data-bulk-action onclick="return confirm('¿Eliminar los anuncios seleccionados?');" style="display: none;" id="btn-bulk-delete-anuncios">🗑️ Eliminar seleccionados</button>
+                        <span id="anuncios-selected-count" class="bulk-selected-count" data-selected-count data-singular="seleccionado" data-plural="seleccionados">0 seleccionados</span>
                     </div>
                     <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="select-all-anuncios" onchange="toggleSelectAll(this, 'anuncio_ids')"></th>
+                                <th class="selection-cell"><input type="checkbox" id="select-all-anuncios" data-select-all data-bulk-form="form-bulk-anuncios" onchange="toggleSelectAll(this, 'anuncio_ids', 'form-bulk-anuncios')"></th>
                                 <th>ID</th>
                                 <th>Cliente</th>
                                 <th>Posición</th>
@@ -598,7 +830,7 @@ if (isset($_GET['robot_rechazado'])) {
                         <tbody>
                             <?php foreach ($anuncios as $anuncio): ?>
                                 <tr>
-                                    <td><input type="checkbox" name="anuncio_ids[]" value="<?php echo $anuncio['id']; ?>" class="row-checkbox" data-table="anuncios"></td>
+                                    <td class="selection-cell"><input type="checkbox" name="anuncio_ids[]" value="<?php echo $anuncio['id']; ?>" class="row-checkbox" data-bulk-form="form-bulk-anuncios"></td>
                                     <td><?php echo $anuncio['id']; ?></td>
                                     <td><?php echo htmlspecialchars($anuncio['titulo']); ?></td>
                                     <td style="text-transform: capitalize;"><?php echo $anuncio['posicion']; ?></td>
@@ -663,14 +895,14 @@ if (isset($_GET['robot_rechazado'])) {
                 <p style="color: #666; font-size: 14px;">No hay podcasts publicados.</p>
             <?php else: ?>
                 <form method="POST" id="form-bulk-podcasts">
-                    <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <button type="submit" name="bulk_delete_podcasts" class="btn btn-delete" onclick="return confirm('¿Eliminar los podcasts seleccionados?');" style="display: none;" id="btn-bulk-delete-podcasts">🗑️ Eliminar seleccionados</button>
-                        <span id="podcasts-selected-count" style="font-size: 13px; color: #666; display: none;">0 seleccionados</span>
+                    <div class="bulk-toolbar">
+                        <button type="submit" name="bulk_delete_podcasts" class="btn btn-delete" data-bulk-action onclick="return confirm('¿Eliminar los podcasts seleccionados?');" style="display: none;" id="btn-bulk-delete-podcasts">🗑️ Eliminar seleccionados</button>
+                        <span id="podcasts-selected-count" class="bulk-selected-count" data-selected-count data-singular="seleccionado" data-plural="seleccionados">0 seleccionados</span>
                     </div>
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="select-all-podcasts" onchange="toggleSelectAll(this, 'podcast_ids')"></th>
+                                <th class="selection-cell"><input type="checkbox" id="select-all-podcasts" data-select-all data-bulk-form="form-bulk-podcasts" onchange="toggleSelectAll(this, 'podcast_ids', 'form-bulk-podcasts')"></th>
                                 <th>ID</th>
                                 <th>Título</th>
                                 <th>Fecha</th>
@@ -680,7 +912,7 @@ if (isset($_GET['robot_rechazado'])) {
                         <tbody>
                             <?php foreach ($podcasts as $podcast): ?>
                                 <tr>
-                                    <td><input type="checkbox" name="podcast_ids[]" value="<?php echo $podcast['id']; ?>" class="row-checkbox" data-table="podcasts"></td>
+                                    <td class="selection-cell"><input type="checkbox" name="podcast_ids[]" value="<?php echo $podcast['id']; ?>" class="row-checkbox" data-bulk-form="form-bulk-podcasts"></td>
                                     <td><?php echo $podcast['id']; ?></td>
                                     <td><?php echo htmlspecialchars($podcast['titulo']); ?></td>
                                     <td><?php echo $podcast['fecha_publicacion']; ?></td>
@@ -710,10 +942,18 @@ if (isset($_GET['robot_rechazado'])) {
             <?php if (empty($noticias_robot)): ?>
                 <p style="color: #666; font-size: 14px;">No hay noticias pendientes. Ejecuta el robot para llenar la cola.</p>
             <?php else: ?>
+                <form method="POST" id="form-bulk-robot">
+                    <div class="bulk-toolbar">
+                        <button type="submit" name="robot_publicar_seleccionadas" class="btn btn-add" data-bulk-action onclick="return confirm('¿Publicar las noticias seleccionadas en la portada?');" style="display: none;">🚀 Publicar seleccionadas</button>
+                        <button type="submit" name="robot_rechazar_seleccionadas" class="btn btn-delete" data-bulk-action onclick="return confirm('¿Eliminar las noticias seleccionadas de la cola?');" style="display: none;">🗑️ Eliminar seleccionadas</button>
+                        <span id="robot-selected-count" class="bulk-selected-count" data-selected-count data-singular="seleccionada" data-plural="seleccionadas">0 seleccionadas</span>
+                    </div>
+                </form>
                 <div class="table-wrapper">
                 <table class="tabla-robot">
                     <thead>
                         <tr>
+                            <th class="selection-cell"><input type="checkbox" id="select-all-robot" data-select-all data-bulk-form="form-bulk-robot" onchange="toggleSelectAll(this, 'robot_ids', 'form-bulk-robot')" form="form-bulk-robot"></th>
                             <th>ID</th>
                             <th>Título Generado</th>
                             <th>Fuente / Score</th>
@@ -726,6 +966,7 @@ if (isset($_GET['robot_rechazado'])) {
                     <tbody>
                         <?php foreach ($noticias_robot as $nr): ?>
                             <tr style="<?php echo $nr['es_breaking'] ? 'background:#fff8f8;' : ''; ?>">
+                                <td class="selection-cell"><input type="checkbox" name="robot_ids[]" value="<?php echo $nr['id']; ?>" class="row-checkbox" data-bulk-form="form-bulk-robot" form="form-bulk-robot"></td>
                                 <td><?php echo $nr['id']; ?></td>
                                 <td style="max-width: 300px;">
                                     <?php if ($nr['es_breaking']): ?>
@@ -870,49 +1111,51 @@ if (isset($_GET['robot_rechazado'])) {
         // Cerrar modal click fuera
         document.getElementById('modalEditar').addEventListener('click', e => { if (e.target.id === 'modalEditar') cerrarModal(); });
 
-        // Bulk selection functions
-        function toggleSelectAll(selectAllCheckbox, checkboxName) {
-            const checkboxes = document.querySelectorAll('input[name="' + checkboxName + '[]"]');
-            const btnBulkDelete = document.getElementById('btn-bulk-delete-' + checkboxName.replace('_ids', ''));
-            const selectedCount = document.getElementById(checkboxName.replace('_ids', '') + '-selected-count');
-            
+        function obtenerElementosSeleccion(checkboxName, formId) {
+            const checkboxes = Array.from(document.querySelectorAll('input[name="' + checkboxName + '[]"]'));
+            const form = formId ? document.getElementById(formId) : (checkboxes[0] ? checkboxes[0].closest('form') : null);
+            return { checkboxes, form };
+        }
+
+        function toggleSelectAll(selectAllCheckbox, checkboxName, formId) {
+            const { checkboxes } = obtenerElementosSeleccion(checkboxName, formId);
             checkboxes.forEach(cb => {
                 cb.checked = selectAllCheckbox.checked;
             });
-            updateSelectedCount(checkboxName);
+            updateSelectedCount(checkboxName, formId);
         }
 
-        function updateSelectedCount(checkboxName) {
-            const checkboxes = document.querySelectorAll('input[name="' + checkboxName + '[]"]');
-            const btnBulkDelete = document.getElementById('btn-bulk-delete-' + checkboxName.replace('_ids', ''));
-            const selectedCount = document.getElementById(checkboxName.replace('_ids', '') + '-selected-count');
-            
-            let count = 0;
-            checkboxes.forEach(cb => { if (cb.checked) count++; });
-            
-            if (count > 0) {
-                btnBulkDelete.style.display = 'inline-flex';
-                selectedCount.style.display = 'inline';
-                selectedCount.textContent = count + ' seleccionad' + (count === 1 ? 'a' : 'as');
-            } else {
-                btnBulkDelete.style.display = 'none';
-                selectedCount.style.display = 'none';
+        function updateSelectedCount(checkboxName, formId) {
+            const { checkboxes, form } = obtenerElementosSeleccion(checkboxName, formId);
+            const actionButtons = form ? Array.from(form.querySelectorAll('[data-bulk-action]')) : [];
+            const selectedCount = form ? form.querySelector('[data-selected-count]') : null;
+            const count = checkboxes.filter(cb => cb.checked).length;
+
+            actionButtons.forEach(button => {
+                button.style.display = count > 0 ? 'inline-flex' : 'none';
+            });
+
+            if (selectedCount) {
+                const singular = selectedCount.dataset.singular || 'seleccionada';
+                const plural = selectedCount.dataset.plural || 'seleccionadas';
+                selectedCount.style.display = count > 0 ? 'inline' : 'none';
+                selectedCount.textContent = count + ' ' + (count === 1 ? singular : plural);
             }
-            
-            // Update select all checkbox state
-            const selectAllCheckbox = document.getElementById('select-all-' + checkboxName.replace('_ids', ''));
+
+            const selectAllCheckbox = formId
+                ? document.querySelector('[data-select-all][data-bulk-form="' + formId + '"]')
+                : (form ? form.querySelector('[data-select-all]') : null);
             if (selectAllCheckbox) {
                 selectAllCheckbox.indeterminate = count > 0 && count < checkboxes.length;
                 selectAllCheckbox.checked = count === checkboxes.length && checkboxes.length > 0;
             }
         }
 
-        // Attach event listeners to row checkboxes
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.row-checkbox').forEach(cb => {
                 cb.addEventListener('change', () => {
-                    const name = cb.name;
-                    updateSelectedCount(name);
+                    const formId = cb.dataset.bulkForm || (cb.closest('form') ? cb.closest('form').id : '');
+                    updateSelectedCount(cb.name, formId);
                 });
             });
         });
