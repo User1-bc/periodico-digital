@@ -469,6 +469,11 @@ if (isset($_GET['robot_rechazado'])) {
         
         .acciones-td { white-space: nowrap; }
         .acciones-td .btn { margin-right: 4px; margin-bottom: 0; padding: 4px 8px; font-size: 11px; min-height: 28px; }
+        .tabla-robot { min-width: 980px; }
+        .tabla-robot .acciones-td { width: 300px; overflow: visible; }
+        .acciones-robot { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .acciones-robot form { display: inline-flex; margin: 0; }
+        .acciones-robot .btn { flex: 0 0 auto; margin: 0; }
         
         /* Estilos para formularios integrados en el panel */
         .form-group { margin-bottom: 15px; }
@@ -706,7 +711,7 @@ if (isset($_GET['robot_rechazado'])) {
                 <p style="color: #666; font-size: 14px;">No hay noticias pendientes. Ejecuta el robot para llenar la cola.</p>
             <?php else: ?>
                 <div class="table-wrapper">
-                <table>
+                <table class="tabla-robot">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -743,18 +748,20 @@ if (isset($_GET['robot_rechazado'])) {
                                     </span>
                                 </td>
                                 <td class="acciones-td">
-                                    <!-- Botón Editar -->
-                                    <button type="button" class="btn btn-edit" onclick="abrirModalEditar(<?php echo htmlspecialchars(json_encode($nr), ENT_QUOTES, 'UTF-8'); ?>)" style="padding:4px 10px;font-size:11px;min-height:28px;">✏️ Editar</button>
-                                    <!-- Botón Publicar directo -->
-                                    <form method="POST" style="display:inline;" onsubmit="return confirm('¿Publicar esta noticia en la portada?');">
-                                        <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
-                                        <button type="submit" name="robot_publicar" class="btn" style="background:#28a745;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🚀 Publicar</button>
-                                    </form>
-                                    <!-- Botón Eliminar -->
-                                    <form method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar esta noticia de la cola?');">
-                                        <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
-                                        <button type="submit" name="robot_rechazar" class="btn" style="background:#dc3545;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🗑️ Eliminar</button>
-                                    </form>
+                                    <div class="acciones-robot">
+                                        <!-- Botón Editar -->
+                                        <button type="button" class="btn btn-edit" onclick="abrirModalEditar(<?php echo htmlspecialchars(json_encode($nr), ENT_QUOTES, 'UTF-8'); ?>)" style="padding:4px 10px;font-size:11px;min-height:28px;">✏️ Editar</button>
+                                        <!-- Botón Publicar directo -->
+                                        <form method="POST" onsubmit="return confirm('¿Publicar esta noticia en la portada?');">
+                                            <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
+                                            <button type="submit" name="robot_publicar" class="btn" style="background:#28a745;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🚀 Publicar</button>
+                                        </form>
+                                        <!-- Botón Eliminar -->
+                                        <form method="POST" onsubmit="return confirm('¿Eliminar esta noticia de la cola?');">
+                                            <input type="hidden" name="robot_id" value="<?php echo $nr['id']; ?>">
+                                            <button type="submit" name="robot_rechazar" class="btn" style="background:#dc3545;color:white;padding:4px 10px;font-size:11px;min-height:28px;">🗑️ Eliminar</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
