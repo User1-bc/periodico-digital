@@ -456,7 +456,7 @@ if (isset($_GET['robot_rechazado'])) {
         td:first-child { white-space: normal; width: 40px; }
         td:nth-child(2) { width: 35%; max-width: 220px; }
         td:nth-child(3) { width: 18%; max-width: 120px; }
-        td.acciones-td { width: 140px; white-space: nowrap; }
+        td.acciones-td { width: 270px; min-width: 270px; white-space: nowrap; overflow: visible; }
         
         .btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: none; cursor: pointer; min-height: 36px; transition: all 0.12s ease; }
         .btn-edit { background: #ffc107; color: #333; }
@@ -486,7 +486,7 @@ if (isset($_GET['robot_rechazado'])) {
             .section-box h2 { font-size: 15px; }
             .btn { padding: 10px 14px; font-size: 12px; min-height: 36px; }
             .btn-add { width: 100%; justify-content: center; padding: 10px 14px; }
-            .acciones-td { display: inline-flex; gap: 4px; }
+            .acciones-td { min-width: 270px; }
             .acciones-td .btn { width: auto; min-width: 60px; padding: 6px 10px; font-size: 11px; }
             .form-group input, .form-group textarea, .form-group select { font-size: 16px; }
             table { font-size: 12px; }
